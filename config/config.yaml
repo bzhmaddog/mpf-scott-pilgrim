@@ -1,0 +1,109 @@
+#config_version=5
+
+bcp:
+    debug: True
+
+
+switches:
+  s_left_flipper:
+    number:
+    tags: left_flipper
+  s_right_flipper:
+    number:
+    tags: right_flipper
+  s_trough1:
+    number: 1
+  s_trough2:
+    number: 2
+  s_trough3:
+    number: 3
+  s_trough4:
+    number: 4
+  s_trough5:
+    number: 5
+  s_trough6:
+    number: 6
+  s_trough_jam:
+    number: 7
+  s_plunger:
+    number: 10
+  s_start:
+    number: 11
+    tags: start    
+  s_right_inlane:
+    number: 12
+    tags: playfield_active
+
+coils:
+  c_flipper_left_main:
+    number: 0  # again, these numbers will probably be different for you
+  c_flipper_left_hold:
+    number: 1  # check your platform-specific documentation for the actual numbers
+    allow_enable: true
+  c_flipper_right_main:
+    number: 2
+  c_flipper_right_hold:
+    number: 3
+    allow_enable: true
+  c_trough_eject:
+    number: 4
+
+
+playfields:
+  playfield:
+    tags: default
+    default_source_device: bd_plunger
+
+flippers:
+  left_flipper:
+    main_coil: c_flipper_left_main
+    hold_coil: c_flipper_left_hold
+    activation_switch: s_left_flipper
+  right_flipper:
+    main_coil: c_flipper_right_main
+    hold_coil: c_flipper_right_hold
+    activation_switch: s_right_flipper
+
+ball_devices:
+  bd_trough:
+    ball_switches: s_trough1, s_trough2, s_trough3, s_trough4, s_trough5, s_trough6, s_trough_jam
+    eject_coil: c_trough_eject
+    tags: trough, home, drain
+    jam_switch: s_trough_jam
+    eject_coil_jam_pulse: 15ms
+    eject_targets: bd_plunger
+    debug: true
+  bd_plunger:
+    ball_switches: s_plunger
+    mechanical_eject: true
+
+keyboard:
+  z:
+    switch: s_left_flipper
+  '/':
+    switch: s_right_flipper
+  s:
+    switch: s_start
+  q:
+    switch: s_right_inlane
+  1:
+    switch: s_trough1
+    toggle: true
+  2:
+    switch: s_trough2
+    toggle: true
+  3:
+    switch: s_trough3
+    toggle: true
+  4:
+    switch: s_trough4
+    toggle: true
+  5:
+    switch: s_trough5
+    toggle: true
+  6:
+    switch: s_trough6
+    toggle: true
+  p:
+    switch: s_plunger
+    toggle: true    
