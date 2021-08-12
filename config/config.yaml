@@ -11,8 +11,8 @@ opp:
     1: /dev/ttyACM0
 
 machine:
-  balls_installed: 6 #How many balls are physically in your game
-  min_balls: 6 #How few balls can be accounted for before you can start a game
+  balls_installed: 4 #How many balls are physically in your game
+  min_balls: 3 #How few balls can be accounted for before you can start a game
     
 
 game:
@@ -20,7 +20,10 @@ game:
   max_players: 4
 
 bcp:
-    debug: True
+  debug: True
+  servers:
+    url_style:
+      ip: 0.0.0.0
 
 switches:
   s_trough1:
@@ -31,26 +34,40 @@ switches:
     number: 1-0-17
   s_trough4:
     number: 1-0-18
-  s_trough5:
-    number: 1-0-19
-  s_trough6:
-    number: 1-0-24
-  s_trough_jam:
-    number: 1-0-10
+#  s_trough5:
+#    number: 1-0-19
+#  s_trough6:
+#    number: 1-0-24
+#  s_trough_jam:
+#    number: 1-0-10
   s_plunger:
-    number: 1-0-9
+    number: 0-0-32
   s_start:
     number: 1-0-1
-    tags: start    
+    tags: start
+  s_launch:
+    number: 1-0-10
+
   s_left_flipper:
     number: 1-0-2
     tags: left_flipper
   s_right_flipper:
     number: 1-0-3
     tags: right_flipper
-  s_right_inlane:
-    number: 1-0-8
+  s_left_inlane:
+    number: 0-0-34
     tags: playfield_active
+  s_right_inlane:
+    number: 0-0-35
+  s_leftsling:
+    number: 1-0-25
+  s_rightsling:
+    number: 1-0-26
+  s_enter_playfield:
+    number: 0-0-33
+    tags: playfield_active
+    #type: 'NC'    
+
 
 coils:
   c_flipper_left_main:
@@ -65,6 +82,18 @@ coils:
     allow_enable: true
   c_trough_eject:
     number: 1-0-4
+
+  c_leftsling:
+    number: 1-0-5
+    default_pulse_ms: 100 
+  c_rightsling:
+    number: 1-0-6
+    default_pulse_ms: 100 
+
+  c_plunger_eject:
+    number: 0-0-0 #Has to be on same chain than plunger switch
+    default_pulse_ms: 100
+
 
 
 playfields:
@@ -84,16 +113,22 @@ flippers:
 
 ball_devices:
   bd_trough:
-    ball_switches: s_trough1, s_trough2, s_trough3, s_trough4, s_trough5, s_trough6, s_trough_jam
+    ball_switches: s_trough1, s_trough2, s_trough3, s_trough4
     eject_coil: c_trough_eject
     tags: trough, home, drain
-    jam_switch: s_trough_jam
-    eject_coil_jam_pulse: 15ms
+#   jam_switch: s_trough_jam
+#   eject_coil_jam_pulse: 15ms
     eject_targets: bd_plunger
     debug: true
   bd_plunger:
     ball_switches: s_plunger
-    mechanical_eject: true
+    entrance_count_delay: 300ms
+    eject_timeouts: 1s
+    eject_coil: c_plunger_eject
+    player_controlled_eject_event: s_launch_active
+    debug: true
+
+
 
 keyboard:
   z:
