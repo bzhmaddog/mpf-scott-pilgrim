@@ -1,0 +1,16 @@
+#config_version=5
+
+ball_devices:
+  bd_trough:
+    ball_switches: s_trough1, s_trough2, s_trough3, s_trough4
+    eject_coil: c_trough_eject
+    tags: trough, home, drain
+    eject_targets: bd_plunger
+    debug: true
+  bd_plunger:
+    ball_switches: s_plunger
+    entrance_count_delay: 300ms
+    eject_timeouts: 1s
+    eject_coil: c_plunger_eject
+    player_controlled_eject_event: s_launch_active
+    debug: true

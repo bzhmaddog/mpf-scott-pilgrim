@@ -1,162 +1,23 @@
 #config_version=5
 
-hardware:
-  platform: opp
-  driverboards: gen2
-
-opp:
-  ports: /dev/ttyACM0, /dev/ttyACM1
-  chains:
-    0: /dev/ttyACM1
-    1: /dev/ttyACM0
-
 machine:
-  balls_installed: 4 #How many balls are physically in your game
-  min_balls: 3 #How few balls can be accounted for before you can start a game
-    
+  balls_installed: 4
+  min_balls: 3
 
 game:
   balls_per_game: 3
   max_players: 4
-
-bcp:
-  debug: True
-  servers:
-    url_style:
-      ip: 0.0.0.0
-
-switches:
-  s_trough1:
-    number: 1-0-11
-  s_trough2:
-    number: 1-0-16
-  s_trough3:
-    number: 1-0-17
-  s_trough4:
-    number: 1-0-18
-#  s_trough5:
-#    number: 1-0-19
-#  s_trough6:
-#    number: 1-0-24
-#  s_trough_jam:
-#    number: 1-0-10
-  s_plunger:
-    number: 0-0-32
-  s_start:
-    number: 1-0-1
-    tags: start
-  s_launch:
-    number: 1-0-10
-
-  s_left_flipper:
-    number: 1-0-2
-    tags: left_flipper
-  s_right_flipper:
-    number: 1-0-3
-    tags: right_flipper
-  s_left_inlane:
-    number: 0-0-34
-    tags: playfield_active
-  s_right_inlane:
-    number: 0-0-35
-  s_leftsling:
-    number: 1-0-25
-  s_rightsling:
-    number: 1-0-26
-  s_enter_playfield:
-    number: 0-0-33
-    tags: playfield_active
-    #type: 'NC'    
-
-
-coils:
-  c_flipper_left_main:
-    number: 1-0-0  # again, these numbers will probably be different for you
-  c_flipper_left_hold:
-    number: 1-0-1  # check your platform-specific documentation for the actual numbers
-    allow_enable: true
-  c_flipper_right_main:
-    number: 1-0-2
-  c_flipper_right_hold:
-    number: 1-0-3
-    allow_enable: true
-  c_trough_eject:
-    number: 1-0-4
-
-  c_leftsling:
-    number: 1-0-5
-    default_pulse_ms: 100 
-  c_rightsling:
-    number: 1-0-6
-    default_pulse_ms: 100 
-
-  c_plunger_eject:
-    number: 0-0-0 #Has to be on same chain than plunger switch
-    default_pulse_ms: 100
-
-
 
 playfields:
   playfield:
     tags: default
     default_source_device: bd_plunger
 
-flippers:
-  left_flipper:
-    main_coil: c_flipper_left_main
-    hold_coil: c_flipper_left_hold
-    activation_switch: s_left_flipper
-  right_flipper:
-    main_coil: c_flipper_right_main
-    hold_coil: c_flipper_right_hold
-    activation_switch: s_right_flipper
-
-ball_devices:
-  bd_trough:
-    ball_switches: s_trough1, s_trough2, s_trough3, s_trough4
-    eject_coil: c_trough_eject
-    tags: trough, home, drain
-#   jam_switch: s_trough_jam
-#   eject_coil_jam_pulse: 15ms
-    eject_targets: bd_plunger
-    debug: true
-  bd_plunger:
-    ball_switches: s_plunger
-    entrance_count_delay: 300ms
-    eject_timeouts: 1s
-    eject_coil: c_plunger_eject
-    player_controlled_eject_event: s_launch_active
-    debug: true
-
-
-
-keyboard:
-  z:
-    switch: s_left_flipper
-  '/':
-    switch: s_right_flipper
-  s:
-    switch: s_start
-  q:
-    switch: s_right_inlane
-  1:
-    switch: s_trough1
-    toggle: true
-  2:
-    switch: s_trough2
-    toggle: true
-  3:
-    switch: s_trough3
-    toggle: true
-  4:
-    switch: s_trough4
-    toggle: true
-  5:
-    switch: s_trough5
-    toggle: true
-  6:
-    switch: s_trough6
-    toggle: true
-  p:
-    switch: s_plunger
-    toggle: true    
+config:
+  - hardware.yaml
+  - bcp.yaml
+  - switches.yaml
+  - coils.yaml
+  - ball-devices.yaml
+  - flippers.yaml
+  - keyboard.yaml

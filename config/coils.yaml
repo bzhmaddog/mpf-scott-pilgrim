@@ -1,0 +1,26 @@
+#config_version=5
+
+coils:
+  c_flipper_left_main:
+    number: 1-0-0  # again, these numbers will probably be different for you
+  c_flipper_left_hold:
+    number: 1-0-1  # check your platform-specific documentation for the actual numbers
+    allow_enable: true
+  c_flipper_right_main:
+    number: 1-0-2
+  c_flipper_right_hold:
+    number: 1-0-3
+    allow_enable: true
+  c_trough_eject:
+    number: 1-0-4
+
+  c_left_sling:
+    number: 1-0-5
+    default_pulse_ms: 100 
+  c_right_sling:
+    number: 1-0-6
+    default_pulse_ms: 100 
+
+  c_plunger_eject:
+    number: 0-0-0 #Has to be on same chain than plunger switch
+    default_pulse_ms: 100
