@@ -6,6 +6,7 @@ ball_devices:
     eject_coil: c_trough_eject
     tags: trough, home, drain
     eject_targets: bd_plunger
+    eject_timeouts: 500ms
     debug: true
   bd_plunger:
     ball_switches: s_plunger

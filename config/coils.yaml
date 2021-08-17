@@ -2,25 +2,37 @@
 
 coils:
   c_flipper_left_main:
-    number: 1-0-0  # again, these numbers will probably be different for you
+    number: 0-0-0
   c_flipper_left_hold:
-    number: 1-0-1  # check your platform-specific documentation for the actual numbers
+    number: 0-0-1
     allow_enable: true
   c_flipper_right_main:
-    number: 1-0-2
+    number: 0-0-2
   c_flipper_right_hold:
-    number: 1-0-3
+    number: 0-0-3
     allow_enable: true
   c_trough_eject:
-    number: 1-0-4
+    number: 0-0-4
+  c_plunger_eject:
+    number: 0-0-5 #Has to be on same chain than plunger switch
+    default_pulse_ms: 100
 
   c_left_sling:
-    number: 1-0-5
-    default_pulse_ms: 100 
+    number: 1-0-0
+    default_pulse_ms: 100
   c_right_sling:
-    number: 1-0-6
+    number: 1-0-1
+    default_pulse_ms: 100
+  c_kickback:
+    number: 1-0-2
     default_pulse_ms: 100 
 
-  c_plunger_eject:
-    number: 0-0-0 #Has to be on same chain than plunger switch
-    default_pulse_ms: 100
+
+
+autofire_coils:
+  left_slingshot:
+    coil: c_left_sling
+    switch: s_left_sling
+  right_slingshot:
+    coil: c_right_sling
+    switch: s_right_sling

@@ -1,37 +1,44 @@
 #config_version=5
 
 switches:
-  s_trough1:
-    number: 1-0-11
-  s_trough2:
-    number: 1-0-16
-  s_trough3:
-    number: 1-0-17
-  s_trough4:
-    number: 1-0-18
-  s_plunger:
-    number: 0-0-32
   s_start:
-    number: 1-0-1
+    number: 0-0-1
     tags: start
-  s_launch:
-    number: 1-0-10
-
   s_left_flipper:
-    number: 1-0-2
+    number: 0-0-2
     tags: left_flipper
   s_right_flipper:
-    number: 1-0-3
+    number: 0-0-3
     tags: right_flipper
+  s_launch:
+    number: 0-0-8
+
+
+  s_trough1:
+    number: 1-0-32
+  s_trough2:
+    number: 1-0-33
+  s_trough3:
+    number: 1-0-34
+  s_trough4:
+    number: 1-0-35
+  s_plunger:
+    number: 1-0-36
   s_left_inlane:
-    number: 0-0-34
-    tags: playfield_active
+    number: 1-0-37
   s_right_inlane:
-    number: 0-0-35
+    number: 1-0-38
+  s_left_outlane:
+    number: 1-0-39
+  s_right_outlane:
+    number: 1-0-40
+  s_kickback:
+    number: 1-0-41
   s_left_sling:
-    number: 1-0-25
+    number: 1-0-42
   s_right_sling:
-    number: 1-0-26
+    number: 1-0-43
+    
   s_enter_playfield:
-    number: 0-0-33
+    number: 1-0-95
     tags: playfield_active
