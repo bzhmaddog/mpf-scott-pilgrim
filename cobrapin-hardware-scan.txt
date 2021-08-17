@@ -4,25 +4,25 @@ Not implemented
 ---------
 opp:
 Connected CPUs:
- - Port: /dev/ttyACM1 at 115200 baud. Chain Serial: 0
+ - Port: /dev/ttyACM0 at 115200 baud. Chain Serial: 0
  -> Board: 0x20 Firmware: 0x2020000
- - Port: /dev/ttyACM0 at 115200 baud. Chain Serial: 1
+ - Port: /dev/ttyACM1 at 115200 baud. Chain Serial: 1
  -> Board: 0x20 Firmware: 0x2020000
 
 Incand cards:
 
 Input cards:
- - Chain: 1 Board: 0x20 Card: 0 Numbers: [1, 2, 3, 8, 9, 10, 11, 16, 17, 18, 19, 24, 25, 26, 27]
- - Chain: 0 Board: 0x20 Card: 0 Numbers: [1, 2, 3, 8, 9, 10, 11]
- - Chain: 0 Board: 0x20 Card: 0 Numbers: [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95]
+ - Chain: 0 Board: 0x20 Card: 0 Numbers: [1, 2, 3, 8, 9, 10, 11, 16, 17, 18, 19, 24, 25, 26, 27]
+ - Chain: 1 Board: 0x20 Card: 0 Numbers: [1, 2, 3, 8, 9, 10, 11]
+ - Chain: 1 Board: 0x20 Card: 0 Numbers: [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95]
 
 Solenoid cards:
- - Chain: 1 Board: 0x20 Card: 0 Numbers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
- - Chain: 0 Board: 0x20 Card: 0 Numbers: [0, 1, 2, 3, 4, 5, 6, 7]
+ - Chain: 0 Board: 0x20 Card: 0 Numbers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+ - Chain: 1 Board: 0x20 Card: 0 Numbers: [0, 1, 2, 3, 4, 5, 6, 7]
 
 LEDs:
- - Chain: 1 Board: 0x20 Card: 0
  - Chain: 0 Board: 0x20 Card: 0
+ - Chain: 1 Board: 0x20 Card: 0
 
 ---------
 Stop called on serial connection /dev/ttyACM0
