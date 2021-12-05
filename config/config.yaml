@@ -5,7 +5,7 @@ machine:
   min_balls: 3
 
 game:
-  balls_per_game: 3
+  balls_per_game: 1
   max_players: 4
 
 playfields:
