@@ -1,0 +1,3 @@
+[submodule "H5DMD"]
+	path = mc/www/js/dmd
+	url = git@github.com:bzhmaddog/H5DMD.git
