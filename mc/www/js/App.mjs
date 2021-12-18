@@ -7,7 +7,6 @@ import { Resources } from './resources/Resources.mjs';
 import { Variables } from './variables/Variables.mjs';
 import { AudioManager } from './audio-manager/AudioManager.mjs';
 import { WSS } from './ws/WSS.mjs';
-import { Colors } from './colors/Colors.mjs';
 import { Utils } from './utils/Utils.mjs';
 import { Sprite } from './dmd/Sprite.mjs';
 

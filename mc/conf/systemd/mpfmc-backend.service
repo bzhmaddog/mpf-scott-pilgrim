@@ -3,7 +3,7 @@ Description=Mission Pinball Media Controller - Backend
 
 [Service]
 User=mpfuser
-WorkingDirectory=/home/mpfuser/H5DMD/ws/
+WorkingDirectory=/home/mpfuser/mpf-scott-pilgrim/mc/
 ExecStart=node server.js
 
 [Install]

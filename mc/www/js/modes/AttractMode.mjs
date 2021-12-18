@@ -1,5 +1,5 @@
 import { Mode } from './Mode.mjs';
-import { Colors } from '../colors/Colors.mjs';
+import { Colors } from '../dmd/Colors.mjs';
 import { Utils } from '../utils/Utils.mjs';
 
 //const ATTRACT_MUSIC_RESTART_DELAY = 300000; // 5 min

@@ -1,5 +1,5 @@
 import { Mode } from "./Mode.mjs";
-import { Colors } from "../colors/Colors.mjs"
+import { Colors } from "../dmd/Colors.mjs"
 import { Utils } from "../utils/Utils.mjs"
 
 class BaseMode extends Mode {
