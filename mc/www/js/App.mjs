@@ -9,6 +9,8 @@ import { AudioManager } from './audio-manager/AudioManager.mjs';
 import { WSS } from './ws/WSS.mjs';
 import { Utils } from './utils/Utils.mjs';
 import { Sprite } from './dmd/Sprite.mjs';
+import { ScoreEffectGPURenderer } from './dmd/renderers/ScoreEffectGPURenderer.mjs';
+import { Colors } from './dmd/Colors.mjs';
 
 class App {
 	#dlgBox;
@@ -52,7 +54,7 @@ class App {
 		// the original medias size will be 128x64
 		// and the final DMD size will be 1024x511
 		// pixel shape will be circle (can be circle or square at the moment)
-		this.#dmd = new DMD(256, 78, 1280, 390, 4, 4, 1, 1, 1, 1, DMD.DotShape.Square, this.#canvas, true);
+		this.#dmd = new DMD(256, 78, 1280, 390, 4, 4, 1, 1, 1, 1, DMD.DotShape.Square, 14, this.#canvas);
 		
 		// dmd without dot effect
 		//dmd = new DMD(1280, 390, 1280, 390, 1, 1, 0, 0, 0, 0, 'square', document.getElementById('dmd'));
@@ -273,62 +275,80 @@ class App {
 			//visible : false
 		});
 
+		const hudLayer = this.#dmd.addLayer({
+			name : 'hud',
+			type : 'text',
+			zIndex : 1000,
+			visible : false
+		});			
 
-		let spritesLayer = this.#dmd.addLayer({
-			name :'test',
-			type : 'sprite'
+		const scoreLayer = this.#dmd.addLayer({
+			name : 'score',
+			type : 'text',
+			zIndex : 1001,
+			visible : false
+		});		
+		
+		hudLayer.content.addText('ball-text', this.#resources.getString('ballText'), {
+			fontSize : '10',
+			fontFamily : 'Dusty',
+			align : 'right',
+			xOffset : -11,
+			vAlign : 'bottom',
+			yOffset : -1,
+			color : Colors.white,
+			strokeWidth : 2,
+			strokeColor : Colors.blue
 		});
 
-		//console.log(spritesLayer);
-
-		let scottSprite = new Sprite("sprites/scott.png", 3, 0).then(sprite => {
-
-			sprite.addAnimation('idle', 8, 36, 59, 0, 0, .16);
-			sprite.addAnimation('walk', 6, 36, 63, 0, 59, .12);
-			sprite.addAnimation('run', 8, 53, 60, 0, 122, .20);
-			sprite.addAnimation('idle2', 4, 46, 62, 0, 182, .09);
-			sprite.addAnimation('taunt', 9, 46, 62, 0, 244, .25);
-
-			
-			spritesLayer.content.addSprite("scott", 50, 15, sprite);
-	
-			sprite.enqueueSingle('taunt', 1);
-			sprite.enqueueSingle('idle', 1);
-
-			let seq = [
-				['idle' , 3],
-				['idle2' , 3],
-				['walk' , 5],
-				['run', 4],
-				['walk' , 2],
-				['taunt', 1]
-			];
-
-			//sprite.enqueueSequence(seq, true);
-
-			sprite.run();
+		hudLayer.content.addText('ball-value', 1, {
+			fontSize : '10',
+			fontFamily : 'Dusty',
+			align : 'right',
+			xOffset : -1,
+			vAlign : 'bottom',
+			yOffset : -1,
+			color : Colors.white,
+			strokeWidth : 2,
+			strokeColor : Colors.blue
 		});
 
+		hudLayer.content.addText('player-text', Utils.format(this.#resources.getString('playerText'),"") + " :", {
+			fontSize : '10',
+			fontFamily : 'Dusty',
+			left : 2,
+			vAlign : 'bottom',
+			yOffset : -1,
+			color : Colors.white,
+			strokeWidth : 2,
+			strokeColor : Colors.blue
+		});
 
-		/*this.#dmd.addLayer({
-			name :'test',
-			type : 'image',
-			src : 'images/red.png',
-			mimeType : 'image/png',
-			//visible : false
-		});*/
+		hudLayer.content.addText('player-value', 1, {
+			fontSize : '10',
+			fontFamily : 'Dusty',
+			left : 61,
+			vAlign : 'bottom',
+			yOffset : -1,
+			color : Colors.white,
+			strokeWidth : 2,
+			strokeColor : Colors.blue
+		});
+
+		scoreLayer.content.addText('score', 0, {
+			fontSize : '40',
+			fontFamily : 'Dusty',
+			align : 'right',
+			xOffset : -1,
+			vAlign : 'middle',
+			color : Colors.white,
+			strokeWidth : 2,
+			strokeColor : Colors.blue,
+			adjustWidth : true
+		});		
+
 
 		this.#modes.initAll();
-
-		/*this.#dmd.addLayer({
-			name : 'test',
-			type : 'video',
-			autoPlay : true,
-			loop : true,
-			src : 'images/game-over-clouds.webp',
-			mimeType : 'image/webp'
-		})*/
-
 	}
 }
 

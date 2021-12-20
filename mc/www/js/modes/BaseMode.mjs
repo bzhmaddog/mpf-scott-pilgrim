@@ -22,81 +22,8 @@ class BaseMode extends Mode {
     init() {
         super.init();
        
-        // Should be above common layers by below special layers
-		this.#hudLayer = this._dmd.addLayer({
-			name : 'hud',
-			type : 'text',
-			transparent : true,
-			zIndex : 1000,
-			visible : false
-		});			
-
-		this.#scoreLayer = this._dmd.addLayer({
-			name : 'score',
-			type : 'text',
-			transparent : true,
-			zIndex : 1001,
-			visible : false
-		});			
-
-
-		this.#hudLayer.content.addText('ball-text', this._resources.getString('ballText'), {
-			fontSize : '10',
-			fontFamily : 'Dusty',
-			align : 'right',
-			xOffset : -11,
-			vAlign : 'bottom',
-			yOffset : -1,
-			color : Colors.white,
-			strokeWidth : 2,
-			strokeColor : Colors.blue
-		});
-
-		this.#hudLayer.content.addText('ball-value', 1, {
-			fontSize : '10',
-			fontFamily : 'Dusty',
-			align : 'right',
-			xOffset : -1,
-			vAlign : 'bottom',
-			yOffset : -1,
-			color : Colors.white,
-			strokeWidth : 2,
-			strokeColor : Colors.blue
-		});
-
-		this.#hudLayer.content.addText('player-text', Utils.format(this._resources.getString('playerText'),"") + " :", {
-			fontSize : '10',
-			fontFamily : 'Dusty',
-			left : 2,
-			vAlign : 'bottom',
-			yOffset : -1,
-			color : Colors.white,
-			strokeWidth : 2,
-			strokeColor : Colors.blue
-		});
-
-		this.#hudLayer.content.addText('player-value', 1, {
-			fontSize : '10',
-			fontFamily : 'Dusty',
-			left : 61,
-			vAlign : 'bottom',
-			yOffset : -1,
-			color : Colors.white,
-			strokeWidth : 2,
-			strokeColor : Colors.blue
-		});
-
-		this.#scoreLayer.content.addText('score', 0, {
-			fontSize : '40',
-			fontFamily : 'Dusty',
-			align : 'right',
-			xOffset : -1,
-			vAlign : 'middle',
-			color : Colors.white,
-			strokeWidth : 2,
-			strokeColor : Colors.blue,
-			adjustWidth : true
-		});
+		this.#hudLayer = this._dmd.getLayer('hud');			
+		this.#scoreLayer = this._dmd.getLayer('score');			
     }
 
 
@@ -164,9 +91,6 @@ class BaseMode extends Mode {
         } else {
             setTimeout(this.#startMainMusic.bind(this), 1000);
         }
-
-        this.#hudLayer = this._dmd.getLayer('hud');
-        this.#scoreLayer = this._dmd.getLayer('score');
 
         this.#hudLayer.setVisibility(true);
         this.#scoreLayer.setVisibility(true);
