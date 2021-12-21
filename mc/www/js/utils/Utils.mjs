@@ -23,19 +23,17 @@ class Utils {
 	}
 
 	static formatScore(s) {
-		return s.toLocaleString("en-US");
+		const fStr = s.toLocaleString("en-US").replace(',','\u2009');
+		return fStr;
 	}
 
 	static format() {
 		var s = arguments[0];
 		var finalString = s;
 
-		//console.log(arguments);
-
 		for (var i = 1 ; i < arguments.length ; i++) {
 			finalString = finalString.replace("#{" + i + "}", arguments[i]);
 		}
-
 		return finalString;
 	}
 }

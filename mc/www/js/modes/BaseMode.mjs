@@ -7,6 +7,8 @@ class BaseMode extends Mode {
     #mainMusic;
     #scoreLayer;
     #hudLayer;
+    #score;
+    #to;
 
 
     constructor(_dmd, _resources, _fonts, _variables, _audioManager) {
@@ -16,14 +18,17 @@ class BaseMode extends Mode {
         this.#startSound = this._resources.getSound('start');
         this.#mainMusic = this._resources.getMusic('main');
 
+        this.#score = 0;
+        this.#to = null;
         //this.init();
     }
 
     init() {
         super.init();
        
-		this.#hudLayer = this._dmd.getLayer('hud');			
-		this.#scoreLayer = this._dmd.getLayer('score');			
+        //console.log('there');
+		//this.#hudLayer = this._dmd.getLayer('hud');			
+		//this.#scoreLayer = this._dmd.getLayer('score');			
     }
 
 
@@ -76,6 +81,11 @@ class BaseMode extends Mode {
 
         var that = this;
 
+        this.#hudLayer = this._dmd.getLayer('hud');			
+		this.#scoreLayer = this._dmd.getLayer('score');			
+
+        console.log(this.#scoreLayer);
+
         PubSub.subscribe('variable.player.players.changed', this.#onPlayersChanged.bind(this));
 
         PubSub.subscribe('variable.player.player.changed', this.#onPlayerChanged.bind(this));
@@ -94,6 +104,15 @@ class BaseMode extends Mode {
 
         this.#hudLayer.setVisibility(true);
         this.#scoreLayer.setVisibility(true);
+
+        // Start random score incrementer
+        //this.#to = setTimeout(this.#addScore.bind(this), Math.random()* 1000);
+    }
+
+    #addScore() {
+        this.#score += Math.floor(Math.random()*1001)*5;
+        this.#scoreLayer.content.getText('score').setText(Utils.formatScore(this.#score));
+        this.#to = setTimeout(this.#addScore.bind(this), Math.floor(Math.random()* 2000)+ 500);
     }
 
     stop() {
@@ -110,6 +129,7 @@ class BaseMode extends Mode {
         this._variables.set('player', 'player', 0);
         this._variables.set('player', 'players', []);
 
+        clearTimeout(this.#to);
         //this._audioManager.playSound('gameover', 'gameover-sound');
     }
 

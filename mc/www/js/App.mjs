@@ -22,6 +22,10 @@ class App {
     #modes;
     #variables;
     #canvas;
+	#dmdWidth;
+	#dmdHeight;
+	#screenWidth;
+	#screenHeight;
 
     /**
      * 
@@ -39,6 +43,12 @@ class App {
         this.#canvas = document.getElementById(canvasId);
         this.#fonts = new Fonts();
 
+		this.#dmdWidth = 256;
+		this.#dmdHeight = 78;
+		this.#screenWidth = 1280;
+		this.#screenHeight = 390;
+
+
 		this.#variables.set('player', 'players', []);
 		this.#variables.set('player', 'player', 0);
 
@@ -54,7 +64,7 @@ class App {
 		// the original medias size will be 128x64
 		// and the final DMD size will be 1024x511
 		// pixel shape will be circle (can be circle or square at the moment)
-		this.#dmd = new DMD(256, 78, 1280, 390, 4, 4, 1, 1, 1, 1, DMD.DotShape.Square, 14, this.#canvas);
+		this.#dmd = new DMD(this.#dmdWidth, this.#dmdHeight, this.#screenWidth, this.#screenHeight, 4, 4, 1, 1, 1, 1, DMD.DotShape.Square, 14, this.#canvas);
 		
 		// dmd without dot effect
 		//dmd = new DMD(1280, 390, 1280, 390, 1, 1, 0, 0, 0, 0, 'square', document.getElementById('dmd'));
@@ -272,7 +282,7 @@ class App {
 			type : 'image',
 			src : 'images/logo.webp',
 			mimeType : 'image/webp',
-			//visible : false
+			visible : true
 		});
 
 		const hudLayer = this.#dmd.addLayer({
@@ -282,12 +292,34 @@ class App {
 			visible : false
 		});			
 
-		const scoreLayer = this.#dmd.addLayer({
-			name : 'score',
-			type : 'text',
-			zIndex : 1001,
-			visible : false
-		});		
+
+		const scoreRenderer = new ScoreEffectGPURenderer(this.#dmdWidth, this.#dmdHeight);
+
+		scoreRenderer.init().then(device => {
+
+			const scoreLayer = this.#dmd.addLayer({
+				name : 'score',
+				type : 'text',
+				zIndex : 1001,
+				visible : false,
+				renderer : scoreRenderer
+			});	
+	
+			scoreLayer.content.addText('score', 0, {
+				fontSize : '40',
+				fontFamily : 'Dusty',
+				align : 'right',
+				xOffset : -1,
+				vAlign : 'middle',
+				color : Colors.white,
+				strokeWidth : 2,
+				strokeColor : Colors.blue,
+				adjustWidth : true
+			});				
+		
+		});
+
+	
 		
 		hudLayer.content.addText('ball-text', this.#resources.getString('ballText'), {
 			fontSize : '10',
@@ -335,18 +367,32 @@ class App {
 			strokeColor : Colors.blue
 		});
 
-		scoreLayer.content.addText('score', 0, {
-			fontSize : '40',
-			fontFamily : 'Dusty',
-			align : 'right',
-			xOffset : -1,
-			vAlign : 'middle',
-			color : Colors.white,
-			strokeWidth : 2,
-			strokeColor : Colors.blue,
-			adjustWidth : true
-		});		
+	
 
+
+		/*const scoreRenderer = new ScoreEffectGPURenderer(this.#dmdWidth, this.#dmdHeight);
+
+		scoreRenderer.init().then(device => {
+
+			const testLayer = this.#dmd.addLayer({
+				name : 'test',
+				type : 'text',
+				visible : true,
+				renderer : scoreRenderer
+			});	
+	
+			testLayer.content.addText('score', Utils.formatScore(98765403210), {
+				fontSize : '40',
+				fontFamily : 'Dusty',
+				align : 'right',
+				vAlign : 'middle',
+				xOffset : -1,
+				color : Colors.white,
+				strokeWidth : 1,
+				strokeColor : Colors.blue,
+				adjustWidth : true
+			});			
+		});*/
 
 		this.#modes.initAll();
 	}
