@@ -1,6 +1,7 @@
 import { Mode } from "./Mode.mjs";
-import { Colors } from "../dmd/Colors.mjs"
-import { Utils } from "../utils/Utils.mjs"
+import { Colors } from "../dmd/Colors.mjs";
+import { Utils } from "../utils/Utils.mjs";
+import { ScoreEffectGPURenderer } from "../renderers/ScoreEffectGPURenderer.mjs";
 
 /**
  * This mode runs all the time and is responsible of updating the score / player / ball texts
@@ -24,12 +25,102 @@ class GameMode extends Mode {
 
         this.#score = 0;
         this.#to = null;
-        //this.init();
+
     }
 
-    /*init() {
+    init() {
         super.init();
-    }*/
+
+        const that = this;
+
+		this.#hudLayer1 = this._dmd.addLayer({
+			name : 'hud-1',
+			type : 'text',
+			zIndex : 1000,
+			visible : false
+		});			
+
+		
+		this.#hudLayer1.content.addText('ball-text', this._resources.getString('ballText'), {
+			fontSize : '10',
+			fontFamily : 'Dusty',
+			align : 'right',
+			xOffset : -11,
+			vAlign : 'bottom',
+			yOffset : -1,
+			color : Colors.white,
+			strokeWidth : 2,
+			strokeColor : Colors.blue
+		});
+
+		this.#hudLayer1.content.addText('player-text', this._resources.getString('playerText') + ":", {
+			fontSize : '10',
+			fontFamily : 'Dusty',
+			left : 2,
+			vAlign : 'bottom',
+			yOffset : -1,
+			color : Colors.white,
+			strokeWidth : 2,
+			strokeColor : Colors.blue
+		});		
+
+		const scoreRenderer = new ScoreEffectGPURenderer(this._dmd.dmdWidth, this._dmd.dmdHeight);
+
+		scoreRenderer.init().then(device => {
+
+			that.#scoreLayer = this._dmd.addLayer({
+				name : 'score',
+				type : 'text',
+				zIndex : 1001,
+				visible : false,
+				renderer : scoreRenderer
+			});	
+	
+			that.#scoreLayer.content.addText('score', 0, {
+				fontSize : '40',
+				fontFamily : 'Dusty',
+				align : 'right',
+				xOffset : -1,
+				vAlign : 'middle',
+				color : Colors.white,
+				strokeWidth : 2,
+				strokeColor : Colors.blue,
+				adjustWidth : true
+			});				
+
+			that.#hudLayer2 = this._dmd.addLayer({
+				name : 'hud-2',
+				type : 'text',
+				zIndex : 1000,
+				visible : false,
+				renderer: scoreRenderer
+			});			
+	
+			that.#hudLayer2.content.addText('ball-value', 1, {
+				fontSize : '10',
+				fontFamily : 'Dusty',
+				align : 'right',
+				xOffset : -2,
+				vAlign : 'bottom',
+				yOffset : -1,
+				color : Colors.white,
+				strokeWidth : 2,
+				strokeColor : Colors.blue
+			});
+	
+			that.#hudLayer2.content.addText('player-value', 1, {
+				fontSize : '10',
+				fontFamily : 'Dusty',
+				left : 15,
+				vAlign : 'bottom',
+				yOffset : -1,
+				color : Colors.white,
+				strokeWidth : 2,
+				strokeColor : Colors.blue
+			});
+		});
+
+    }
 
 
     /**
@@ -91,9 +182,9 @@ class GameMode extends Mode {
 
         var that = this;
 
-        this.#hudLayer1 = this._dmd.getLayer('hud-1');			
-        this.#hudLayer2 = this._dmd.getLayer('hud-2');			
-		this.#scoreLayer = this._dmd.getLayer('score');			
+        //this.#hudLayer1 = this._dmd.getLayer('hud-1');			
+        //this.#hudLayer2 = this._dmd.getLayer('hud-2');			
+		//this.#scoreLayer = this._dmd.getLayer('score');			
 
         PubSub.subscribe('variable.player.players.changed', this.#onPlayersChanged.bind(this));
 

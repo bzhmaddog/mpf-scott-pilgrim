@@ -230,6 +230,7 @@ class AttractMode extends Mode {
             });
 
             this.#attractRestartTO = setTimeout(function(){
+
                 that.#gameOverCloudsLayer.setVisibility(false);
                 that.#gameOverCloudsLayer2.setVisibility(false);
                 that.#gameOverBackgroundLayer.setVisibility(false);
@@ -238,6 +239,7 @@ class AttractMode extends Mode {
                 that.#gameOverScoresLayer.content.removeAllTexts();
                 that.#delayAttractMusic = true;
                 that.start(priority);
+
             }, ATTRACT_RESTART_TIMEOUT);
 
 
