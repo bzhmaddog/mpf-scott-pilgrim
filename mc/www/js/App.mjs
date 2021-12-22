@@ -10,7 +10,7 @@ import { AudioManager } from './audio-manager/AudioManager.mjs';
 import { WSS } from './ws/WSS.mjs';
 import { Utils } from './utils/Utils.mjs';
 import { Sprite } from './dmd/Sprite.mjs';
-import { ScoreEffectGPURenderer } from './dmd/renderers/ScoreEffectGPURenderer.mjs';
+import { ScoreEffectGPURenderer } from './renderers/ScoreEffectGPURenderer.mjs';
 import { Colors } from './dmd/Colors.mjs';
 
 class App {
