@@ -174,7 +174,7 @@ class AttractMode extends Mode {
         if (this.#gameIsPlaying) {
             this.#gameIsPlaying = false;
 
-            //logger.log("Game Over");
+            //console.log("Game Over");
 
             this.#gameOverCloudsLayer.setVisibility(true);
             this.#gameOverCloudsLayer2.setVisibility(true);
@@ -190,10 +190,10 @@ class AttractMode extends Mode {
             players.forEach( (p,i) => {
 
                 setTimeout(function() {
-                    //var score = Utils.formatScore(p.score);
-                    var score = Utils.formatScore(Math.round(Math.random()*50000000000));
+                    var score = Utils.formatScore(p.score);
+                    //var score = Utils.formatScore(Math.round(Math.random()*50000000000));
 
-                    var pTxt = Utils.format(that._resources.getString('playerText'), i+1);
+                    var pTxt = that._resources.getString('playerTextLong') + ` ${i+1}`;
 
                     that.#gameOverScoresLayer.content.addText(`player-${i+1}-text`, pTxt, {
                         fontSize: '10',
@@ -203,7 +203,7 @@ class AttractMode extends Mode {
                         yOffset : top
                     });
 
-                    that.#gameOverScoresLayer.content.addText(`player-${i+1}-colon`, ":", {
+                    that.#gameOverScoresLayer.content.addText(`player-${i+1}-colon`, ": ", {
                         fontSize: '10',
                         fontFamily : 'Dusty',
                         left : 112,
@@ -269,10 +269,10 @@ class AttractMode extends Mode {
 
     #onMusicEnded() {
         if (this.isStarted()) {
-            logger.log("onMusicEnded() : Attract music ended, restarting later");
+            console.log("onMusicEnded() : Attract music ended, restarting later");
             this.#attractMusicTO = setTimeout(this.#startAttractMusic.bind(this), ATTRACT_MUSIC_RESTART_DELAY);
         } else {
-            logger.log("onMusicEnded() : Mode not started so I will not restart attract music");
+            console.log("onMusicEnded() : Mode not started so I will not restart attract music");
         }
     }
 

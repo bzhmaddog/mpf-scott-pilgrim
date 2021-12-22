@@ -27,7 +27,7 @@ class AudioManager {
             PubSub.publish('sound.' + key + '.loaded');
           },
           function() {
-            logger.log("Error", arguments);
+            console.log("Error", arguments);
           }
         ); 
       }
@@ -43,12 +43,12 @@ class AudioManager {
     }
     
 	  if (typeof this.#sounds[key] === 'undefined') {
-      logger.log(`Sound [${key}] is not loaded`);
+      console.log(`Sound [${key}] is not loaded`);
       return;
     }
 
     if (typeof this.#sources[playKey] !== 'undefined') {
-      logger.log(`Sound [${playKey}] is already beeing played`);
+      console.log(`Sound [${playKey}] is already beeing played`);
       return;
     }
 
@@ -78,7 +78,7 @@ class AudioManager {
 
   stopSound(pKey) {
     if (typeof this.#sources[pKey] === 'undefined') {
-      logger.log(`Sound [${pKey}] is not beeing played`);
+      console.log(`Nothing to stop : [${pKey}] is not beeing played`);
       return;
     }
 
@@ -87,7 +87,10 @@ class AudioManager {
   }
 
   reset() {
-    Object.keys(this.#sources).forEach(s => s.stop(0));
+    const that = this;
+    Object.keys(this.#sources).forEach(s => {
+      that.stopSound(s);
+    });
     this.#sources = {};
   }
 

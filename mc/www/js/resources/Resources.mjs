@@ -56,7 +56,7 @@ class Resources {
 
     getFont(key) {
         if (!this.#resourcesLoaded) {
-            logger.log("Resources not loaded");
+            console.log("Resources not loaded");
             return null;
         }
 

@@ -131,15 +131,16 @@ bcpServer.on('connection', function(socket) {
 					clients.forEach(client => client.send('mc_mode_stop?name=' + msgObj.params.name));
 					break;
 				case 'player_variable':
-					//console.log(msgObj);
-					//TODO
+					console.log("Player variable changed : ", msgObj.params);
+					//var cleanedParams = cleanParams(msgObj.params);
+					clients.forEach(client => client.send('mc_player_variable?variables=' + cleanParams(msgObj.params)));
 					break;
 				case 'player_added':
 					mpf.players.push({
 						ball : 1,
 						score : 0
 					});
-					console.log(mpf.players);
+					//console.log(mpf.players);
 					clients.forEach(client => client.send('mc_player_added'));
 					break;
 				case 'player_turn_start':
@@ -314,6 +315,11 @@ function str2int(str) {
 }
 
 function str2value(str) {
+	if (!str) {
+		console.log("str2value(): Empty var");
+		return "";
+	}
+
 	if (str.toString().startsWith('int:')) {
 		return parseInt(str.replace('int:',''), 10);
 	} else if (str.toString().startsWith('float:')) {
@@ -329,4 +335,8 @@ function int2str(v) {
 
 function float2str(v, d) {
 	return `float:${v.toFixed(d)}`;
+}
+
+function cleanParams(obj) {
+	return JSON.stringify(obj).replace(/"(int|float):(\d+)"/gi, "$2");
 }

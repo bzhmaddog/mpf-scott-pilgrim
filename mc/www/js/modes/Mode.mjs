@@ -26,21 +26,21 @@ class Mode {
         if (this.#isInitialized) {
             this.#isStarted = true;
             this.#priority = priority;
-            logger.log(`Starting ${this.name} mode with priority ${priority}`);
+            console.log(`Starting ${this.name} mode with priority ${priority}`);
             return true;
         } else {
-            logger.log(`Mode '${this.name}' is not initialized !`);
+            console.log(`Mode '${this.name}' is not initialized !`);
             return false;
         }
     }
 
     stop() {
         if (!this.#isStarted) {
-            logger.log(`${this.name} mode is not started`);
+            console.log(`${this.name} mode is not started`);
             return;
         }
 
-        logger.log(`Stopping ${this.name} mode`);
+        console.log(`Stopping ${this.name} mode`);
 
         this.#isStarted = false;
     }

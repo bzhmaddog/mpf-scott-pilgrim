@@ -13,6 +13,9 @@ playfields:
     tags: default
     default_source_device: bd_plunger
 
+modes:
+  - base
+
 config:
   - hardware.yaml
   - bcp.yaml
@@ -21,3 +24,4 @@ config:
   - ball-devices.yaml
   - flippers.yaml
   - keyboard.yaml
+#  - modes.yaml

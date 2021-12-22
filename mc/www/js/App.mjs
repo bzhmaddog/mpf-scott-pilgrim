@@ -1,5 +1,6 @@
 import { Modes } from './modes/Modes.mjs';
 import { BaseMode } from './modes/BaseMode.mjs';
+import { GameMode } from './modes/GameMode.mjs';
 import { AttractMode } from './modes/AttractMode.mjs';
 import { DMD } from './dmd/DMD.mjs';
 import { Fonts } from './fonts/Fonts.mjs';
@@ -74,17 +75,17 @@ class App {
         document.body.appendChild(this.#dlgBox);
 
 		/*PubSub.subscribe('layer.created', function(ev, layer) {
-			logger.log(`Layer created : ${layer.getId()}`, layer);
+			console.log(`Layer created : ${layer.getId()}`, layer);
 		});*/
 
 
 		/*PubSub.subscribe('layer.loaded', function(ev, layer) {
-			logger.log(`Layer loaded : ${layer.getId()}`, layer);
+			console.log(`Layer loaded : ${layer.getId()}`, layer);
 		});*/
 
 		// Load resources file then reset dmd
 		this.#resources.load().then(function(resources) {
-			logger.log("Resources file loaded", resources);
+			console.log("Resources file loaded", resources);
 
 
 			// Start rendering frames
@@ -105,18 +106,20 @@ class App {
 			// Preload fonts
 			that.#resources.getFonts().forEach(f => {
 				that.#fonts.add(f.key, f.name, f.url).load().then(function() {
-					logger.log(`Font '${f.name}' loaded`);
+					console.log(`Font '${f.name}' loaded`);
 				});
 			});
 
             // Instantiate attract mode class
             var attractMode = new AttractMode(that.#dmd, resources, that.#fonts, that.#variables, that.#audioManager);
+			var gameMode = new GameMode(that.#dmd, resources, that.#fonts, that.#variables, that.#audioManager);
 			var baseMode = new BaseMode(that.#dmd, resources, that.#fonts, that.#variables, that.#audioManager);
 
             // Init modes
             // TODO : Add modes here
 			that.#modes.add('attract', attractMode);
-			that.#modes.add('game', baseMode);
+			that.#modes.add('game', gameMode);
+			that.#modes.add('base', baseMode);
 
 			// Initialize added modes
 			that.#modes.initAll();
@@ -133,7 +136,7 @@ class App {
 
 	#wsOnError(event) {
 		var that = this;
-		//logger.log("WebSocket onerror", event);
+		//console.log("WebSocket onerror", event);
 
 		if (this.#wsServer.isConnected()) {
 			this.#wsServer.close();
@@ -148,7 +151,7 @@ class App {
 
 	#wsOnOpen(event) {
 		var that = this;
-		//logger.log("WebSocket onconnect", event);
+		//console.log("WebSocket onconnect", event);
 		this.#showDlg("Connected...", 'success');
 		setTimeout(function() {
 			that.#hideDlg();
@@ -159,7 +162,7 @@ class App {
 		var that = this;
 
 		if (this.#wsServer.isConnected()) {
-			//logger.log("WebSocket onclose", event);
+			//console.log("WebSocket onclose", event);
 
 			this.#reset();
 
@@ -180,28 +183,18 @@ class App {
 
 		switch(cmd) {
 			case 'mc_connected':
-				logger.log("MPF connected");
+				console.log("MPF connected");
 				break;
 			case 'mc_hello':
-				logger.log("MPF says hello");
+				console.log("MPF says hello");
 				break;
 			case 'mc_reset':
-				logger.log("MPF requested reset");
+				console.log("MPF requested reset");
 				this.#dmd.removeLayer("logo");
 				this.#wsServer.send('mc_ready');
 				break;
 			case 'mc_machine_variable':
-				for (const [key, value] of Object.entries(params)) {
-					var v;
-
-					try {
-						v = JSON.parse(value);
-					} catch (error) {
-						v = value;
-					}
-					
-					this.#variables.set('machine', key, v);
-				};
+				this.#updateMachineVariables(params);
 				break;
 			case 'mc_mode_start':
 				this.#modes.startMode(params.name, params.priority);
@@ -210,35 +203,28 @@ class App {
 				this.#modes.stopMode(params.name);
 				break;
 			case 'mc_player_added':
-				var players = this.#variables.get('player', 'players', []);
-				players.push({ball : 1, score : 0});
-				this.#variables.set('player', 'players', players);
-				//logger.log(this.#variables.get('player', 'players', {}));
+				this.#addPlayer();
 				break;
 			case 'mc_player_turn_start':
-				this.#variables.set('player', 'player', parseInt(params.player_num, 10));
+				this.#playerTurnStart(params.player_num);
 				break;
 			case 'mc_ball_start':
-				var players = this.#variables.get('player', 'players', []);
-				var newBallNumber = parseInt(params.ball, 10);
-				var currentBallNumber = players[params.player_num - 1].ball;
-
-				if (newBallNumber !== currentBallNumber) {
-					logger.log(`New ball for player ${params.player_num}`);
-					players[params.player_num - 1].ball = newBallNumber;
-					//logger.log("players", players);
-					this.#variables.set('player', 'players', players);
-				}
+				this.#ballStart(params.player_num, params.ball);
 				break;
 			case 'mc_ball_end':
-				logger.log('ball_end');
+				console.log('ball_end');
+				// todo ?
+				break;
+			case 'mc_player_variable':
+				console.log(params);
+				this.#updatePlayerVariable(JSON.parse(params.variables));
 				break;
 			case 'mc_goodbye':
-				logger.log("MPF said goodbye");
+				console.log("MPF said goodbye");
 				this.#reset();
 				break;
 			default:
-				logger.log("Unhandled message received : ", data);
+				console.log("Unhandled message received : ", rawData);
 
 		}
 	}
@@ -274,7 +260,7 @@ class App {
 	 * Reset all layers and add the two default layers
 	 */
 	#resetDMD() {
-		logger.log("DMD reset");
+		console.log("DMD reset");
 		this.#dmd.reset();
 
 		this.#dmd.addLayer({
@@ -285,13 +271,36 @@ class App {
 			visible : true
 		});
 
-		const hudLayer = this.#dmd.addLayer({
-			name : 'hud',
+		const hudLayer1 = this.#dmd.addLayer({
+			name : 'hud-1',
 			type : 'text',
 			zIndex : 1000,
 			visible : false
 		});			
 
+		
+		hudLayer1.content.addText('ball-text', this.#resources.getString('ballText'), {
+			fontSize : '10',
+			fontFamily : 'Dusty',
+			align : 'right',
+			xOffset : -11,
+			vAlign : 'bottom',
+			yOffset : -1,
+			color : Colors.white,
+			strokeWidth : 2,
+			strokeColor : Colors.blue
+		});
+
+		hudLayer1.content.addText('player-text', this.#resources.getString('playerText') + ":", {
+			fontSize : '10',
+			fontFamily : 'Dusty',
+			left : 2,
+			vAlign : 'bottom',
+			yOffset : -1,
+			color : Colors.white,
+			strokeWidth : 2,
+			strokeColor : Colors.blue
+		});		
 
 		const scoreRenderer = new ScoreEffectGPURenderer(this.#dmdWidth, this.#dmdHeight);
 
@@ -316,85 +325,102 @@ class App {
 				strokeColor : Colors.blue,
 				adjustWidth : true
 			});				
-		
-		});
 
-	
-		
-		hudLayer.content.addText('ball-text', this.#resources.getString('ballText'), {
-			fontSize : '10',
-			fontFamily : 'Dusty',
-			align : 'right',
-			xOffset : -11,
-			vAlign : 'bottom',
-			yOffset : -1,
-			color : Colors.white,
-			strokeWidth : 2,
-			strokeColor : Colors.blue
-		});
-
-		hudLayer.content.addText('ball-value', 1, {
-			fontSize : '10',
-			fontFamily : 'Dusty',
-			align : 'right',
-			xOffset : -1,
-			vAlign : 'bottom',
-			yOffset : -1,
-			color : Colors.white,
-			strokeWidth : 2,
-			strokeColor : Colors.blue
-		});
-
-		hudLayer.content.addText('player-text', Utils.format(this.#resources.getString('playerText'),"") + " :", {
-			fontSize : '10',
-			fontFamily : 'Dusty',
-			left : 2,
-			vAlign : 'bottom',
-			yOffset : -1,
-			color : Colors.white,
-			strokeWidth : 2,
-			strokeColor : Colors.blue
-		});
-
-		hudLayer.content.addText('player-value', 1, {
-			fontSize : '10',
-			fontFamily : 'Dusty',
-			left : 61,
-			vAlign : 'bottom',
-			yOffset : -1,
-			color : Colors.white,
-			strokeWidth : 2,
-			strokeColor : Colors.blue
-		});
-
-	
-
-
-		/*const scoreRenderer = new ScoreEffectGPURenderer(this.#dmdWidth, this.#dmdHeight);
-
-		scoreRenderer.init().then(device => {
-
-			const testLayer = this.#dmd.addLayer({
-				name : 'test',
+			const hudLayer2 = this.#dmd.addLayer({
+				name : 'hud-2',
 				type : 'text',
-				visible : true,
-				renderer : scoreRenderer
-			});	
+				zIndex : 1000,
+				visible : false,
+				renderer: scoreRenderer
+			});			
 	
-			testLayer.content.addText('score', Utils.formatScore(98765403210), {
-				fontSize : '40',
+			hudLayer2.content.addText('ball-value', 1, {
+				fontSize : '10',
 				fontFamily : 'Dusty',
 				align : 'right',
-				vAlign : 'middle',
-				xOffset : -1,
+				xOffset : -2,
+				vAlign : 'bottom',
+				yOffset : -1,
 				color : Colors.white,
-				strokeWidth : 1,
-				strokeColor : Colors.blue,
-				adjustWidth : true
-			});			
-		});*/
+				strokeWidth : 2,
+				strokeColor : Colors.blue
+			});
+	
+			hudLayer2.content.addText('player-value', 1, {
+				fontSize : '10',
+				fontFamily : 'Dusty',
+				left : 15,
+				vAlign : 'bottom',
+				yOffset : -1,
+				color : Colors.white,
+				strokeWidth : 2,
+				strokeColor : Colors.blue
+			});
+		});
 
+		// Init modes
 		this.#modes.initAll();
+	}
+
+	/**
+	 * Update ball number for playerNum
+	 * @param {number} playerNum 
+	 * @param {number} ball 
+	 */
+	#ballStart(playerNum, ball) {
+		var players = this.#variables.get('player', 'players', []);
+		var newBallNumber = parseInt(ball, 10);
+		var currentBallNumber = players[playerNum - 1].ball;
+
+		if (newBallNumber !== currentBallNumber) {
+			console.log(`Ball [${newBallNumber}] start for player [${playerNum}]`);
+			players[playerNum - 1].ball = newBallNumber;
+			this.#variables.set('player', 'players', players);
+		}
+	}
+
+	/**
+	 * Update player variable (score,ball, etc)
+	 * @param {object} data 
+	 */
+	#updatePlayerVariable(data) {
+		const playerNum = data.player_num - 1;
+
+		let players = this.#variables.get('player', 'players', []);
+		if (typeof players[playerNum] !== 'undefined') {
+			players[playerNum][data.name] = data.value;
+			this.#variables.set('player', 'players', players);				
+		} else {
+			console.log("Player num is wrong", data);
+		}		
+	}
+
+	/**
+	 * Update multiple machine variables at a time
+	 * @param {object} params 
+	 */
+	#updateMachineVariables(params) {
+		for (const [key, value] of Object.entries(params)) {
+			let v;
+
+			try {
+				v = JSON.parse(value);
+			} catch (error) {
+				v = value;
+			}
+			
+			this.#variables.set('machine', key, v);
+		};
+	}
+
+	#addPlayer() {
+		var players = this.#variables.get('player', 'players', []);
+		players.push({ball : 1, score : 0});
+		this.#variables.set('player', 'players', players);
+	}
+
+	#playerTurnStart(playerNum) {
+		this.#variables.set('player', 'player', parseInt(playerNum, 10));		
 	}
 }
 

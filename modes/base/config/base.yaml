@@ -1,0 +1,9 @@
+#config_version=5
+
+mode:
+  start_events: ball_starting
+  priority: 100
+
+variable_player:
+  s_enter_playfield_active:
+    score: 100
