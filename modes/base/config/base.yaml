@@ -6,4 +6,4 @@ mode:
 
 variable_player:
   s_enter_playfield_active:
-    score: 100
+    score: 1475

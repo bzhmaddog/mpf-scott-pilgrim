@@ -267,9 +267,12 @@ class App {
 			name :'logo',
 			type : 'image',
 			src : 'images/logo.webp',
-			mimeType : 'image/webp',
+			//src : 'images/white.png',
+			//mimeType : 'image/webp',
 			visible : true
 		});
+
+		//this.#dmd.setBrightness(0.1);
 
 		// Init modes
 		this.#modes.initAll();

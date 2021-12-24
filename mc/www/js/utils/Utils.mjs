@@ -22,9 +22,13 @@ class Utils {
 		return Object.freeze(enumObject);
 	}
 
+	/**
+	 * Format score to US style but replace comma and dot with narrow space (commas and dots don't look good on DUSTY font)
+	 * @param {string} s 
+	 * @returns formatted string
+	 */
 	static formatScore(s) {
-		const fStr = s.toLocaleString("en-US").replace(',','\u2009');
-		return fStr;
+		return s.toLocaleString("en-US").replace(/[,.]/gi,'\u2009');
 	}
 
 	static format() {

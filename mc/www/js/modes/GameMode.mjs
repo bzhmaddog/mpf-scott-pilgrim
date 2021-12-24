@@ -53,7 +53,7 @@ class GameMode extends Mode {
 			strokeColor : Colors.blue
 		});
 
-		this.#hudLayer1.content.addText('player-text', this._resources.getString('playerText') + ":", {
+		this.#hudLayer1.content.addText('player-text', this._resources.getString('playerText'), {
 			fontSize : '10',
 			fontFamily : 'Dusty',
 			left : 2,
@@ -62,7 +62,18 @@ class GameMode extends Mode {
 			color : Colors.white,
 			strokeWidth : 2,
 			strokeColor : Colors.blue
-		});		
+		});	
+        
+        that.#hudLayer1.content.addText('player-value', 1, {
+            fontSize : '10',
+            fontFamily : 'Dusty',
+            left : 13,
+            vAlign : 'bottom',
+            yOffset : -1,
+            color : Colors.white,
+            strokeWidth : 2,
+            strokeColor : Colors.blue
+        });
 
 		const scoreRenderer = new ScoreEffectGPURenderer(this._dmd.dmdWidth, this._dmd.dmdHeight);
 
@@ -107,17 +118,6 @@ class GameMode extends Mode {
 				strokeWidth : 2,
 				strokeColor : Colors.blue
 			});
-	
-			that.#hudLayer2.content.addText('player-value', 1, {
-				fontSize : '10',
-				fontFamily : 'Dusty',
-				left : 15,
-				vAlign : 'bottom',
-				yOffset : -1,
-				color : Colors.white,
-				strokeWidth : 2,
-				strokeColor : Colors.blue
-			});
 		});
 
     }
@@ -144,7 +144,7 @@ class GameMode extends Mode {
 
         if (data.after[currentPlayer - 1].score !== scoreBefore) {
             console.log("Score Changed", data.after[currentPlayer - 1].score);
-            this.#scoreLayer.content.getText('score').setText(data.after[currentPlayer - 1].score);
+            this.#scoreLayer.content.getText('score').setText(Utils.formatScore(data.after[currentPlayer - 1].score));
         }
 
         // Needed for 1 player game since #onPlayerChanged() is not called
@@ -167,9 +167,9 @@ class GameMode extends Mode {
         // if players data found update texts
         if (playersData.length) {
             var playerData = playersData[player - 1];
-            this.#hudLayer2.content.getText('player-value').setText(player);
+            this.#hudLayer1.content.getText('player-value').setText(player);
             this.#hudLayer2.content.getText('ball-value').setText(playerData.ball);
-            this.#scoreLayer.content.getText('score').setText(playerData.score);
+            this.#scoreLayer.content.getText('score').setText(Utils.formatScore(playerData.score));
         }
 
     }

@@ -12,7 +12,14 @@ class ScoreEffectGPURenderer {
     #counter;
     #noises;
     #startTime;
-    #lastFrame;
+    #nbFrames;
+    #speedFactor;
+
+    /**
+     * https://robson.plus/white-noise-image-generator/
+     * @param {*} _width 
+     * @param {*} _height 
+     */
 
     constructor(_width, _height) {
         this.#initDone = false;
@@ -23,7 +30,12 @@ class ScoreEffectGPURenderer {
         this.#height = _height;
         this.#bufferByteLength = _width * _height * 4;
         this.#counter = 0;
-        this.#lastFrame = 0;
+
+        //this.#nbFrames = 10;
+        //this.#speedFactor = 90;
+
+        this.#nbFrames = 24;
+        this.#speedFactor = 50;
 
         this.#noises = [];
 
@@ -32,8 +44,8 @@ class ScoreEffectGPURenderer {
         const that = this;
 
         // Fill noise array from images
-        for (var i = 0 ; i < 10 ; i++) {
-            this.#loadNoise(`images/noise-${i}.png`).then( blob => {
+        for (var i = 0 ; i < this.#nbFrames ; i++) {
+            this.#loadNoise(`images/noises/medium/noise-${i}.png`).then( blob => {
 
                 // Temporary buffer to draw noise image and get data array from it
                 let tmpBuffer = new Buffer(this.#width, this.#height);
@@ -85,16 +97,12 @@ class ScoreEffectGPURenderer {
 
                     that.#shaderModule = device.createShaderModule({
                         code: `
-                            [[block]] struct Time {
-                                value: array<u32>;
-                            };
-                            [[block]] struct Image {
+                            struct Image {
                                 rgba: array<u32>;
                             };
-                            [[group(0), binding(0)]] var<storage,read> time: Time;
-                            [[group(0), binding(1)]] var<storage,read> noisePixels: Image;
-                            [[group(0), binding(2)]] var<storage,read> inputPixels: Image;
-                            [[group(0), binding(3)]] var<storage,write> outputPixels: Image;
+                            [[group(0), binding(0)]] var<storage,read> noisePixels: Image;
+                            [[group(0), binding(1)]] var<storage,read> inputPixels: Image;
+                            [[group(0), binding(2)]] var<storage,write> outputPixels: Image;
                             [[stage(compute), workgroup_size(1)]]
                             fn main ([[builtin(global_invocation_id)]] global_id: vec3<u32>) {
                                 let index : u32 = global_id.x + global_id.y * ${that.#width}u;
@@ -116,10 +124,11 @@ class ScoreEffectGPURenderer {
                                     let ng : u32 = (noise >> 8u) & 255u;
                                     let nb : u32 = (noise & 255u);
     
+                                    // if finding a dark pixel on the noise buffer for this index
+                                    // then alter the current pixel color (white-> blue)
                                     if ( nr < 200u && ng < 200u && nb < 200u) {
                                         pixel = pixel - 10100u;
                                     }
-                                    //pixel = noise;
                                 }
 
                                 outputPixels.rgba[index] = pixel;
@@ -139,12 +148,6 @@ class ScoreEffectGPURenderer {
         //if (!this.#initDone) return;
 
         const that = this;
-
-        const gpuTimeBuffer = this.#device.createBuffer({
-            mappedAtCreation: true,
-            size: 4,
-            usage: GPUBufferUsage.STORAGE
-        });
 
         const gpuNoiseBuffer = this.#device.createBuffer({
             mappedAtCreation: true,
@@ -180,19 +183,12 @@ class ScoreEffectGPURenderer {
                 {
                     binding: 1,
                     visibility: GPUShaderStage.COMPUTE,
-                    buffer : {
-                        type: "read-only-storage"
-                    }
-                },            
-                {
-                    binding: 2,
-                    visibility: GPUShaderStage.COMPUTE,
                     buffer: {
                         type: "read-only-storage"
                     }
                 },
                 {
-                    binding: 3,
+                    binding: 2,
                     visibility: GPUShaderStage.COMPUTE,
                     buffer: {
                         type: "storage"
@@ -207,23 +203,17 @@ class ScoreEffectGPURenderer {
                 {
                     binding: 0,
                     resource: {
-                        buffer: gpuTimeBuffer
+                        buffer: gpuNoiseBuffer
                     }
                 },
                 {
                     binding: 1,
                     resource: {
-                        buffer: gpuNoiseBuffer
-                    }
-                },
-                {
-                    binding: 2,
-                    resource: {
                         buffer: gpuInputBuffer
                     }
                 },
                 {
-                    binding: 3,
+                    binding: 2,
                     resource: {
                         buffer: gpuTempBuffer
                     }
@@ -247,20 +237,7 @@ class ScoreEffectGPURenderer {
             //console.log(frameData);
 
 
-            const frame = Math.floor(this.#counter % 10);
-
-            if (frame != that.#lastFrame) {
-                //console.log(frame);
-                that.#lastFrame = frame;
-            }
-
-            //console.log(that.#noises[frame]);
-
-
-            //console.log(frame);
-
-            new Int32Array(gpuTimeBuffer.getMappedRange()).set(new Uint8Array([frame]));
-            gpuTimeBuffer.unmap();
+            const frame = Math.floor(this.#counter % this.#nbFrames);
 
             new Uint8Array(gpuNoiseBuffer.getMappedRange()).set(new Uint8Array(this.#noises[frame]));
             gpuNoiseBuffer.unmap();
@@ -289,7 +266,7 @@ class ScoreEffectGPURenderer {
                 var now = window.performance.now();
                 var delta = now - that.#startTime;
 
-                that.#counter += Math.floor(delta) / 90; 
+                that.#counter += Math.floor(delta) / that.#speedFactor; 
 
                 this.#startTime = now;
 
