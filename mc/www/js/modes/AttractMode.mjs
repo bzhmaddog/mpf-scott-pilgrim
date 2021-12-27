@@ -44,8 +44,6 @@ class AttractMode extends Mode {
             name : 'attract-image',
             type : 'image',
             src : 'images/title.webp',
-            mimeType : 'image/webp',
-            transparent : false,
             visible : false
         });
 
@@ -56,8 +54,6 @@ class AttractMode extends Mode {
             name : 'game-over-clouds',
             type: 'video',
             src : 'videos/game-over-clouds.webm',
-            mimeType : 'video/webm',
-            transparent : false,
             visible : false,
             autoplay : true,
             loop : true
@@ -67,8 +63,6 @@ class AttractMode extends Mode {
             name : 'game-over-clouds2',
             type: 'image',
             src : 'images/game-over-clouds.webp',
-            mimeType : 'image/webp',
-            transparent : false,
             visible : false,
             autoplay : true,
             loop : true
@@ -79,8 +73,6 @@ class AttractMode extends Mode {
             name : 'game-over-bg',
             type: 'image',
             src : 'images/game-over.webp',
-            mimeType : 'image/webp',
-            transparent : false,
             visible : false
         });
         
@@ -161,103 +153,119 @@ class AttractMode extends Mode {
 
         var that = this;
 
-        /*this.#gameIsPlaying = true;
-        this._variables.set('player', 'players', [
-            {ball : 3, score : 18695125000},
-            {ball : 3, score : 1000},
-            {ball : 3, score : 2500},
-            {ball : 3, score : 500000},
-        ]);*/
-
         // TODO Add Game over / highscores / attract screens cycle
 
         if (this.#gameIsPlaying) {
             this.#gameIsPlaying = false;
 
-            //console.log("Game Over");
+            var players = that._variables.get('player', 'players', []);
 
-            this.#gameOverCloudsLayer.setVisibility(true);
-            this.#gameOverCloudsLayer2.setVisibility(true);
-            this.#gameOverBackgroundLayer.setVisibility(true);
-            this.#gameOverTextLayer.setVisibility(true);
-            this.#gameOverScoresLayer.setVisibility(true);
+            this._dmd.fadeOut(150).then(() => { 
 
-            var players = this._variables.get('player', 'players', []);
+                that.#gameOverCloudsLayer.setVisibility(true);
+                that.#gameOverCloudsLayer2.setVisibility(true);
+                that.#gameOverBackgroundLayer.setVisibility(true);
+                that.#gameOverTextLayer.setVisibility(true);
+                that.#gameOverScoresLayer.setVisibility(true);
+  
+                that._dmd.fadeIn(150).then(() => {
 
-            var top = (players.length-1) * 3 * -1 + 5;
-            var timeout = 0;
+                    //console.log(players);
+    
+                    var top = (players.length-1) * 3 * -1 + 5;
+                    var timeout = 0;
 
-            players.forEach( (p,i) => {
+                    players.forEach( (p,i) => {
+    
+                        setTimeout(function() {
+                            var score = Utils.formatScore(p.score);
+                            //var score = Utils.formatScore(Math.round(Math.random()*50000000000));
 
-                setTimeout(function() {
-                    var score = Utils.formatScore(p.score);
-                    //var score = Utils.formatScore(Math.round(Math.random()*50000000000));
-
-                    var pTxt = that._resources.getString('playerTextLong') + ` ${i+1}`;
-
-                    that.#gameOverScoresLayer.content.addText(`player-${i+1}-text`, pTxt, {
-                        fontSize: '10',
-                        fontFamily : 'Dusty',
-                        left : 50,
-                        vAlign : 'middle',
-                        yOffset : top
+                            //console.log(score);
+        
+                            var pTxt = that._resources.getString('playerTextLong') + ` ${i+1}`;
+        
+                            that.#gameOverScoresLayer.content.addText(`player-${i+1}-text`, pTxt, {
+                                fontSize: '10',
+                                fontFamily : 'Dusty',
+                                left : 50,
+                                vAlign : 'middle',
+                                yOffset : top
+                            });
+        
+                            that.#gameOverScoresLayer.content.addText(`player-${i+1}-colon`, ": ", {
+                                fontSize: '10',
+                                fontFamily : 'Dusty',
+                                left : 112,
+                                vAlign : 'middle',
+                                yOffset : top
+                            });
+        
+                            
+                            that.#gameOverScoresLayer.content.addText(`player-${i+1}-score`, score, {
+                                fontSize: '10',
+                                fontFamily : 'Dusty',
+                                left : 120,
+                                vAlign : 'middle',
+                                yOffset : top
+                            });
+        
+                            that._audioManager.playSound('dong', `dong-p${i+1}`);
+        
+                            top += 10;
+                        } , timeout);
+        
+                        timeout += 1000;
+        
                     });
 
-                    that.#gameOverScoresLayer.content.addText(`player-${i+1}-colon`, ": ", {
-                        fontSize: '10',
-                        fontFamily : 'Dusty',
-                        left : 112,
-                        vAlign : 'middle',
-                        yOffset : top
-                    });
+                });
 
-                    
-                    that.#gameOverScoresLayer.content.addText(`player-${i+1}-score`, score, {
-                        fontSize: '10',
-                        fontFamily : 'Dusty',
-                        left : 120,
-                        vAlign : 'middle',
-                        yOffset : top
-                    });
-
-                    that._audioManager.playSound('dong', `dong-p${i+1}`);
-
-                    top += 10;
-                } , timeout);
-
-                timeout += 1000;
 
             });
 
             this.#attractRestartTO = setTimeout(function(){
 
-                that.#gameOverCloudsLayer.setVisibility(false);
-                that.#gameOverCloudsLayer2.setVisibility(false);
-                that.#gameOverBackgroundLayer.setVisibility(false);
-                that.#gameOverTextLayer.setVisibility(false);
-                that.#gameOverScoresLayer.setVisibility(false);
-                that.#gameOverScoresLayer.content.removeAllTexts();
-                that.#delayAttractMusic = true;
-                that.start(priority);
+                that._dmd.fadeOut(150).then( () => {
+                    that.#gameOverCloudsLayer.setVisibility(false);
+                    that.#gameOverCloudsLayer2.setVisibility(false);
+                    that.#gameOverBackgroundLayer.setVisibility(false);
+                    that.#gameOverTextLayer.setVisibility(false);
+                    that.#gameOverScoresLayer.setVisibility(false);
+                    that.#gameOverScoresLayer.content.removeAllTexts();
+                    that.#delayAttractMusic = true;
+                    that.start(priority);
+                });
 
             }, ATTRACT_RESTART_TIMEOUT);
 
-
-        
+       
         // Start attractmode
         } else {
+
             this.#backgroundLayer.setVisibility(true);
             this.#titleLayer.setVisibility(true);
             this.#startLayer.setVisibility(false);
-
             this.#blinkInterval = setInterval(this.#toggleStartText.bind(this), 1000);
 
-            if (this.#delayAttractMusic) {
-                this.#attractMusicTO = setTimeout(this.#startAttractMusic.bind(this), ATTRACT_MUSIC_RESTART_DELAY);
-                this.#delayAttractMusic = false;
+            if (this._dmd.brightness < 1) {
+                this._dmd.fadeIn(150).then(() => {
+                    that.#startAttractMusicIfNeeded();
+                });
             } else {
-                this.#startAttractMusic();
+                this.#startAttractMusicIfNeeded();
             }
+    
+
+        }
+    }
+
+    #startAttractMusicIfNeeded() {
+        if (this.#delayAttractMusic) {
+            this.#attractMusicTO = setTimeout(this.#startAttractMusic.bind(this), ATTRACT_MUSIC_RESTART_DELAY);
+            this.#delayAttractMusic = false;
+        } else {
+            this.#startAttractMusic();
         }
     }
 
@@ -304,9 +312,8 @@ class AttractMode extends Mode {
         clearInterval(this.#blinkInterval);
         this.#blinkInterval =  null;
 
-
         // Set variable so that attract mode knows a game was playing
-        this.#gameIsPlaying = true;
+        this.#gameIsPlaying = true; // TODO : get that from game mode maybe since base mode is always started during game
     }
 }
 

@@ -10,7 +10,7 @@ import { AudioManager } from './audio-manager/AudioManager.mjs';
 import { WSS } from './ws/WSS.mjs';
 import { Utils } from './utils/Utils.mjs';
 import { Sprite } from './dmd/Sprite.mjs';
-import { ScoreEffectGPURenderer } from './renderers/ScoreEffectGPURenderer.mjs';
+import { ScoreEffectRenderer } from './renderers/ScoreEffectRenderer.mjs';
 import { Colors } from './dmd/Colors.mjs';
 
 class App {
@@ -65,7 +65,7 @@ class App {
 		// the original medias size will be 128x64
 		// and the final DMD size will be 1024x511
 		// pixel shape will be circle (can be circle or square at the moment)
-		this.#dmd = new DMD(this.#dmdWidth, this.#dmdHeight, this.#screenWidth, this.#screenHeight, 4, 4, 1, 1, 1, 1, DMD.DotShape.Square, 14, this.#canvas);
+		this.#dmd = new DMD(this.#dmdWidth, this.#dmdHeight, this.#screenWidth, this.#screenHeight, 4, 4, 1, 1, 1, 1, DMD.DotShape.Square, 14, 0, this.#canvas);
 		
 		// dmd without dot effect
 		//dmd = new DMD(1280, 390, 1280, 390, 1, 1, 0, 0, 0, 0, 'square', document.getElementById('dmd'));
@@ -179,7 +179,7 @@ class App {
 	 */
 	#wsOnMessage(cmd, params, rawData) {
 
-		//console.log(arguments);
+		var that = this;
 
 		switch(cmd) {
 			case 'mc_connected':
@@ -190,8 +190,12 @@ class App {
 				break;
 			case 'mc_reset':
 				console.log("MPF requested reset");
-				this.#dmd.removeLayer("logo");
-				this.#wsServer.send('mc_ready');
+
+				this.#dmd.fadeOut(150).then(() => {
+					this.#dmd.removeLayer("logo");
+					this.#wsServer.send('mc_ready');
+				});
+
 				break;
 			case 'mc_machine_variable':
 				this.#updateMachineVariables(params);
@@ -261,21 +265,30 @@ class App {
 	 */
 	#resetDMD() {
 		console.log("DMD reset");
+
+		// Remove all layers
 		this.#dmd.reset();
 
+		// Add default screen (mpf logo)
 		this.#dmd.addLayer({
 			name :'logo',
 			type : 'image',
 			src : 'images/logo.webp',
-			//src : 'images/white.png',
-			//mimeType : 'image/webp',
-			visible : true
+			groups : "logo"
 		});
-
-		//this.#dmd.setBrightness(0.1);
 
 		// Init modes
 		this.#modes.initAll();
+
+		// DMD has been created with brightness = 0 so show it now
+		setTimeout(this.#fadeIn.bind(this), 100);
+	}
+
+	/**
+	 * Fade DMD from {current brightness} to 1
+	 */
+	#fadeIn() {
+		this.#dmd.fadeIn(150);		
 	}
 
 	/**

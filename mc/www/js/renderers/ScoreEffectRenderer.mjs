@@ -1,8 +1,7 @@
 import { Buffer } from "../dmd/Buffer.mjs";
 
-class ScoreEffectGPURenderer {
+class ScoreEffectRenderer {
 
-    #initDone;
     #adapter;
     #device;
     #width;
@@ -22,7 +21,6 @@ class ScoreEffectGPURenderer {
      */
 
     constructor(_width, _height) {
-        this.#initDone = false;
         this.#device;
         this.#adapter;
         this.#shaderModule;
@@ -93,11 +91,10 @@ class ScoreEffectGPURenderer {
             
                 adapter.requestDevice().then( device => {
                     that.#device = device;
-                    that.#initDone = true;
 
                     that.#shaderModule = device.createShaderModule({
                         code: `
-                            struct Image {
+                            [[block]] struct Image {
                                 rgba: array<u32>;
                             };
                             [[group(0), binding(0)]] var<storage,read> noisePixels: Image;
@@ -136,7 +133,16 @@ class ScoreEffectGPURenderer {
                         `
                     });
 
-                    resolve(device);
+                    this.#shaderModule.compilationInfo().then(i=>{
+                        if (i.messages.length > 0 ) {
+                            console.log("ScoreEffectRenderer:compilationInfo() ", i.messages);
+                        }
+                    });
+
+                    console.log('ScoreEffectRenderer:init()');
+
+
+                    resolve();
                 });    
             });
        });
@@ -145,7 +151,6 @@ class ScoreEffectGPURenderer {
 
 
     renderFrame(frameData) {
-        //if (!this.#initDone) return;
 
         const that = this;
 
@@ -234,8 +239,6 @@ class ScoreEffectGPURenderer {
         });        
 
         return new Promise( resolve => {
-            //console.log(frameData);
-
 
             const frame = Math.floor(this.#counter % this.#nbFrames);
 
@@ -270,21 +273,13 @@ class ScoreEffectGPURenderer {
 
                 this.#startTime = now;
 
-               // console.log(that.#counter)
-
-
-
     
                 // Grab data from output buffer
                 const pixelsBuffer = new Uint8Array(gpuOutputBuffer.getMappedRange());
 
-                //console.log(pixelsBuffer);
-    
                 // Generate Image data usable by a canvas
                 const imageData = new ImageData(new Uint8ClampedArray(pixelsBuffer), that.#width, that.#height);
 
-                //console.log(imageData);
-    
                 // return to caller
                 resolve(imageData);
             });
@@ -293,4 +288,4 @@ class ScoreEffectGPURenderer {
 
 }
 
-export { ScoreEffectGPURenderer }
+export { ScoreEffectRenderer }

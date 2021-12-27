@@ -1,7 +1,9 @@
 import { Mode } from "./Mode.mjs";
 import { Colors } from "../dmd/Colors.mjs";
 import { Utils } from "../utils/Utils.mjs";
-import { ScoreEffectGPURenderer } from "../renderers/ScoreEffectGPURenderer.mjs";
+import { ScoreEffectRenderer } from "../renderers/ScoreEffectRenderer.mjs";
+import { RemoveAlphaRenderer } from "../renderers/RemoveAlphaRenderer.mjs";
+
 
 /**
  * This mode runs all the time and is responsible of updating the score / player / ball texts
@@ -36,7 +38,7 @@ class GameMode extends Mode {
 		this.#hudLayer1 = this._dmd.addLayer({
 			name : 'hud-1',
 			type : 'text',
-			zIndex : 1000,
+			zIndex : 1001,
 			visible : false
 		});			
 
@@ -75,16 +77,21 @@ class GameMode extends Mode {
             strokeColor : Colors.blue
         });
 
-		const scoreRenderer = new ScoreEffectGPURenderer(this._dmd.dmdWidth, this._dmd.dmdHeight);
+		const scoreRenderer = new ScoreEffectRenderer(this._dmd.dmdWidth, this._dmd.dmdHeight);
+        //const removeAlphaRenderer = new RemoveAlphaRenderer(this._dmd.dmdWidth, this._dmd.dmdHeight);
 
-		scoreRenderer.init().then(device => {
+        // Init all renderers then create Layers using them
+        Utils.chainPromises([
+//            removeAlphaRenderer.init(),
+            scoreRenderer.init()
+        ]).then(() => {
 
 			that.#scoreLayer = this._dmd.addLayer({
 				name : 'score',
 				type : 'text',
-				zIndex : 1001,
+				zIndex : 1000,
 				visible : false,
-				renderer : scoreRenderer
+				renderers : [scoreRenderer]
 			});	
 	
 			that.#scoreLayer.content.addText('score', 0, {
@@ -102,9 +109,9 @@ class GameMode extends Mode {
 			that.#hudLayer2 = this._dmd.addLayer({
 				name : 'hud-2',
 				type : 'text',
-				zIndex : 1000,
+				zIndex : 1001,
 				visible : false,
-				renderer: scoreRenderer
+				renderers: [scoreRenderer]
 			});			
 	
 			that.#hudLayer2.content.addText('ball-value', 1, {
@@ -192,20 +199,28 @@ class GameMode extends Mode {
 
         this._audioManager.playSound('start', 'start-first-player-sound');
 
-        if (!this._audioManager.isLoaded('main')) {
-            PubSub.subscribe('sound.main.loaded', function() {
-                console.log("main music loaded");
-                setTimeout(that.#startMainMusic.bind(that), 1000);
+        if (this._dmd.brightness == 1) {
+            this._dmd.fadeOut(150).then(() => {
+
+                that.#hudLayer1.setVisibility(true);
+                that.#hudLayer2.setVisibility(true);
+                that.#scoreLayer.setVisibility(true);
+        
+
+                if (!that._audioManager.isLoaded('main')) {
+                    PubSub.subscribe('sound.main.loaded', function() {
+                        console.log("main music loaded");
+                        setTimeout(that.#startMainMusic.bind(that), 1000);
+                    });
+                    that._audioManager.loadSound(that.#mainMusic, 'main');
+                } else {
+                    setTimeout(that.#startMainMusic.bind(that), 1000);
+                }
+        
+                that._dmd.fadeIn(150);
             });
-            this._audioManager.loadSound(this.#mainMusic, 'main');
-        } else {
-            setTimeout(this.#startMainMusic.bind(this), 1000);
+
         }
-
-        this.#hudLayer1.setVisibility(true);
-        this.#hudLayer2.setVisibility(true);
-
-        this.#scoreLayer.setVisibility(true);
 
         // Start random score incrementer
         //this.#to = setTimeout(this.#addScore.bind(this), Math.random()* 1000);
