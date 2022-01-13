@@ -1,8 +1,9 @@
+import { DMD } from "../dmd/DMD.mjs";
 import { Mode } from "./Mode.mjs";
 import { Colors } from "../dmd/Colors.mjs";
 import { Utils } from "../utils/Utils.mjs";
-import { ScoreEffectRenderer } from "../renderers/ScoreEffectRenderer.mjs";
-import { RemoveAlphaRenderer } from "../renderers/RemoveAlphaRenderer.mjs";
+//import { ScoreEffectRenderer } from "../renderers/ScoreEffectRenderer.mjs";
+//import { RemoveAlphaRenderer } from "../renderers/RemoveAlphaRenderer.mjs";
 
 
 /**
@@ -12,8 +13,10 @@ class GameMode extends Mode {
     #startSound;
     #mainMusic;
     #scoreLayer;
-    #hudLayer1;
-    #hudLayer2;
+    #playerTextLayer;
+    #playerValueLayer;
+    #ballTextLayer;
+    #ballValueLayer;
     #score;
     #to;
 
@@ -35,15 +38,28 @@ class GameMode extends Mode {
 
         const that = this;
 
-		this.#hudLayer1 = this._dmd.addLayer({
-			name : 'hud-1',
-			type : 'text',
+		this.#playerTextLayer = this._dmd.addLayer(DMD.LayerType.Text, 'player-text', {
+            text : this._resources.getString('playerText'),
+			fontSize : '10',
+			fontFamily : 'Dusty',
+			left : 2,
+			vAlign : 'bottom',
+			yOffset : -1,
+			color : Colors.white,
+			//outlineWidth : 1,
+			//outlineColor : Colors.blue,
+            //aaTreshold : 144,
+            //antialiasing : false,
+            strokeWidth : 2,
+            strokeColor : Colors.blue,
 			zIndex : 1001,
-			visible : false
+			visible : false,
+            groups: ['hud']
 		});			
 
-		
-		this.#hudLayer1.content.addText('ball-text', this._resources.getString('ballText'), {
+
+		this.#ballTextLayer = this._dmd.addLayer(DMD.LayerType.Text, 'ball-text', {
+            text : this._resources.getString('ballText'),
 			fontSize : '10',
 			fontFamily : 'Dusty',
 			align : 'right',
@@ -51,82 +67,76 @@ class GameMode extends Mode {
 			vAlign : 'bottom',
 			yOffset : -1,
 			color : Colors.white,
-			strokeWidth : 2,
-			strokeColor : Colors.blue
-		});
+			//outlineWidth : 1,
+			//outlineColor : Colors.blue,
+            strokeWidth: 2,
+            strokeColor : Colors.blue,
+            //aaTreshold : 144,
+            //antialiasing : false,
+			zIndex : 1001,
+			visible : false,
+            groups: ['hud']            
+		});			
 
-		this.#hudLayer1.content.addText('player-text', this._resources.getString('playerText'), {
-			fontSize : '10',
-			fontFamily : 'Dusty',
-			left : 2,
-			vAlign : 'bottom',
-			yOffset : -1,
-			color : Colors.white,
-			strokeWidth : 2,
-			strokeColor : Colors.blue
-		});	
-        
-        that.#hudLayer1.content.addText('player-value', 1, {
+       
+        this.#playerValueLayer = this._dmd.addLayer(DMD.LayerType.Text, 'player-value', {
+            text : "0",
             fontSize : '10',
             fontFamily : 'Dusty',
             left : 13,
             vAlign : 'bottom',
             yOffset : -1,
             color : Colors.white,
-            strokeWidth : 2,
-            strokeColor : Colors.blue
+            //outlineWidth : 1,
+            //outlineColor : Colors.blue,
+            //aaTreshold : 144,
+            //antialiasing : false,
+            strokeWidth: 2,
+            strokeColor : Colors.blue,
+            visible : false,
+            groups: ['hud'],
+            renderers : ['score-effect']
         });
 
-		const scoreRenderer = new ScoreEffectRenderer(this._dmd.dmdWidth, this._dmd.dmdHeight);
-        //const removeAlphaRenderer = new RemoveAlphaRenderer(this._dmd.dmdWidth, this._dmd.dmdHeight);
 
-        // Init all renderers then create Layers using them
-        Utils.chainPromises([
-//            removeAlphaRenderer.init(),
-            scoreRenderer.init()
-        ]).then(() => {
+        that.#ballValueLayer = this._dmd.addLayer(DMD.LayerType.Text, 'ball-value', {
+            text : "1",
+            fontSize : '10',
+            fontFamily : 'Dusty',
+            align : 'right',
+            xOffset : -2,
+            vAlign : 'bottom',
+            yOffset : -1,
+            color : Colors.white,
+            outlineWidth : 1,
+            outlineColor : Colors.blue,
+            zIndex : 1001,
+            aaTreshold : 144,
+            antialiasing : false,
+            visible : false,
+            groups: ['hud'],
+            renderers : ['score-effect']
+        });			
 
-			that.#scoreLayer = this._dmd.addLayer({
-				name : 'score',
-				type : 'text',
-				zIndex : 1000,
-				visible : false,
-				renderers : [scoreRenderer]
-			});	
-	
-			that.#scoreLayer.content.addText('score', 0, {
-				fontSize : '40',
-				fontFamily : 'Dusty',
-				align : 'right',
-				xOffset : -1,
-				vAlign : 'middle',
-				color : Colors.white,
-				strokeWidth : 2,
-				strokeColor : Colors.blue,
-				adjustWidth : true
-			});				
-
-			that.#hudLayer2 = this._dmd.addLayer({
-				name : 'hud-2',
-				type : 'text',
-				zIndex : 1001,
-				visible : false,
-				renderers: [scoreRenderer]
-			});			
-	
-			that.#hudLayer2.content.addText('ball-value', 1, {
-				fontSize : '10',
-				fontFamily : 'Dusty',
-				align : 'right',
-				xOffset : -2,
-				vAlign : 'bottom',
-				yOffset : -1,
-				color : Colors.white,
-				strokeWidth : 2,
-				strokeColor : Colors.blue
-			});
-		});
-
+        that.#scoreLayer = this._dmd.addLayer(DMD.LayerType.Text, 'score', {
+            //text : "0123456789",
+            text : "0",
+            fontSize : '40',
+            fontFamily : 'Dusty',
+            align : 'right',
+            xOffset : -1,
+            vAlign : 'middle',
+            color : Colors.white,
+            outlineWidth : 1,
+            outlineColor : Colors.blue,
+            adjustWidth : true,
+            zIndex : 1000,
+            aaTreshold : 144,
+            antialiasing : false,
+            visible : false,
+            groups: ['hud'],
+            renderers : ['score-effect']
+        });	
     }
 
 
@@ -151,13 +161,13 @@ class GameMode extends Mode {
 
         if (data.after[currentPlayer - 1].score !== scoreBefore) {
             console.log("Score Changed", data.after[currentPlayer - 1].score);
-            this.#scoreLayer.content.getText('score').setText(Utils.formatScore(data.after[currentPlayer - 1].score));
+            this.#scoreLayer.setText(Utils.formatScore(data.after[currentPlayer - 1].score));
         }
 
         // Needed for 1 player game since #onPlayerChanged() is not called
         if (data.after[currentPlayer - 1].ball !== ballBefore) {
             console.log("Ball Changed", data.after[currentPlayer - 1].ball);
-            this.#hudLayer2.content.getText('ball-value').setText(data.after[currentPlayer - 1].ball);
+            this.#ballValueLayer.setText(data.after[currentPlayer - 1].ball.toString());
         }
     }
 
@@ -174,9 +184,9 @@ class GameMode extends Mode {
         // if players data found update texts
         if (playersData.length) {
             var playerData = playersData[player - 1];
-            this.#hudLayer1.content.getText('player-value').setText(player);
-            this.#hudLayer2.content.getText('ball-value').setText(playerData.ball);
-            this.#scoreLayer.content.getText('score').setText(Utils.formatScore(playerData.score));
+            this.#playerValueLayer.setText(player.toString());
+            this.#ballValueLayer.setText(playerData.ball.toString());
+            this.#scoreLayer.setText(Utils.formatScore(playerData.score.toString()));
         }
 
     }
@@ -189,10 +199,6 @@ class GameMode extends Mode {
 
         var that = this;
 
-        //this.#hudLayer1 = this._dmd.getLayer('hud-1');			
-        //this.#hudLayer2 = this._dmd.getLayer('hud-2');			
-		//this.#scoreLayer = this._dmd.getLayer('score');			
-
         PubSub.subscribe('variable.player.players.changed', this.#onPlayersChanged.bind(this));
 
         PubSub.subscribe('variable.player.player.changed', this.#onPlayerChanged.bind(this));
@@ -202,9 +208,8 @@ class GameMode extends Mode {
         if (this._dmd.brightness == 1) {
             this._dmd.fadeOut(150).then(() => {
 
-                that.#hudLayer1.setVisibility(true);
-                that.#hudLayer2.setVisibility(true);
-                that.#scoreLayer.setVisibility(true);
+
+                that._dmd.showLayerGroup('hud');
         
 
                 if (!that._audioManager.isLoaded('main')) {
@@ -228,7 +233,7 @@ class GameMode extends Mode {
 
     #addScore() {
         this.#score += Math.floor(Math.random()*1001)*5;
-        this.#scoreLayer.content.getText('score').setText(Utils.formatScore(this.#score));
+        this.#scoreLayer.setText(Utils.formatScore(this.#score));
         this.#to = setTimeout(this.#addScore.bind(this), Math.floor(Math.random()* 2000)+ 500);
     }
 
@@ -240,11 +245,8 @@ class GameMode extends Mode {
 
         this._audioManager.stopSound('main-music');
 
-        this.#hudLayer1.setVisibility(false);
-        this.#hudLayer2.setVisibility(false);
-
-        this.#scoreLayer.setVisibility(false);
-
+        this._dmd.hideLayerGroup('hud');
+        
         this._variables.set('player', 'player', 0);
         this._variables.set('player', 'players', []);
 

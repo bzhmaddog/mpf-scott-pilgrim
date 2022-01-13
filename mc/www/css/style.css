@@ -46,14 +46,14 @@ body {
 
 @font-face {
     font-family: 'Dusty';
-    src: local('Dusty'), url('/fonts/Dusty.otf') format('truetype');
+    src: local('Dusty'), url('/resources/fonts/Dusty.otf') format('truetype');
 	font-style: normal;
     font-weight: normal;
 }
 
 @font-face {
 	font-family: 'Superfly';
-	src: url('/fonts/SUPERFLY.otf') format('truetype');
+	src: url('/resources/fonts/SUPERFLY.otf') format('truetype');
 	font-weight: normal;
 	font-style: normal;
 }

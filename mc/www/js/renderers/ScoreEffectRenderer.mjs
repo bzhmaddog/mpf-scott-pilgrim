@@ -20,7 +20,7 @@ class ScoreEffectRenderer {
      * @param {*} _height 
      */
 
-    constructor(_width, _height) {
+    constructor(_width, _height, images) {
         this.#device;
         this.#adapter;
         this.#shaderModule;
@@ -28,22 +28,22 @@ class ScoreEffectRenderer {
         this.#height = _height;
         this.#bufferByteLength = _width * _height * 4;
         this.#counter = 0;
-
         //this.#nbFrames = 10;
         //this.#speedFactor = 90;
-
-        this.#nbFrames = 24;
+        this.#nbFrames = images.length;
         this.#speedFactor = 50;
-
         this.#noises = [];
-
         this.#startTime = window.performance.now();
+
+        if (!Array.isArray(images)) {
+            throw new TypeError("An array of images filename is expected as third argument");
+        }
 
         const that = this;
 
         // Fill noise array from images
         for (var i = 0 ; i < this.#nbFrames ; i++) {
-            this.#loadNoise(`images/noises/medium/noise-${i}.png`).then( blob => {
+            this.#loadNoise(images[i]).then( blob => {
 
                 // Temporary buffer to draw noise image and get data array from it
                 let tmpBuffer = new Buffer(this.#width, this.#height);
@@ -63,6 +63,7 @@ class ScoreEffectRenderer {
                 img.src = URL.createObjectURL(blob);
             });
         }
+        //console.log("Noises", this.#noises);
     }
 
     /**
@@ -129,20 +130,20 @@ class ScoreEffectRenderer {
                                 }
 
                                 outputPixels.rgba[index] = pixel;
+                                //outputPixels.rgba[index] = noise;
                             }
                         `
                     });
 
                     this.#shaderModule.compilationInfo().then(i=>{
+
+                        console.log('ScoreEffectRenderer:init()');
+                        resolve();
+    
                         if (i.messages.length > 0 ) {
                             console.log("ScoreEffectRenderer:compilationInfo() ", i.messages);
                         }
                     });
-
-                    console.log('ScoreEffectRenderer:init()');
-
-
-                    resolve();
                 });    
             });
        });

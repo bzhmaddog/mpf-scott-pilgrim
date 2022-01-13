@@ -8,10 +8,12 @@ import { Resources } from './resources/Resources.mjs';
 import { Variables } from './variables/Variables.mjs';
 import { AudioManager } from './audio-manager/AudioManager.mjs';
 import { WSS } from './ws/WSS.mjs';
-import { Utils } from './utils/Utils.mjs';
-import { Sprite } from './dmd/Sprite.mjs';
 import { ScoreEffectRenderer } from './renderers/ScoreEffectRenderer.mjs';
+import { RemoveAliasingRenderer } from './dmd/renderers/RemoveAliasingRenderer.mjs';
+import { OutlineRenderer } from './dmd/renderers/OutlineRenderer.mjs';
+
 import { Colors } from './dmd/Colors.mjs';
+import { Utils } from './dmd/Utils.mjs';
 
 class App {
 	#dlgBox;
@@ -36,7 +38,7 @@ class App {
         this.#dlgBox;
         this.#wsServer = new WSS(location.hostname, 1337);
         this.#dmd;
-        this.#resources = new Resources('/res/resources.json');
+        this.#resources = new Resources('/resources.json', '/resources/');
         this.#audioManager = new AudioManager();
         this.#fonts;
         this.#modes = new Modes();
@@ -65,10 +67,21 @@ class App {
 		// the original medias size will be 128x64
 		// and the final DMD size will be 1024x511
 		// pixel shape will be circle (can be circle or square at the moment)
-		this.#dmd = new DMD(this.#dmdWidth, this.#dmdHeight, this.#screenWidth, this.#screenHeight, 4, 4, 1, 1, 1, 1, DMD.DotShape.Square, 14, 0, this.#canvas);
+		this.#dmd = new DMD(this.#dmdWidth, this.#dmdHeight, this.#screenWidth, this.#screenHeight, 4, 4, 1, 1, 1, 1, DMD.DotShape.Square, 14, 0, this.#canvas, true);
 		
-		// dmd without dot effect
-		//dmd = new DMD(1280, 390, 1280, 390, 1, 1, 0, 0, 0, 0, 'square', document.getElementById('dmd'));
+
+		var noises = [];
+		for (var i = 0 ; i < 24 ; i++) {
+			noises.push(`resources/animations/noises/medium/noise-${i}.png`);
+		}
+
+		
+		this.#dmd.addRenderer('score-effect', new ScoreEffectRenderer(this.#dmdWidth, this.#dmdHeight, noises));
+		this.#dmd.addRenderer('no-antialiasing', new RemoveAliasingRenderer(this.#dmdWidth, this.#dmdHeight));
+		this.#dmd.addRenderer('outline', new OutlineRenderer(this.#dmdWidth, this.#dmdHeight));
+
+		//this.#dmd.addRenderer('dummy', new DummyRenderer(this.#dmdWidth, this.#dmdHeight));
+		
 
 		this.#dlgBox = document.createElement('div');
         this.#dlgBox.id = 'dialog-box';
@@ -88,49 +101,57 @@ class App {
 			console.log("Resources file loaded", resources);
 
 
-			// Start rendering frames
-			that.#dmd.run();
+			// Init DMD then
+			that.#dmd.init().then( () => {
 
-			// Reset the DMD (show only background layer and mpf logo)
-			that.#resetDMD();
+				// Start rendering dmd
+				that.#dmd.run();
 
-			// Preload some musics/sounds
-			resources.getMusics().filter(music => music.preload === true).forEach( music => {
-				that.#audioManager.loadSound(music.url, music.key);
-			});
+				// Reset the DMD (show only background layer and mpf logo)
+				that.#resetDMD(false);
 
-			resources.getSounds().filter(sound => sound.preload === true).forEach( sound => {
-				that.#audioManager.loadSound(sound.url, sound.key);
-			});
+				// Preload some musics/sounds
+				resources.getMusics().filter(music => music.preload === true).forEach( music => {
+					that.#audioManager.loadSound(music.url, music.key);
+				});
 
-			// Preload fonts
-			that.#resources.getFonts().forEach(f => {
-				that.#fonts.add(f.key, f.name, f.url).load().then(function() {
-					console.log(`Font '${f.name}' loaded`);
+				resources.getSounds().filter(sound => sound.preload === true).forEach( sound => {
+					that.#audioManager.loadSound(sound.url, sound.key);
+				});
+
+				// Prepare fonts to be loaded
+				var fonts = [];
+				that.#resources.getFonts().forEach(f => {
+					fonts.push(that.#fonts.add(f.key, f.name, f.url).load());
+				});
+
+				// Instantiate attract mode class
+				var attractMode = new AttractMode(that.#dmd, resources, that.#fonts, that.#variables, that.#audioManager);
+				var gameMode = new GameMode(that.#dmd, resources, that.#fonts, that.#variables, that.#audioManager);
+				var baseMode = new BaseMode(that.#dmd, resources, that.#fonts, that.#variables, that.#audioManager);
+
+				// Init modes
+				// TODO : Add modes here
+				that.#modes.add('attract', attractMode);
+				that.#modes.add('game', gameMode);
+				that.#modes.add('base', baseMode);
+
+				// try to connect to socket server
+				that.#wsServer.onOpen = that.#wsOnOpen.bind(that);
+				that.#wsServer.onClose = that.#wsOnClose.bind(that);
+				that.#wsServer.onError = that.#wsOnError.bind(that);
+				that.#wsServer.onMessage = that.#wsOnMessage.bind(that);
+
+				// Preload fonts then init mode and start websocket liaison
+				Utils.chainPromises(fonts).then(()=>{
+					// Initialize added modes
+					console.log('All fonts loaded');
+
+					that.#modes.initAll();
+			
+					that.#wsServer.connect();				
 				});
 			});
-
-            // Instantiate attract mode class
-            var attractMode = new AttractMode(that.#dmd, resources, that.#fonts, that.#variables, that.#audioManager);
-			var gameMode = new GameMode(that.#dmd, resources, that.#fonts, that.#variables, that.#audioManager);
-			var baseMode = new BaseMode(that.#dmd, resources, that.#fonts, that.#variables, that.#audioManager);
-
-            // Init modes
-            // TODO : Add modes here
-			that.#modes.add('attract', attractMode);
-			that.#modes.add('game', gameMode);
-			that.#modes.add('base', baseMode);
-
-			// Initialize added modes
-			that.#modes.initAll();
-	
-            // try to connect to socket server
-			that.#wsServer.onOpen = that.#wsOnOpen.bind(that);
-			that.#wsServer.onClose = that.#wsOnClose.bind(that);
-			that.#wsServer.onError = that.#wsOnError.bind(that);
-			that.#wsServer.onMessage = that.#wsOnMessage.bind(that);
-			that.#wsServer.connect();
-
 		});		
     }
 
@@ -256,30 +277,73 @@ class App {
      */
 	#reset() {
 		this.#modes.stopActiveMode();
-		this.#resetDMD();
+		this.#resetDMD(true);
 		this.#audioManager.reset();
 	}
 
 	/**
 	 * Reset all layers and add the two default layers
 	 */
-	#resetDMD() {
+	#resetDMD(initModes) {
 		console.log("DMD reset");
+
+		var that = this;
 
 		// Remove all layers
 		this.#dmd.reset();
 
 		// Add default screen (mpf logo)
-		this.#dmd.addLayer({
-			name :'logo',
-			type : 'image',
-			src : 'images/logo.webp',
-			groups : "logo"
+		this.#dmd.addLayer(DMD.LayerType.Image, 'logo', {
+			src : this.#resources.getImage('logo'),
+			//src : '/resources/tests/white.png'
+			//visible : false
 		});
 
-		// Init modes
-		this.#modes.initAll();
+		if (!!initModes) {
+			// Init modes
+			this.#modes.initAll();
+		}
 
+		/*var testLayer = this.#dmd.addLayer(DMD.LayerType.Image,'test',{
+			src : 'resources/animations/boss-mode/0.webp',
+			opacity : 0.5,
+			//renderers : ['score-effect']
+		});*/
+
+        /*var testLayer = this.#dmd.addLayer(DMD.LayerType.Text, 'test', {
+			text : "GAME OVER",
+            fontSize: '20',
+            fontFamily : 'Dusty',
+            align : 'center',
+            top: 1,
+			//letterSpacing : 40,
+            outlineWidth : 1,
+            outlineColor : Colors.red,
+            antialiasing : false,
+			aaTreshold : 144,
+			//visible : false
+            //renderers : ['score-effect']
+			opacity : 0.5
+        });*/
+
+
+
+		document.getElementById('slider').addEventListener('change', function(){
+			console.log(this.value);
+			var l = that.#dmd.getLayer('test');
+
+			//l.setOpacity(this.value / 255);
+
+			//l.setRendererParams('no-antialiasing',[this.value]);
+			//l.redraw();
+		});
+
+		setTimeout(function(){
+			//that.#dmd.showLayerGroup('hud');
+			//that.#dmd.showLayer('gameover-text');
+		}, 200);
+
+		
 		// DMD has been created with brightness = 0 so show it now
 		setTimeout(this.#fadeIn.bind(this), 100);
 	}

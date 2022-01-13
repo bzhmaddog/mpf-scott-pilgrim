@@ -41,10 +41,6 @@ class Utils {
 		return finalString;
 	}
 
-	static easeOutQuad (t, b, c, d) {
-		return -c * (t /= d) * (t - 2) + b;
-	}
-
 	/**
 	 * Process an array of Promise
 	 * TODO : handle errors
@@ -71,6 +67,45 @@ class Utils {
 
 			// start process
 			processQueue();
+		});
+	}
+
+	static animate(duration, easing, callback) {
+
+		if (typeof easing !== 'function') {
+			throw new Error("You must provide an easing function");
+		}
+
+		if (typeof callback !== 'function') {
+			throw new Error("You must provide a callback function");
+		}
+
+
+		return new Promise( resolve => {
+
+			var startime = null;
+
+			var animateFrame = function(t) {
+
+				if (startime === null) {
+					startime = t;
+				}
+
+				var delta = t - startime;
+
+				callback(easing(delta,0,100,duration));
+
+				if (delta >= duration) {
+					resolve();
+					return;
+				}
+
+
+				requestAnimationFrame(animateFrame)
+			};
+
+			requestAnimationFrame(animateFrame);
+
 		});
 	}
 }
