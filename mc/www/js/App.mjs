@@ -9,9 +9,6 @@ import { Variables } from './variables/Variables.mjs';
 import { AudioManager } from './audio-manager/AudioManager.mjs';
 import { WSS } from './ws/WSS.mjs';
 import { ScoreEffectRenderer } from './renderers/ScoreEffectRenderer.mjs';
-import { RemoveAliasingRenderer } from './dmd/renderers/RemoveAliasingRenderer.mjs';
-import { OutlineRenderer } from './dmd/renderers/OutlineRenderer.mjs';
-
 import { Colors } from './dmd/Colors.mjs';
 import { Utils } from './dmd/Utils.mjs';
 
@@ -77,8 +74,8 @@ class App {
 
 		
 		this.#dmd.addRenderer('score-effect', new ScoreEffectRenderer(this.#dmdWidth, this.#dmdHeight, noises));
-		this.#dmd.addRenderer('no-antialiasing', new RemoveAliasingRenderer(this.#dmdWidth, this.#dmdHeight));
-		this.#dmd.addRenderer('outline', new OutlineRenderer(this.#dmdWidth, this.#dmdHeight));
+		//this.#dmd.addRenderer('no-antialiasing', new RemoveAliasingRenderer(this.#dmdWidth, this.#dmdHeight));
+		//this.#dmd.addRenderer('outline', new OutlineRenderer(this.#dmdWidth, this.#dmdHeight));
 
 		//this.#dmd.addRenderer('dummy', new DummyRenderer(this.#dmdWidth, this.#dmdHeight));
 		
@@ -297,6 +294,7 @@ class App {
 			src : this.#resources.getImage('logo'),
 			//src : '/resources/tests/white.png'
 			//visible : false
+			//opacity : 0.5
 		});
 
 		if (!!initModes) {
@@ -322,26 +320,26 @@ class App {
             antialiasing : false,
 			aaTreshold : 144,
 			//visible : false
-            //renderers : ['score-effect']
+            //renderers : ['score-effect'],
 			opacity : 0.5
         });*/
 
 
 
-		document.getElementById('slider').addEventListener('change', function(){
-			console.log(this.value);
-			var l = that.#dmd.getLayer('test');
+		//document.getElementById('slider').addEventListener('change', function(){
+		//	console.log(this.value);
+		//	var l = that.#dmd.getLayer('test');
 
 			//l.setOpacity(this.value / 255);
 
 			//l.setRendererParams('no-antialiasing',[this.value]);
 			//l.redraw();
-		});
+		//});
 
-		setTimeout(function(){
+		//setTimeout(function(){
 			//that.#dmd.showLayerGroup('hud');
 			//that.#dmd.showLayer('gameover-text');
-		}, 200);
+		//}, 200);
 
 		
 		// DMD has been created with brightness = 0 so show it now
