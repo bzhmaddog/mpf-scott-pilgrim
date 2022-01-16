@@ -344,13 +344,16 @@ class App {
 		
 		// DMD has been created with brightness = 0 so show it now
 		setTimeout(this.#fadeIn.bind(this), 100);
+
+		//this.#dmd.setBrightness(0.1);
+
 	}
 
 	/**
 	 * Fade DMD from {current brightness} to 1
 	 */
 	#fadeIn() {
-		this.#dmd.fadeIn(150);		
+		this.#dmd.fadeIn(800);		
 	}
 
 	/**

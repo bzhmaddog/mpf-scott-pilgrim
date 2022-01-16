@@ -209,7 +209,7 @@ class GameMode extends Mode {
             this._dmd.fadeOut(150).then(() => {
 
 
-                that._dmd.showLayerGroup('hud');
+                that._dmd.setLayerGroupVisibility('hud', true);
         
 
                 if (!that._audioManager.isLoaded('main')) {
@@ -245,7 +245,7 @@ class GameMode extends Mode {
 
         this._audioManager.stopSound('main-music');
 
-        this._dmd.hideLayerGroup('hud');
+        this._dmd.setLayerGroupVisibility('hud', false);
         
         this._variables.set('player', 'player', 0);
         this._variables.set('player', 'players', []);
