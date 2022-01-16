@@ -44,13 +44,13 @@ class AttractMode extends Mode {
         // Listen to credits string var changes to update the text in the layer
         PubSub.subscribe('variable.machine.credits_string.changed', this.#onCreditsStringChanged.bind(this));
 
-        this.#backgroundLayer = this._dmd.addLayer(DMD.LayerType.Image, 'attract-background', {
+        this.#backgroundLayer = this._dmd.createLayer(DMD.LayerType.Image, 'attract-background', {
             src : this._resources.getImage('title'),
             visible : false,
             groups : ['title']
         });
 
-        this.#titleLayer1 = this._dmd.addLayer(DMD.LayerType.Text, 'attract-title1', {
+        this.#titleLayer1 = this._dmd.createLayer(DMD.LayerType.Text, 'attract-title1', {
             text :  'SCOTT',
             fontSize : '30',
             fontFamily : 'Superfly',
@@ -63,7 +63,7 @@ class AttractMode extends Mode {
             groups : ['title']
         });
 
-        this.#titleLayer2 = this._dmd.addLayer(DMD.LayerType.Text, 'attract-title2', {
+        this.#titleLayer2 = this._dmd.createLayer(DMD.LayerType.Text, 'attract-title2', {
             text : 'PILGRIM',
             fontSize : '30',
             fontFamily : 'Superfly',
@@ -76,7 +76,7 @@ class AttractMode extends Mode {
             groups : ['title']
         });
 
-        this.#subTitleLayer = this._dmd.addLayer(DMD.LayerType.Text, 'attract-subtitle', {
+        this.#subTitleLayer = this._dmd.createLayer(DMD.LayerType.Text, 'attract-subtitle', {
             text : 'VS. THE WORLD',
             fontSize : '10',
             fontFamily : 'Dusty',
@@ -89,7 +89,7 @@ class AttractMode extends Mode {
         });
 
 
-        this.#startLayer = this._dmd.addLayer(DMD.LayerType.Text, 'attract-start', {
+        this.#startLayer = this._dmd.createLayer(DMD.LayerType.Text, 'attract-start', {
             text : startString,
             fontSize: '10',
             fontFamily : 'Dusty',
@@ -100,7 +100,7 @@ class AttractMode extends Mode {
             visible : false
         });
 
-        this.#creditsLayer = this._dmd.addLayer(DMD.LayerType.Text, 'attract-credits', {
+        this.#creditsLayer = this._dmd.createLayer(DMD.LayerType.Text, 'attract-credits', {
             text : creditsString,
             fontSize : '9',
             fontFamily : 'Dusty',
@@ -114,14 +114,14 @@ class AttractMode extends Mode {
         });
 
 
-        this.#gameOverCloudsVideoLayer = this._dmd.addLayer(DMD.LayerType.Video, 'gameover-clouds-moving', {
+        this.#gameOverCloudsVideoLayer = this._dmd.createLayer(DMD.LayerType.Video, 'gameover-clouds-moving', {
             src : this._resources.getVideo('gameover-clouds'),
             visible : false,
             autoplay : false,
             loop : true
         });
 
-        this.#gameOverCloudsLayer2 = this._dmd.addLayer(DMD.LayerType.Image, 'gameover-clouds-static', {
+        this.#gameOverCloudsLayer2 = this._dmd.createLayer(DMD.LayerType.Image, 'gameover-clouds-static', {
             src : this._resources.getImage('gameover-clouds'),
             visible : false,
             loop : true
@@ -130,12 +130,12 @@ class AttractMode extends Mode {
 
         //console.log(this._resources.getImage('game-over'));
 
-        this.#gameOverBackgroundLayer = this._dmd.addLayer(DMD.LayerType.Image, 'gameover-bg', {
+        this.#gameOverBackgroundLayer = this._dmd.createLayer(DMD.LayerType.Image, 'gameover-bg', {
             src : this._resources.getImage('gameover-bg'),
             visible : false
         });
         
-        this.#gameOverTextLayer = this._dmd.addLayer(DMD.LayerType.Text, 'gameover-text', {
+        this.#gameOverTextLayer = this._dmd.createLayer(DMD.LayerType.Text, 'gameover-text', {
             text : goString,
             fontSize: '20',
             fontFamily : 'Dusty',
@@ -150,7 +150,7 @@ class AttractMode extends Mode {
         });
 
 
-        //this.#gameOverScoresLayer = this._dmd.addLayer({ name : 'game-over-scores', type: 'text', visible : false});
+        //this.#gameOverScoresLayer = this._dmd.createLayer({ name : 'game-over-scores', type: 'text', visible : false});
 
         this.#gameIsPlaying = false;        
         this.#delayAttractMusic = false;
@@ -206,7 +206,7 @@ class AttractMode extends Mode {
         
                             var pTxt = that._resources.getString('playerTextLong') + ` ${i+1}`;
 
-                            that._dmd.addLayer(DMD.LayerType.Text, `game-over-score-${i}`, {
+                            that._dmd.createLayer(DMD.LayerType.Text, `game-over-score-${i}`, {
                                 text : `${pTxt} : ${score.toString()}`,
                                 fontSize: '10',
                                 fontFamily : 'Dusty',
@@ -214,31 +214,6 @@ class AttractMode extends Mode {
                                 vAlign : 'middle',
                                 yOffset : top                                
                             });
-        
-                            /*that.#gameOverScoresLayer.addText(`player-${i+1}-text`, pTxt, {
-                                fontSize: '10',
-                                fontFamily : 'Dusty',
-                                left : 50,
-                                vAlign : 'middle',
-                                yOffset : top
-                            });
-        
-                            that.#gameOverScoresLayer.addText(`player-${i+1}-colon`, ": ", {
-                                fontSize: '10',
-                                fontFamily : 'Dusty',
-                                left : 112,
-                                vAlign : 'middle',
-                                yOffset : top
-                            });
-        
-                            
-                            that.#gameOverScoresLayer.addText(`player-${i+1}-score`, score, {
-                                fontSize: '10',
-                                fontFamily : 'Dusty',
-                                left : 120,
-                                vAlign : 'middle',
-                                yOffset : top
-                            });*/
         
                             that._audioManager.playSound('dong', `dong-p${i+1}`);
         

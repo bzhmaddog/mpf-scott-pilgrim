@@ -290,7 +290,7 @@ class App {
 		this.#dmd.reset();
 
 		// Add default screen (mpf logo)
-		this.#dmd.addLayer(DMD.LayerType.Image, 'logo', {
+		this.#dmd.createLayer(DMD.LayerType.Image, 'logo', {
 			src : this.#resources.getImage('logo'),
 			//src : '/resources/tests/white.png'
 			//visible : false
@@ -302,13 +302,15 @@ class App {
 			this.#modes.initAll();
 		}
 
-		/*var testLayer = this.#dmd.addLayer(DMD.LayerType.Image,'test',{
+		this.#dmd.debug();
+
+		/*var testLayer = this.#dmd.createLayer(DMD.LayerType.Image,'test',{
 			src : 'resources/animations/boss-mode/0.webp',
 			opacity : 0.5,
 			//renderers : ['score-effect']
 		});*/
 
-        /*var testLayer = this.#dmd.addLayer(DMD.LayerType.Text, 'test', {
+        /*var testLayer = this.#dmd.createLayer(DMD.LayerType.Text, 'test', {
 			text : "GAME OVER",
             fontSize: '20',
             fontFamily : 'Dusty',

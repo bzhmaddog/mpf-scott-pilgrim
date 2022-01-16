@@ -38,7 +38,7 @@ class GameMode extends Mode {
 
         const that = this;
 
-		this.#playerTextLayer = this._dmd.addLayer(DMD.LayerType.Text, 'player-text', {
+		this.#playerTextLayer = this._dmd.createLayer(DMD.LayerType.Text, 'player-text', {
             text : this._resources.getString('playerText'),
 			fontSize : '10',
 			fontFamily : 'Dusty',
@@ -58,7 +58,7 @@ class GameMode extends Mode {
 		});			
 
 
-		this.#ballTextLayer = this._dmd.addLayer(DMD.LayerType.Text, 'ball-text', {
+		this.#ballTextLayer = this._dmd.createLayer(DMD.LayerType.Text, 'ball-text', {
             text : this._resources.getString('ballText'),
 			fontSize : '10',
 			fontFamily : 'Dusty',
@@ -79,7 +79,7 @@ class GameMode extends Mode {
 		});			
 
        
-        this.#playerValueLayer = this._dmd.addLayer(DMD.LayerType.Text, 'player-value', {
+        this.#playerValueLayer = this._dmd.createLayer(DMD.LayerType.Text, 'player-value', {
             text : "0",
             fontSize : '10',
             fontFamily : 'Dusty',
@@ -99,7 +99,7 @@ class GameMode extends Mode {
         });
 
 
-        that.#ballValueLayer = this._dmd.addLayer(DMD.LayerType.Text, 'ball-value', {
+        that.#ballValueLayer = this._dmd.createLayer(DMD.LayerType.Text, 'ball-value', {
             text : "1",
             fontSize : '10',
             fontFamily : 'Dusty',
@@ -118,7 +118,7 @@ class GameMode extends Mode {
             renderers : ['score-effect']
         });			
 
-        that.#scoreLayer = this._dmd.addLayer(DMD.LayerType.Text, 'score', {
+        that.#scoreLayer = this._dmd.createLayer(DMD.LayerType.Text, 'score', {
             //text : "0123456789",
             text : "0",
             fontSize : '40',
