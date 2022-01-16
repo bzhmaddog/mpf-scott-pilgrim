@@ -13,6 +13,7 @@ class ScoreEffectRenderer {
     #startTime;
     #nbFrames;
     #speedFactor;
+    renderFrame;
 
     /**
      * https://robson.plus/white-noise-image-generator/
@@ -34,6 +35,7 @@ class ScoreEffectRenderer {
         this.#speedFactor = 50;
         this.#noises = [];
         this.#startTime = window.performance.now();
+        this.renderFrame = this.#doNothing;
 
         if (!Array.isArray(images)) {
             throw new TypeError("An array of images filename is expected as third argument");
@@ -135,24 +137,40 @@ class ScoreEffectRenderer {
                         `
                     });
 
-                    this.#shaderModule.compilationInfo().then(i=>{
+                    console.log('ScoreEffectRenderer:init()');
 
-                        console.log('ScoreEffectRenderer:init()');
-                        resolve();
-    
+                    this.#shaderModule.compilationInfo().then(i => {
                         if (i.messages.length > 0 ) {
-                            console.log("ScoreEffectRenderer:compilationInfo() ", i.messages);
+                            console.warn("ScoreEffectRenderer:compilationInfo() ", i.messages);
                         }
                     });
+
+                    that.renderFrame = that.#doRendering;
+                    resolve();
                 });    
             });
        });
     
     }
 
+    /**
+     * Do nothing (place holder until init is done to prevent having to have a if() in #doRendering)
+     * @param {ImageData} frameData
+     * @returns {ImageData}
+     */
+    #doNothing(frameData) {
+        console.log("Init not done cannot apply filter");
+        return new Promise(resolve =>{
+            resolve(frameData);
+        });        
+    }
 
-    renderFrame(frameData) {
-
+    /**
+     * Apply filter to provided ImageData object then return altered data
+     * @param {ImageData} frameData 
+     * @returns {ImageData}
+     */
+    #doRendering(frameData) {
         const that = this;
 
         const gpuNoiseBuffer = this.#device.createBuffer({
