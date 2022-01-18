@@ -64,8 +64,8 @@ class App {
 		// the original medias size will be 128x64
 		// and the final DMD size will be 1024x511
 		// pixel shape will be circle (can be circle or square at the moment)
-		this.#dmd = new DMD(this.#dmdWidth, this.#dmdHeight, this.#screenWidth, this.#screenHeight, 4, 4, 1, 1, 1, 1, DMD.DotShape.Square, 14, 0, this.#canvas, true);
-		
+		//this.#dmd = new DMD(this.#dmdWidth, this.#dmdHeight, this.#screenWidth, this.#screenHeight, 4, 4, 1, 1, 1, 1, DMD.DotShape.Square, 14, 0, this.#canvas, true);
+		this.#dmd = new DMD(this.#canvas, 4, 1, 1, 1, DMD.DotShape.Square, 14, 0, true);		
 
 		var noises = [];
 		for (var i = 0 ; i < 24 ; i++) {
