@@ -8,11 +8,10 @@ class ScoreEffectRenderer {
     #height;
     #shaderModule;
     #bufferByteLength;
-    #counter;
     #noises;
     #startTime;
+    #frameDuration;
     #nbFrames;
-    #speedFactor;
     renderFrame;
 
     /**
@@ -21,20 +20,13 @@ class ScoreEffectRenderer {
      * @param {*} _height 
      */
 
-    constructor(_width, _height, images) {
-        this.#device;
-        this.#adapter;
-        this.#shaderModule;
+    constructor(_width, _height, _duration, images) {
         this.#width = _width;
         this.#height = _height;
         this.#bufferByteLength = _width * _height * 4;
-        this.#counter = 0;
-        //this.#nbFrames = 10;
-        //this.#speedFactor = 90;
         this.#nbFrames = images.length;
-        this.#speedFactor = 50;
+        this.#frameDuration = _duration / this.#nbFrames;
         this.#noises = [];
-        this.#startTime = window.performance.now();
         this.renderFrame = this.#doNothing;
 
         if (!Array.isArray(images)) {
@@ -43,12 +35,13 @@ class ScoreEffectRenderer {
 
         const that = this;
 
+        // Temporary buffer to draw noise image and get data array from it
+        let tmpBuffer = new Buffer(this.#width, this.#height);
+
+
         // Fill noise array from images
         for (var i = 0 ; i < this.#nbFrames ; i++) {
             this.#loadNoise(images[i]).then( blob => {
-
-                // Temporary buffer to draw noise image and get data array from it
-                let tmpBuffer = new Buffer(this.#width, this.#height);
 
                 let img = new Image();
 
@@ -56,16 +49,16 @@ class ScoreEffectRenderer {
                     URL.revokeObjectURL(event.target.src);
 
                     tmpBuffer.clear();
-                    tmpBuffer.context.drawImage(event.target, 0, 0);
-                    let frameData = tmpBuffer.context.getImageData(0, 0, _width, _height).data;
-                    that.#noises.push(frameData);
+                    tmpBuffer.context.drawImage(event.target, 0, 0); // Image is resized to DMD dimensions
+
+                    // Store image data
+                    that.#noises.push(tmpBuffer.context.getImageData(0, 0, _width, _height).data);
                 }
 
                   // Set the src of the <img> to the object URL so the image displays it
                 img.src = URL.createObjectURL(blob);
             });
         }
-        //console.log("Noises", this.#noises);
     }
 
     /**
@@ -259,9 +252,24 @@ class ScoreEffectRenderer {
 
         return new Promise( resolve => {
 
-            const frame = Math.floor(this.#counter % this.#nbFrames);
+            var now = window.performance.now();
+            //var previousFrameIndex = this.#frameIndex;
+    
+            if (!this.#startTime) {
+                this.#startTime = now;
+            }
+    
+            var position = now - this.#startTime;
+    
+            var frameIndex = Math.floor(position / this.#frameDuration);
 
-            new Uint8Array(gpuNoiseBuffer.getMappedRange()).set(new Uint8Array(this.#noises[frame]));
+            // Loop back to the first image
+            if (frameIndex >= this.#nbFrames) {
+                this.#startTime = null;
+                frameIndex = 0;
+            }            
+
+            new Uint8Array(gpuNoiseBuffer.getMappedRange()).set(new Uint8Array(this.#noises[frameIndex]));
             gpuNoiseBuffer.unmap();
             
             // Put original image data in the input buffer (257x78)
@@ -282,16 +290,6 @@ class ScoreEffectRenderer {
     
             // Render DMD output
             gpuOutputBuffer.mapAsync(GPUMapMode.READ).then( () => {
-                //that.#counter = that.#counter + .50;
-
-                // use timestamp as 'constant' so that speed is not impacted by multiple calls of the shader
-                var now = window.performance.now();
-                var delta = now - that.#startTime;
-
-                that.#counter += Math.floor(delta) / that.#speedFactor; 
-
-                this.#startTime = now;
-
     
                 // Grab data from output buffer
                 const pixelsBuffer = new Uint8Array(gpuOutputBuffer.getMappedRange());

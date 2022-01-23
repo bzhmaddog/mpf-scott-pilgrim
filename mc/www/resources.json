@@ -1,7 +1,7 @@
 {
     "strings" : {
 		"attractModeStart" : "PRESS START",
-		"ballText" : "BALL :",
+		"ballText" : "BALL:",
 		"playerText" : "P",
 		"playerTextLong" : "Player",
 		"gameOver" : "Game Over"

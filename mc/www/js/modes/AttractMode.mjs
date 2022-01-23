@@ -52,10 +52,10 @@ class AttractMode extends Mode {
 
         this.#titleLayer1 = this._dmd.createLayer(DMD.LayerType.Text, 'attract-title1', {
             text :  'SCOTT',
-            fontSize : '30',
+            fontSize : 30,
             fontFamily : 'Superfly',
-            left : 140,
-            top : 2,
+            left : '52%',
+            top : '2%',
             color : Colors.blue,
             strokeWidth : 2,
             strokeColor : Colors.white,
@@ -65,10 +65,10 @@ class AttractMode extends Mode {
 
         this.#titleLayer2 = this._dmd.createLayer(DMD.LayerType.Text, 'attract-title2', {
             text : 'PILGRIM',
-            fontSize : '30',
+            fontSize : 30,
             fontFamily : 'Superfly',
-            left : 140,
-            top : 27,
+            left : '52%',
+            top : '32%',
             color : Colors.blue,
             strokeWidth : 2,
             strokeColor : Colors.white,
@@ -80,8 +80,8 @@ class AttractMode extends Mode {
             text : 'VS. THE WORLD',
             fontSize : '10',
             fontFamily : 'Dusty',
-            left : 141,
-            top : 52,
+            left : '52.5%',
+            top : '62%',
             color : Colors.red,
             visible : false,
             groups : ['title'],
@@ -94,7 +94,8 @@ class AttractMode extends Mode {
             fontSize: '10',
             fontFamily : 'Dusty',
             align : 'center',
-            top: 65,
+            vAlign : 'bottom',
+            vOffset: -2,
             strokeWidth : 2,
             strokeColor : Colors.red,            
             visible : false
@@ -106,8 +107,8 @@ class AttractMode extends Mode {
             fontFamily : 'Dusty',
             align: 'right',
             vAlign: 'bottom',
-            xOffset : -2,
-            yOffset : -1,
+            hOffset : -2,
+            vOffset : -1,
             visible : false,
             //aaTreshold : 144,
             //antialiasing : false
@@ -212,7 +213,7 @@ class AttractMode extends Mode {
                                 fontFamily : 'Dusty',
                                 left : 50,
                                 vAlign : 'middle',
-                                yOffset : top                                
+                                vOffset : top                                
                             });
         
                             that._audioManager.playSound('dong', `dong-p${i+1}`);

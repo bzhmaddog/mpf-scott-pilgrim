@@ -22,10 +22,6 @@ class App {
     #modes;
     #variables;
     #canvas;
-	#dmdWidth;
-	#dmdHeight;
-	#screenWidth;
-	#screenHeight;
 
     /**
      * 
@@ -43,12 +39,6 @@ class App {
         this.#canvas = document.getElementById(canvasId);
         this.#fonts = new Fonts();
 
-		this.#dmdWidth = 256;
-		this.#dmdHeight = 78;
-		this.#screenWidth = 1280;
-		this.#screenHeight = 390;
-
-
 		this.#variables.set('player', 'players', []);
 		this.#variables.set('player', 'player', 0);
 
@@ -65,33 +55,22 @@ class App {
 		// and the final DMD size will be 1024x511
 		// pixel shape will be circle (can be circle or square at the moment)
 		//this.#dmd = new DMD(this.#dmdWidth, this.#dmdHeight, this.#screenWidth, this.#screenHeight, 4, 4, 1, 1, 1, 1, DMD.DotShape.Square, 14, 0, this.#canvas, true);
-		this.#dmd = new DMD(this.#canvas, 4, 1, 1, 1, DMD.DotShape.Square, 14, 0, true);		
+		//this.#dmd = new DMD(this.#canvas, 4, 1, 1, 1, DMD.DotShape.Square, 14, 0, true);		
+		this.#dmd = new DMD(this.#canvas, 2, 1, 1, 1, DMD.DotShape.Square, 14, 0, true);
 
+		// Build array of path to noise images
 		var noises = [];
-		for (var i = 0 ; i < 24 ; i++) {
-			noises.push(`resources/animations/noises/medium/noise-${i}.png`);
+		for (var i = 0 ; i < 6 ; i++) {
+			noises.push(`resources/animations/noises/noise-${i}.png`);
 		}
-
 		
-		this.#dmd.addRenderer('score-effect', new ScoreEffectRenderer(this.#dmdWidth, this.#dmdHeight, noises));
-		//this.#dmd.addRenderer('no-antialiasing', new RemoveAliasingRenderer(this.#dmdWidth, this.#dmdHeight));
-		//this.#dmd.addRenderer('outline', new OutlineRenderer(this.#dmdWidth, this.#dmdHeight));
-
-		//this.#dmd.addRenderer('dummy', new DummyRenderer(this.#dmdWidth, this.#dmdHeight));
-		
-
+		// Add score effect renderer instance to DMD
+		this.#dmd.addRenderer('score-effect', new ScoreEffectRenderer(this.#dmd.width, this.#dmd.height, 200, noises));
+	
+		// HUD (to display connection/disconnection/errors)
 		this.#dlgBox = document.createElement('div');
-        this.#dlgBox.id = 'dialog-box';
+        this.#dlgBox.id = 'dialog-box'; //CSS
         document.body.appendChild(this.#dlgBox);
-
-		/*PubSub.subscribe('layer.created', function(ev, layer) {
-			console.log(`Layer created : ${layer.getId()}`, layer);
-		});*/
-
-
-		/*PubSub.subscribe('layer.loaded', function(ev, layer) {
-			console.log(`Layer loaded : ${layer.getId()}`, layer);
-		});*/
 
 		// Load resources file then reset dmd
 		this.#resources.load().then(function(resources) {
@@ -302,8 +281,6 @@ class App {
 			this.#modes.initAll();
 		}
 
-		this.#dmd.debug();
-
 		/*var testLayer = this.#dmd.createLayer(DMD.LayerType.Image,'test',{
 			src : 'resources/animations/boss-mode/0.webp',
 			opacity : 0.5,
@@ -311,19 +288,15 @@ class App {
 		});*/
 
         /*var testLayer = this.#dmd.createLayer(DMD.LayerType.Text, 'test', {
-			text : "GAME OVER",
-            fontSize: '20',
+			text : "1234567890",
+            fontSize: 40,
             fontFamily : 'Dusty',
-            align : 'center',
-            top: 1,
-			//letterSpacing : 40,
-            outlineWidth : 1,
-            outlineColor : Colors.red,
-            antialiasing : false,
-			aaTreshold : 144,
-			//visible : false
-            //renderers : ['score-effect'],
-			opacity : 0.5
+            align : 'right',
+            vAlign : 'middle',
+			hOffset : -1,
+            outlineWidth : 2,
+            outlineColor : Colors.blue,
+            renderers : ['score-effect'],
         });*/
 
 
