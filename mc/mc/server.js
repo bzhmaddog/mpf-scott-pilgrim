@@ -1,6 +1,7 @@
 const fs = require('fs'),
 	  yaml = require('js-yaml'),
 	  net = require('net'),
+	  https = require("node:https"),
 	  rl = require('readline'),
 	  WebSocketServer = require('ws').Server,
 	  process = require('process'),
@@ -13,7 +14,7 @@ const fs = require('fs'),
 stdin.resume();	
 stdin.setEncoding('utf8');
 
-const WEBSOCKET_PORT = 1337;
+const WEBSOCKET_PORT = 8443;
 const BCP_PORT = 5050;
 const __version__ = '0.55.0-dev.12'
 const __short_version__ = '0.55'
@@ -22,9 +23,17 @@ const __config_version__ = '5'
 const __mpf_version_required__ = '0.55.0-dev.49'
 const startUsage = process.cpuUsage();
 
+const httpsServer = https.createServer({
+	cert: fs.readFileSync(process.env.SSL_CRT_FILE),
+	key: fs.readFileSync(process.env.SSL_KEY_FILE)
+	//port: WEBSOCKET_PORT
+});
+
+//console.log(httpsServer);
+
 var tcpSocket;
-var	webSocketServer = new WebSocketServer({ port: WEBSOCKET_PORT }),
-	bcpServer = net.createServer((socket) => {
+var	webSocketServer = new WebSocketServer({ server : httpsServer });
+var bcpServer = net.createServer((socket) => {
 		tcpSocket = socket;
 	}).on('error', (err) => {
 	  throw err;
@@ -61,7 +70,13 @@ try {
     console.log(e);
 }
 
-bcpServer.listen(BCP_PORT,function() {
+//console.log(webSocketServer);
+
+httpsServer.listen(WEBSOCKET_PORT, function() {
+	console.log(`Websocket server listening for connection requests on socket localhost:${WEBSOCKET_PORT}`);
+});
+
+bcpServer.listen(BCP_PORT, function() {
 	console.log(`BCP server listening for connection requests on socket localhost:${BCP_PORT}`);
 });
 	

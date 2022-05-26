@@ -11,11 +11,13 @@ class WSS {
 	#onCloseListener;
 	#onErrorListener;
 	#onMessageListener;
+	#isSecure;
 
-	constructor(hostname, port) {
+	constructor(hostname, port, secure) {
 		this.#isConnected = false;
 		this.#hostname = hostname;
 		this.#port = port;
+		this.#isSecure = !!secure;
 	}
 
 	set onOpen(listener) {
@@ -98,8 +100,17 @@ class WSS {
      * Connect to websocket server
      */
 	connect() {
+		let protocol;
+
+		if (this.#isSecure) {
+			protocol = 'wss';
+		} else {
+			protocol = `ws`;
+		}
+
+
 		// Connect to the server via a websocket
-		this.#server = new WebSocket(`ws://${this.#hostname}:${this.#port}`, ['soap', 'xmpp']);
+		this.#server = new WebSocket( `${protocol}://${this.#hostname}:${this.#port}`, ['soap', 'xmpp']);
 
 		this.#server.onerror = this.#onError.bind(this);
 		this.#server.onopen = this.#onOpen.bind(this);

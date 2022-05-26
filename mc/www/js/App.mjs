@@ -29,7 +29,7 @@ class App {
      */
     constructor(canvasId) {
         this.#dlgBox;
-        this.#wsServer = new WSS(location.hostname, 1337);
+        this.#wsServer = new WSS("archpinball.dev", 8443, true);
         this.#dmd;
         this.#resources = new Resources('/resources.json', '/resources/');
         this.#audioManager = new AudioManager();
@@ -78,7 +78,7 @@ class App {
 
 
 			// Init DMD then
-			that.#dmd.init().then( () => {
+			that.#dmd.init().then( (device) => {
 
 				// Start rendering dmd
 				that.#dmd.run();
