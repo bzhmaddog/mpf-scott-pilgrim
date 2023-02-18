@@ -8,7 +8,7 @@ import { Resources } from './resources/Resources.mjs';
 import { Variables } from './variables/Variables.mjs';
 import { AudioManager } from './audio-manager/AudioManager.mjs';
 import { WSS } from './ws/WSS.mjs';
-import { ScoreEffectRenderer } from './renderers/ScoreEffectRenderer.mjs';
+import { NoiseEffectRenderer } from './renderers/NoiseEffectRenderer.mjs';
 import { Colors } from './dmd/Colors.mjs';
 import { Utils } from './dmd/Utils.mjs';
 
@@ -49,13 +49,8 @@ class App {
 
     start() {
         var that = this;
-        // Create a new DMD where each pixel will be 5x5
-		// pixels will be spaced by 3 pixels horizontaly and verticaly
-		// the original medias size will be 128x64
-		// and the final DMD size will be 1024x511
-		// pixel shape will be circle (can be circle or square at the moment)
-		//this.#dmd = new DMD(this.#dmdWidth, this.#dmdHeight, this.#screenWidth, this.#screenHeight, 4, 4, 1, 1, 1, 1, DMD.DotShape.Square, 14, 0, this.#canvas, true);
-		//this.#dmd = new DMD(this.#canvas, 4, 1, 1, 1, DMD.DotShape.Square, 14, 0, true);		
+
+		// Create a new DMD where each pixel will be 5x5
 		this.#dmd = new DMD(this.#canvas, 2, 1, 1, 1, DMD.DotShape.Square, 14, 0, true);
 
 		// Build array of path to noise images
@@ -65,7 +60,7 @@ class App {
 		}
 		
 		// Add score effect renderer instance to DMD
-		this.#dmd.addRenderer('score-effect', new ScoreEffectRenderer(this.#dmd.width, this.#dmd.height, 200, noises));
+		this.#dmd.addRenderer('score-effect', new NoiseEffectRenderer(this.#dmd.width, this.#dmd.height, 200, noises));
 	
 		// HUD (to display connection/disconnection/errors)
 		this.#dlgBox = document.createElement('div');
@@ -125,7 +120,7 @@ class App {
 
 					that.#modes.initAll();
 			
-					that.#wsServer.connect();				
+					that.#wsServer.connect();
 				});
 			});
 		});		
@@ -133,7 +128,6 @@ class App {
 
 	#wsOnError(event) {
 		var that = this;
-		//console.log("WebSocket onerror", event);
 
 		if (this.#wsServer.isConnected()) {
 			this.#wsServer.close();
@@ -143,13 +137,14 @@ class App {
 					that.#wsServer.connect();
 				}, 1500);
 			}
-		}		
+		}
 	}
 
 	#wsOnOpen(event) {
 		var that = this;
-		//console.log("WebSocket onconnect", event);
+
 		this.#showDlg("Connected...", 'success');
+
 		setTimeout(function() {
 			that.#hideDlg();
 		}, 1000);
@@ -164,6 +159,7 @@ class App {
 			this.#reset();
 
 			this.#showDlg("Connection lost ...", 'error');
+
 			setTimeout(function() {
 				that.#wsServer.connect();
 			}, 1000);
@@ -226,7 +222,6 @@ class App {
 				break;
 			default:
 				console.log("Unhandled message received : ", rawData);
-
 		}
 	}
 
@@ -263,8 +258,6 @@ class App {
 	#resetDMD(initModes) {
 		console.log("DMD reset");
 
-		var that = this;
-
 		// Remove all layers
 		this.#dmd.reset();
 
@@ -280,55 +273,16 @@ class App {
 			// Init modes
 			this.#modes.initAll();
 		}
-
-		/*var testLayer = this.#dmd.createLayer(DMD.LayerType.Image,'test',{
-			src : 'resources/animations/boss-mode/0.webp',
-			opacity : 0.5,
-			//renderers : ['score-effect']
-		});*/
-
-        /*var testLayer = this.#dmd.createLayer(DMD.LayerType.Text, 'test', {
-			text : "1234567890",
-            fontSize: 40,
-            fontFamily : 'Dusty',
-            align : 'right',
-            vAlign : 'middle',
-			hOffset : -1,
-            outlineWidth : 2,
-            outlineColor : Colors.blue,
-            renderers : ['score-effect'],
-        });*/
-
-
-
-		//document.getElementById('slider').addEventListener('change', function(){
-		//	console.log(this.value);
-		//	var l = that.#dmd.getLayer('test');
-
-			//l.setOpacity(this.value / 255);
-
-			//l.setRendererParams('no-antialiasing',[this.value]);
-			//l.redraw();
-		//});
-
-		//setTimeout(function(){
-			//that.#dmd.showLayerGroup('hud');
-			//that.#dmd.showLayer('gameover-text');
-		//}, 200);
-
-		
+	
 		// DMD has been created with brightness = 0 so show it now
 		setTimeout(this.#fadeIn.bind(this), 100);
-
-		//this.#dmd.setBrightness(0.1);
-
 	}
 
 	/**
 	 * Fade DMD from {current brightness} to 1
 	 */
 	#fadeIn() {
-		this.#dmd.fadeIn(800);		
+		this.#dmd.fadeIn(800);
 	}
 
 	/**
@@ -361,7 +315,7 @@ class App {
 			this.#variables.set('player', 'players', players);				
 		} else {
 			console.log("Player num is wrong", data);
-		}		
+		}
 	}
 
 	/**
@@ -379,7 +333,7 @@ class App {
 			}
 			
 			this.#variables.set('machine', key, v);
-		};
+		}
 	}
 
 	#addPlayer() {
