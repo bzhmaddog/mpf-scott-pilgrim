@@ -5,3 +5,6 @@ vpx/crash.txt
 mc/www/js/dmd
 
 .DS_Store
+
+mc/www/demo
+mc/www/old
