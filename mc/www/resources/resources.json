@@ -1,0 +1,170 @@
+{
+    "strings" : {
+		"en-US" : {
+			"attractModeStart" : "PRESS START",
+			"ballText" : "BALL:",
+			"playerText" : "P",
+			"playerTextLong" : "Player",
+			"gameOver" : "Game Over"
+		}
+	},
+	"musics" : [
+		 {
+			 "key" : "attract",
+			 "url" : "attract.ogg",
+			 "preload" : true
+		 },
+		 {
+			"key" : "main",
+			"url" : "main.ogg",
+			"preload" : true
+		}
+	],
+	"sounds" : [
+		{
+			"key" : "start",
+			"url" : "start.ogg",
+			"preload" : true
+		},
+		{
+			"key" : "gameover",
+			"url" : "ko.ogg",
+			"preload" : true
+		},
+		{
+			"key" : "dong",
+			"url" : "dong.ogg",
+			"preload" : true
+		}
+	],
+	"videos" : [
+		{
+			"key" : "gameover-clouds",
+			"url" : "game-over-clouds.webm",
+			"preload" : true
+		}
+	],
+	"fonts" : [
+		{
+			"key" : "Superfly",
+			"url" : "SUPERFLY.otf",
+			"preload" : true
+		},
+		{
+			"key" : "Dusty",
+			"url" : "Dusty.otf",
+			"preload" : true
+		}
+	],
+	"images" : [
+		{
+			"key" : "logo",
+			"url" : "logo.webp",
+			"preload" : true
+		},
+		{
+			"key" : "title",
+			"url" : "title.webp",
+			"preload" : true
+		},
+		{
+			"key" : "gameover-bg",
+			"url" : "game-over.webp",
+			"preload" : true
+		},
+		{
+			"key" : "gameover-clouds",
+			"url" : "game-over-clouds.webp",
+			"preload" : true
+		},
+		{
+			"key" : "boss-mode-1",
+			"url" : "boss-mode/0.webp",
+			"preload" : true,
+			"group": "boss-mode-animation"
+		},
+		{
+			"key" : "boss-mode-2",
+			"url" : "boss-mode/2.webp",
+			"preload" : true,
+			"group": "boss-mode-animation"
+		},
+		{
+			"key" : "boss-mode-3",
+			"url" : "boss-mode/3.webp",
+			"preload" : true,
+			"group": "boss-mode-animation"
+		},
+		{
+			"key" : "boss-mode-4",
+			"url" : "boss-mode/4.webp",
+			"preload" : true,
+			"group": "boss-mode-animation"
+		},
+		{
+			"key" : "boss-mode-5",
+			"url" : "boss-mode/5.webp",
+			"preload" : true,
+			"group": "boss-mode-animation"
+		},
+		{
+			"key" : "boss-mode-6",
+			"url" : "boss-mode/6.webp",
+			"preload" : true,
+			"group": "boss-mode-animation"
+		},
+		{
+			"key" : "boss-mode-7",
+			"url" : "boss-mode/7.webp",
+			"preload" : true,
+			"group": "boss-mode-animation"
+		},
+		{
+			"key" : "boss-mode-8",
+			"url" : "boss-mode/8.webp",
+			"preload" : true,
+			"group": "boss-mode-animation"
+		},
+		{
+			"key" : "boss-mode-9",
+			"url" : "boss-mode/9.webp",
+			"preload" : true,
+			"group": "boss-mode-animation"
+		},
+		{
+			"key" : "boss-mode-10",
+			"url" : "boss-mode/10.webp",
+			"preload" : true,
+			"group": "boss-mode-animation"
+		},
+		{
+			"key" : "boss-mode-11",
+			"url" : "boss-mode/11.webp",
+			"preload" : true,
+			"group": "boss-mode-animation"
+		},
+		{
+			"key" : "boss-mode-12",
+			"url" : "boss-mode/12.webp",
+			"preload" : true,
+			"group": "boss-mode-animation"
+		},
+		{
+			"key" : "boss-mode-13",
+			"url" : "boss-mode/13.webp",
+			"preload" : true,
+			"group": "boss-mode-animation"
+		},
+		{
+			"key" : "boss-mode-14",
+			"url" : "boss-mode/14.webp",
+			"preload" : true,
+			"group": "boss-mode-animation"
+		},
+		{
+			"key" : "sprite-scott",
+			"url" : "sprites/scott.png",
+			"preload" : false
+		}
+	]
+}

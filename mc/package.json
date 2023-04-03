@@ -1,0 +1,14 @@
+{
+  "devDependencies": {
+    "@codecapers/fusion": "^1.0.15",
+    "expose-loader": "^4.0.0",
+    "pubsub-js": "^1.9.4",
+    "ts-loader": "^9.4.2",
+    "typescript": "^5.1.0-dev.20230305",
+    "webpack": "^5.76.0",
+    "webpack-cli": "^5.0.1"
+  },
+  "dependencies": {
+    "@webgpu/types": "^0.1.27"
+  }
+}
