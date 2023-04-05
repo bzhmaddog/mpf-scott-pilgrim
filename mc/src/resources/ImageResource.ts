@@ -1,12 +1,12 @@
-import { Resource } from "./Resource.js";
+import { Resource } from "./Resource.js"
 
 class ImageResource extends Resource<ImageBitmap> {
     constructor(url: string, preload: boolean) {
-        super(url, preload);
+        super(url, preload)
     }
 
     protected _loadResource(): Promise<ImageBitmap> {
-        const that = this;
+        const that = this
 
         return new Promise<ImageBitmap>( (resolve, reject) => {
             
@@ -14,15 +14,15 @@ class ImageResource extends Resource<ImageBitmap> {
             .then(response => response.blob())
             .then(blob => createImageBitmap(blob))
             .then(audioBuffer => {
-                that._resource = audioBuffer;
-                that._isLoaded = true;
-                resolve(that._resource);
+                that._resource = audioBuffer
+                that._isLoaded = true
+                resolve(that._resource)
             })
             .catch( error => {
-                console.error(`Resource "${that.url}" failed to load: ${error.message}`);
-                reject(error);
-             });
-        });
+                console.error(`Resource "${that.url}" failed to load: ${error.message}`)
+                reject(error)
+             })
+        })
     }
 }
 

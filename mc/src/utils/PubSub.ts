@@ -32,7 +32,7 @@ class PubSub {
         message: any
     ) {
         if (typeof this.handlers[event] !== 'undefined') {
-            this.handlers[event].forEach(h => h(message));
+            this.handlers[event].forEach(h => h(message))
         }
     }
 
