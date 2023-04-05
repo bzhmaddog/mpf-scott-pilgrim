@@ -41,7 +41,19 @@ class AttractMode extends Mode {
 
         super.init()
 
-        this._audioManager.addSound('attract', this._resourcesManager.getMusic('attract').resource)
+        this._resourcesManager
+        .getMusic('attract')
+        .load()
+        .then( audioBuffer => {
+            this._audioManager.addSound('attract', audioBuffer)
+        })
+        
+        this._resourcesManager
+        .getSound('dong')
+        .load()
+        .then( audioBuffer => {
+            this._audioManager.addSound('dong', audioBuffer)
+        })
 
         // Credit string var is not initialized at this point
         var creditsString = this._variablesManager.get('machine', 'credits_string', ".")

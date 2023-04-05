@@ -101,6 +101,7 @@ class ResourcesManager {
                     that._sounds[r.key] = resource
                     that._addGroup(r.group)
                     if (!!r.preload) {
+                        console.log(`Preloading sound : ${r.key}`)
                         preloadList.push(resource.load())
                     }
                 })

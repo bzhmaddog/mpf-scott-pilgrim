@@ -51,6 +51,7 @@ class App {
 		this._dmd = new DMD(this._canvas, 2, 1, 1, 1, DotShape.Square, 14, 0, true)
 
 		window.DMDDisplay = this._dmd
+		window.audioManager = this._audioManager
 
 		// Build array of path to noise images
 		var noises: string[] = []
