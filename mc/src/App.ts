@@ -2,7 +2,7 @@ import { ModesManager } from './managers/ModesManager.js'
 import { BaseMode } from './modes/BaseMode.js'
 import { GameMode } from './modes/GameMode.js'
 import { AttractMode } from './modes/AttractMode.js'
-import { DMD } from './dmd/DMD.js'
+import { DMD, ILayerDimensions } from './dmd/DMD.js'
 import { DotShape } from './dmd/renderers/DMDRenderer.js'
 import { ResourcesManager } from './managers/ResourcesManager.js'
 import { VariablesManager } from './managers/VariablesManager.js'
@@ -13,6 +13,7 @@ import { Colors } from './dmd/Colors.js'
 import { Utils } from './dmd/Utils.js'
 import { Options } from './utils/Options.js'
 import { CanvasLayer } from './dmd/layers/CanvasLayer.js'
+import { ILayerRendererDictionary } from './dmd/renderers/LayerRenderer.js'
 
 
 class App {
@@ -54,13 +55,13 @@ class App {
 		window.audioManager = this._audioManager
 
 		// Build array of path to noise images
-		var noises: string[] = []
+		/*var noises: string[] = []
 		for (var i = 0 ; i < 6 ; i++) {
 			noises.push(`resources/images/noises/noise-${i}.png`)
-		}
+		}*/
 		
 		// Add score effect renderer instance to DMD
-		this._dmd.addRenderer('score-effect', new NoiseEffectRenderer(this._dmd.width, this._dmd.height, 200, noises))
+		//this._dmd.addRenderer('score-effect', new NoiseEffectRenderer(this._dmd.width, this._dmd.height, 200, noises))
 	
 		// HUD (to display connection/disconnection/errors)
 		this._dlgBox = document.createElement('div')
@@ -261,23 +262,27 @@ class App {
 		this._dmd.reset()
 
 		// Add default screen (mpf logo)
-		this._dmd.createCanvasLayer('logo', new Options({ opacity : 1 }), function(layer: CanvasLayer) {
-
-			that._resourcesManager
-			.getImage('logo').load()
-			.then( bitmap => {
-				layer.drawImage(
-				bitmap,
-				new Options({
-					top: 0,
-					left: 0,
-					width: '100%', // Number of horizontal DMD dots 
-					height: '100%' // Number of vertical DMD dots
+		this._dmd.createCanvasLayer(
+			'logo',
+			{}, // use default values
+			new Options({ opacity : 1 }),
+			null,
+			(layer : CanvasLayer) => {
+				that._resourcesManager
+				.getImage('logo').load()
+				.then( bitmap => {
+					layer.drawBitmap(
+					bitmap,
+					new Options({
+						top: 0,
+						left: 0,
+						width: '100%', // Number of horizontal DMD dots 
+						height: '100%' // Number of vertical DMD dots
+					})
+					)
 				})
-				)
+				.catch(error => alert(error))
 			})
-			.catch(error => alert(error))
-		})
 
 		if (!!initModes) {
 			// Init modes

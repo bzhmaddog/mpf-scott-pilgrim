@@ -8,6 +8,8 @@ import { AudioManager } from "../managers/AudioManager.js"
 import { TextLayer } from "../dmd/layers/TextLayer.js"
 import { Options } from "../utils/Options.js"
 import { IPubSubBeforeAfterMessage } from "../utils/PubSub.js"
+import { ILayerRendererDictionary } from "../dmd/renderers/LayerRenderer.js"
+import { NoiseEffectRenderer } from "../renderers/NoiseEffectRenderer.js"
 
 //import { ScoreEffectRenderer } from "../renderers/ScoreEffectRenderer.mjs"
 //import { RemoveAlphaRenderer } from "../renderers/RemoveAlphaRenderer.mjs"
@@ -38,6 +40,13 @@ class GameMode extends Mode {
 
         const that = this
 
+		// Build array of path to noise images
+        // TODO : Get from resource manager
+		var noises: string[] = []
+		for (var i = 0 ; i < 6 ; i++) {
+			noises.push(`resources/images/noises/noise-${i}.png`)
+		}
+
         this._resourcesManager
         .getSound('start')
         .load()
@@ -48,101 +57,122 @@ class GameMode extends Mode {
         //this._audioManager.addSound('main', this._resourcesManager.getMusic('main').resource)
 
 
-		this._playerTextLayer = this._dmd.createTextLayer('player-text', new Options({
-            text : this._resourcesManager.getString('playerText'),
-			fontSize : 10,
-			fontFamily : 'Dusty',
-			left : 2,
-			vAlign : 'bottom',
-			vOffset : -1,
-			color : Colors.White,
-			//outlineWidth : 1,
-			//outlineColor : Colors.blue,
-            //aaTreshold : 144,
-            //antialiasing : false,
-            strokeWidth : 2,
-            strokeColor : Colors.Blue,
-			zIndex : 1001,
-			visible : false,
-            groups: ['hud']
-		}))
+		this._playerTextLayer = this._dmd.createTextLayer(
+            'player-text',
+            {
+                width : 15,
+                height : 15,
+                left : 0,
+                vAlign : 'bottom',
+            },
+            new Options({
+                text : this._resourcesManager.getString('playerText'),
+                fontSize : 90,
+                fontFamily : 'Dusty',
+                color : Colors.White,
+                strokeWidth : 2,
+                strokeColor : Colors.Blue,
+                zIndex : 1001,
+                visible : false,
+                groups: ['hud']
+		    })
+        )
 
 
-		this._ballTextLayer = this._dmd.createTextLayer('ball-text', new Options({
-            text : this._resourcesManager.getString('ballText'),
-			fontSize : '10',
-			fontFamily : 'Dusty',
-			align : 'right',
-			hOffset : -11,
-			vAlign : 'bottom',
-			vOffset : -1,
-			color : Colors.White,
-			//outlineWidth : 1,
-			//outlineColor : Colors.blue,
-            strokeWidth: 2,
-            strokeColor : Colors.Blue,
-            //aaTreshold : 144,
-            //antialiasing : false,
-			zIndex : 1001,
-			visible : false,
-            groups: ['hud']            
-		}))			
+		this._ballTextLayer = this._dmd.createTextLayer(
+            'ball-text',
+            {
+                width: 60,
+                height: 15,
+                hAlign : 'right',
+                hOffset : -15,
+                vAlign : 'bottom',
+            }
+            , new Options({
+                text : this._resourcesManager.getString('ballText'),
+                fontSize : 90,
+                fontFamily : 'Dusty',
+                color : Colors.White,
+                strokeWidth: 2,
+                strokeColor : Colors.Blue,
+                zIndex : 1001,
+                visible : false,
+                groups: ['hud']
+		    })
+        )
 
        
-        this._playerValueLayer = this._dmd.createTextLayer('player-value', new Options({
-            text : "0",
-            fontSize : 10,
-            fontFamily : 'Dusty',
-            left : '4%',
-            vAlign : 'bottom',
-            vOffset : -1,
-            color : Colors.White,
-            strokeWidth: 2,
-            strokeColor : Colors.Blue,
-            visible : false,
-            groups: ['hud'],
-            renderers : ['score-effect']
-        }))
+        this._playerValueLayer = this._dmd.createTextLayer(
+            'player-value',
+            {
+                width : 10,
+                height: 15,
+                left : 15, // Fix %,
+                vAlign : 'bottom'
+            },
+            new Options({
+                text : "0",
+                fontSize : 90,
+                fontFamily : 'Dusty',
+                color : Colors.White,
+                strokeWidth: 2,
+                strokeColor : Colors.Blue,
+                visible : false,
+                groups: ['hud'],
+                renderers : ['score-effect']
+            }),
+            { "score-effect" : new NoiseEffectRenderer(10, 15, 200, noises) }
+        )
 
 
-        that._ballValueLayer = this._dmd.createTextLayer('ball-value', new Options({
-            text : "1",
-            fontSize : 10,
-            fontFamily : 'Dusty',
-            align : 'right',
-            hOffset : -2,
-            vAlign : 'bottom',
-            vOffset : -1,
-            color : Colors.White,
-            outlineWidth : 1,
-            outlineColor : Colors.Blue,
-            zIndex : 1001,
-            aaTreshold : 144,
-            antialiasing : false,
-            visible : false,
-            groups: ['hud'],
-            renderers : ['score-effect']
-        }))
+        that._ballValueLayer = this._dmd.createTextLayer(
+            'ball-value',
+            {
+                width : 15,
+                height: 15,
+                hAlign: 'right',
+                vAlign: 'bottom'
+            },
+            new Options({
+                text : "0",
+                fontSize : 90,
+                fontFamily : 'Dusty',
+                color : Colors.White,
+                strokeWidth : 2,
+                strokeColor : Colors.Blue,
+                zIndex : 1001,
+                aaTreshold : 144,
+                antialiasing : false,
+                visible : false,
+                groups: ['hud'],
+                renderers : ['score-effect']
+            }),
+            { "score-effect" : new NoiseEffectRenderer(15, 15, 200, noises) }
+        )
 
-        that._scoreLayer = this._dmd.createTextLayer('score', new Options({
-            //text : "0123456789",
-            text : "0",
-            fontSize : 40,
-            fontFamily : 'Dusty',
-            align : 'right',
-            hOffset : -1,
-            vAlign : 'middle',
-            color : Colors.White,
-            outlineWidth : 2,
-            outlineColor : Colors.Blue,
-            adjustWidth : true,
-            zIndex : 1000,
-            aaTreshold : 144,
-            antialiasing : false,
-            visible : false,
-            groups: ['hud'],
-            renderers : ['score-effect']
-        }))
+        that._scoreLayer = this._dmd.createTextLayer(
+            'score',
+            {},
+            new Options({
+                text : "0",
+                fontSize : 40,
+                fontFamily : 'Dusty',
+                hAlign : 'right',
+                hOffset : -1,
+                vAlign : 'middle',
+                color : Colors.White,
+                outlineWidth : 2,
+                outlineColor : Colors.Blue,
+                adjustWidth : true,
+                zIndex : 1000,
+                aaTreshold : 144,
+                antialiasing : false,
+                visible : false,
+                groups: ['hud'],
+                renderers : ['score-effect']
+            }),
+            { "score-effect" : new NoiseEffectRenderer(this._dmd.width, this._dmd.height, 200, noises) } as ILayerRendererDictionary
+        )
     }
 
     /**
