@@ -1,0 +1,16 @@
+#config_version=6
+
+#mode:
+#  start_events: ball_starting
+#  stop_events: ball_end
+#  priority: 300
+
+mode:
+  start_events: ball_starting
+  priority: 100
+
+variable_player:
+  s_enter_playfield_active:
+    score: 1475
+  s_add_score_active:
+    score: 500

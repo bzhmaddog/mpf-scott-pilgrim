@@ -1,0 +1,52 @@
+name: mpf-scott-pilgrim
+
+services:
+  mpf:
+    image: mpf:0.57
+    container_name: mpf
+    networks:
+      - mc-back
+    volumes:
+      -  ../mpf:/mpf
+
+  mc-back:
+    image: mc-back:1.0.0
+    container_name: mc-back
+    environment:
+      - SSL_CRT_FILE=/certs/server.crt
+      - SSL_KEY_FILE=/certs/server.key
+    #stdin_open: true
+    tty: true
+    networks:
+      - mc-back
+    volumes:
+      - ~/mpf-scott-pilgrim/mpf:/mpf-config
+
+  mc-front:
+    image: mc-front-dev:latest
+    container_name: mc-front
+    networks:
+      - mc-front
+    volumes:
+      - ./media-controller/front:/app
+      #- ~/H5DMD:/app/node_modules/h5dmd
+
+  mc-proxy:
+    image: mc-proxy:latest
+    container_name: mc-proxy
+    depends_on:
+      - mc-back
+      - mc-front
+    ports:
+      - "443:4443/tcp"
+      - "80:8080/tcp"
+      - "4443:8443/tcp"
+    networks:
+      - mc-front
+      - mc-back
+    volumes:
+      - ../certs/2024:/certs
+
+networks:
+  mc-back:
+  mc-front:

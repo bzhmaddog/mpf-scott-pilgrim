@@ -2,12 +2,9 @@ data
 logs
 vpx/crash.dmp
 vpx/crash.txt
-mc/www/js/dmd
+.idea
 
-.DS_Store
+/docker/media-controller/front/dist/
+/docker/media-controller/front/public/resources/
+/certs/2024
 
-mc/www/demo
-mc/www/old
-mc/www/js
-mc/www/resources/audio
-mc/www/resources/images

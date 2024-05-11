@@ -1,0 +1,13 @@
+#config_version=6
+
+bcp:
+  debug: True
+
+  connections:
+    local_display:
+      host: mc-back
+      port: 5050
+  
+#  servers:
+#    url_style:
+#      ip: 127.0.0.1

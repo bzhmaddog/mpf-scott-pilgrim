@@ -1,0 +1,11 @@
+#config_version=6
+
+hardware:
+  platform: opp
+  driverboards: gen2
+
+opp:
+  ports: /dev/ttyACM0, /dev/ttyACM1
+  chains:
+    0: /dev/ttyACM0
+    1: /dev/ttyACM1

@@ -1,7 +1,10 @@
 authorityKeyIdentifier=keyid,issuer
 basicConstraints=CA:FALSE
 keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+extendedKeyUsage = serverAuth
 subjectAltName = @alt_names
 
 [alt_names]
 DNS.1 = archpinball.dev
+DNS.2 = www.archpinball.dev
+IP = 192.168.0.17

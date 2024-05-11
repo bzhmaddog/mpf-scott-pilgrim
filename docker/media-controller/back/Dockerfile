@@ -1,0 +1,21 @@
+# syntax=docker/dockerfile:1
+
+FROM node:current-alpine3.19
+
+
+RUN mkdir -p /app/node_modules && chown -R node:node /app
+RUN mkdir -p /mpf-config
+
+WORKDIR /app
+
+ADD ./src/server.js ./
+COPY ./src/package*.json ./
+
+COPY --chown=node:node . .
+
+RUN npm install
+
+USER node
+
+#CMD node server.js
+CMD ["node", "server.js"]
