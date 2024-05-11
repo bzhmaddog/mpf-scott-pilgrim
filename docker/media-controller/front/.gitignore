@@ -42,5 +42,5 @@ testem.log
 Thumbs.db
 
 #resources
-src/assets/resources/audio
-src/assets/resources/images
+src/assets/resources/audio/*
+src/assets/resources/images/*
