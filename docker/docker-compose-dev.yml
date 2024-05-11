@@ -7,7 +7,7 @@ services:
     networks:
       - mc-back
     volumes:
-      -  ../mpf:/mpf
+      - ../mpf-config:/mpf
 
   mc-back:
     image: mc-back:1.0.0
