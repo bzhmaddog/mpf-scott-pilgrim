@@ -1,10 +1,13 @@
-data
-logs
 vpx/crash.dmp
 vpx/crash.txt
 .idea
 
+# No need to version that
 /docker/media-controller/front/dist/
-/docker/media-controller/front/public/resources/
+
+# Don't version certificates
 /certs/2024
 
+# mpf runtime stuff
+mpf-config/logs
+mpf-config/data
