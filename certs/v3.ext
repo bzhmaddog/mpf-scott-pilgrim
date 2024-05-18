@@ -7,4 +7,4 @@ subjectAltName = @alt_names
 [alt_names]
 DNS.1 = archpinball.dev
 DNS.2 = www.archpinball.dev
-IP = 192.168.0.17
+IP = 192.168.0.21
