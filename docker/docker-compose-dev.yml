@@ -8,6 +8,9 @@ services:
       - mc-back
     volumes:
       - ../mpf-config:/mpf
+    devices:
+      - /dev/cobrapin_board_0
+      - /dev/cobrapin_board_1
 
   mc-back:
     image: mc-back:1.0.0

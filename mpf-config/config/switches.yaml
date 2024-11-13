@@ -40,8 +40,8 @@ switches:
     number: 1-0-43
     
   s_enter_playfield:
-    number: 1-0-95
+    number: 1-0-44
     tags: playfield_active
 
   s_add_score:
-    number: 1-0-44
+    number: 1-0-45
