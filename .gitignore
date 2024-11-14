@@ -5,9 +5,6 @@ vpx/crash.txt
 # No need to version that
 /docker/media-controller/front/dist/
 
-# Don't version certificates
-/certs/2024
-
 # mpf runtime stuff
 mpf-config/logs
 mpf-config/data

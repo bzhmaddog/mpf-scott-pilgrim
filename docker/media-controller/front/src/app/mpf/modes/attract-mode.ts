@@ -158,8 +158,8 @@ class AttractMode extends Mode {
     this._creditsLayer = this._dmd.addTextLayer(
       'attract-credits',
       {
-        width: 48,
-        height: 6,
+        width: 65,
+        height: 8,
         hAlign: 'right',
         vAlign: 'bottom',
         //hOffset : -2,
@@ -169,7 +169,7 @@ class AttractMode extends Mode {
         text: initialCreditString,
         fontSize: 95,
         fontFamily: 'Dusty',
-        color: Colors.Black,
+        color: Colors.White,
         visible: true
       })
     )
@@ -327,7 +327,7 @@ class AttractMode extends Mode {
 
       })
 
-      this._attractRestartTO = setTimeout(() => {
+      this._attractRestartTO = window.setTimeout(() => {
 
         this._dmd.fadeOut(150).then(() => {
           this._gameOverCloudsVideoLayer.setVisibility(false)
@@ -367,7 +367,7 @@ class AttractMode extends Mode {
       this._subTitleLayer.setVisibility(true)
       this._creditsLayer.setVisibility(true)
       this._startLayer.setVisibility(false)
-      this._blinkInterval = setInterval(this._toggleStartText.bind(this), 1000)
+      this._blinkInterval = window.setInterval(this._toggleStartText.bind(this), 1000)
 
       if (this._dmd.brightness < 1) {
         this._dmd.fadeIn(150).then(() => {
@@ -392,7 +392,7 @@ class AttractMode extends Mode {
 
   private _startAttractMusicIfNeeded() {
     if (this._delayAttractMusic) {
-      this._attractMusicTO = setTimeout(this._startAttractMusic.bind(this), ATTRACT_MUSIC_RESTART_DELAY)
+      this._attractMusicTO = window.setTimeout(this._startAttractMusic.bind(this), ATTRACT_MUSIC_RESTART_DELAY)
       this._delayAttractMusic = false
     } else {
       this._startAttractMusic()
@@ -410,7 +410,7 @@ class AttractMode extends Mode {
   private _onMusicEnded() {
     if (this.isStarted()) {
       console.log("onMusicEnded() : Attract music ended, restarting later")
-      this._attractMusicTO = setTimeout(this._startAttractMusic.bind(this), ATTRACT_MUSIC_RESTART_DELAY)
+      this._attractMusicTO = window.setTimeout(this._startAttractMusic.bind(this), ATTRACT_MUSIC_RESTART_DELAY)
     } else {
       console.log("onMusicEnded() : Mode not started so I will not restart attract music")
     }

@@ -20,7 +20,7 @@ services:
     networks:
       - mc-back
     volumes:
-      - ~/mpf-scott-pilgrim/mpf-config:/mpf-config
+      - ../mpf-config:/mpf-config
 
   mc-front:
     image: mc-front-dev:latest
@@ -29,7 +29,6 @@ services:
       - mc-front
     volumes:
       - ./media-controller/front:/app
-      #- ~/H5DMD:/app/node_modules/h5dmd
 
   mc-proxy:
     image: mc-proxy:latest
