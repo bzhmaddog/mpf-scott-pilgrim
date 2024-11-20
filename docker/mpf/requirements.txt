@@ -1,0 +1,6 @@
+setuptools
+pillow
+mpf==0.80.0.dev5
+mpf-monitor
+waitress
+flask

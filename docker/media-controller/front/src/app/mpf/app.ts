@@ -3,23 +3,22 @@ import {CanvasLayer, Dmd, DotShape, Options} from "h5dmd";
 import {ResourcesManager} from "@mpf/services/resources-manager.service";
 import {inject} from "@angular/core";
 import {ToastrService} from "ngx-toastr";
-import {Store} from "@ngrx/store";
 import {WebSocketMessageParams} from "@mpf/types"
-import {machineActions} from '@store/machine'
-import {gameActions} from 'app/store/game'
 import {AudioManager} from "@mpf/services/audio-manager.service";
 import {ModesManager} from "@mpf/services/modes-manager.service";
 import {DmdManagerService} from "@mpf/services/dmd-manager.service";
+import {GameStore} from "../store/game.store";
 
 export class App {
-  private _wsServer: WebSocketServer
-  private readonly _resourcesManager: ResourcesManager
-  private readonly _audioManager: AudioManager
-  private _modesManager: ModesManager
-  private readonly _dmdManager: DmdManagerService
-  //private _dmd: Dmd
-  private readonly _toaster: ToastrService
-  private readonly _store: Store
+  private readonly _wsServer: WebSocketServer
+  private readonly _resourcesManager: ResourcesManager = inject(ResourcesManager)
+  private readonly _audioManager: AudioManager = inject(AudioManager)
+  private readonly _modesManager: ModesManager = inject(ModesManager)
+  private readonly _dmdManager: DmdManagerService = inject(DmdManagerService)
+  private readonly _toasterService: ToastrService = inject(ToastrService)
+
+  private readonly _store = inject(GameStore)
+
 
   get _dmd(): Dmd {
     return this._dmdManager.getDmd()!
@@ -36,16 +35,13 @@ export class App {
       onError: this._wsOnError.bind(this)
     })
 
-    this._dmdManager = inject(DmdManagerService)
-    this._resourcesManager = inject(ResourcesManager)
-    this._audioManager = inject(AudioManager)
-
-    this._toaster = inject(ToastrService)
-    this._store = inject(Store)
-    this._modesManager = inject(ModesManager)
-
     // Listen to keyboard events and send them to the backend
     document.addEventListener("keypress", (event) => {
+      if (!this._wsServer.isConnected()) {
+        console.warn("Websocket server is not connected")
+        return;
+      }
+
       this._wsServer.send(`mc_keyboard_event?key=${event.key}`)
     });
 
@@ -65,7 +61,7 @@ export class App {
         this._dmd.run()
 
         // Reset the DMD (show only background layer and mpf logo)
-        this._resetDMD(true)
+        this._resetDMD()
 
         // Connect to backend (start the game)
         this._wsServer.connect()
@@ -86,16 +82,16 @@ export class App {
   }
 
   private _wsOnOpen() {
-    this._toaster.success('Connected...', 'Backend', {
+    this._toasterService.success('Connected...', 'Backend', {
       timeOut: 1000,
     });
   }
 
   private _wsOnClose() {
     if (this._wsServer.isConnected()) {
-      this._reset()
+      this._resetDMD()
 
-      this._toaster.error('Disconnected...', 'Backend', {
+      this._toasterService.error('Disconnected...', 'Backend', {
         timeOut: 30000,
       });
     }
@@ -115,20 +111,31 @@ export class App {
         break
       case 'mc_reset':
         console.log("MPF requested reset")
-
         this._dmd.fadeOut(150).then(() => {
           this._dmd.removeLayer("logo")
-          this._wsServer.send('mc_ready')
+
+          this._dmd.fadeIn(150).then(() => {
+            this._modesManager.initAll()
+            this._audioManager.reset()
+
+            this._wsServer.send('mc_ready')
+          })
         })
+        break
+      case 'mc_settings':
+        console.log("MPF sent settings")
+        this._store.setSettings(JSON.parse(_params["settings"]))
         break
       case 'mc_goodbye':
         console.log("MPF said goodbye")
-        this._reset()
+        this._resetDMD()
         break
       case 'mc_machine_variable':
+        console.log("MPF sent machine variables")
         this._updateMachineVariables(_params)
         break
       case 'mc_player_variable':
+        console.log("MPF sent player variables")
         this._updatePlayerVariable(JSON.parse(_params['variables']))
         break
       case 'mc_mode_start':
@@ -158,7 +165,9 @@ export class App {
         console.log('ball_end')
         // todo : Play some animation
         break
-
+      case 'mc_switch':
+        console.log("BCP Switches", _params, rawData)
+        break
       default:
         console.log(`_wsOnMessage()[${cmd}] :`, _params, rawData)
       //console.log("Unhandled message received : ", rawData)
@@ -171,51 +180,59 @@ export class App {
    */
   private _reset() {
     //this._modesManager.stopActiveMode()
-    this._resetDMD(true)
+    this._resetDMD().then(() => {
+      this._modesManager.initAll();
+    })
     this._audioManager.reset()
   }
 
   /**
    * Reset all layers and add the two default layers
    */
-  private _resetDMD(initModes: boolean = false) {
-    console.log("DMD reset")
+  private _resetDMD(): Promise<void> {
+    console.log("Reseting DMD")
 
-    //this._audioManager.reset()
+    return new Promise((resolve) => {
 
-    // Remove all layers
-    this._dmd.reset()
+      // Remove all layers
+      this._dmd.reset()
 
-    // Add default screen (mpf logo)
-    this._dmd.addCanvasLayer(
-      'logo',
-      {}, // use default values
-      new Options({opacity: 1}),
-      undefined,
-      (layer) => {
-        this._resourcesManager
-          .getImage('logo').load()
-          .then((bitmap: ImageBitmap) => {
-            (layer as CanvasLayer).drawBitmap(
-              bitmap,
-              new Options({
-                top: 0,
-                left: 0,
-                width: '100%', // Number of horizontal DMD dots
-                height: '100%' // Number of vertical DMD dots
-              })
-            )
-          })
-          .catch(error => alert(error))
+      // Add default screen (mpf logo)
+      this._dmd.addCanvasLayer(
+        'logo',
+        {}, // use default values
+        new Options({opacity: 1}),
+        undefined,
+        (layer) => {
+          this._resourcesManager
+            .getImage('logo').load()
+            .then((bitmap: ImageBitmap) => {
+              (layer as CanvasLayer).drawBitmap(
+                bitmap,
+                new Options({
+                  top: 0,
+                  left: 0,
+                  width: '100%', // Number of horizontal DMD dots
+                  height: '100%' // Number of vertical DMD dots
+                })
+              )
+            })
+            .catch(error => alert(error))
+        })
+
+      // DMD has been created with brightness = 0 so show it now
+      this._timer(100).then(() => {
+        this._fadeIn()
+        resolve()
       })
+    })
 
-    if (initModes) {
-      // Init modes
-      this._modesManager.initAll()
-    }
+  }
 
-    // DMD has been created with brightness = 0 so show it now
-    setTimeout(this._fadeIn.bind(this), 100)
+  private _timer(delay: number): Promise<void> {
+    return new Promise((resolve) => {
+      setTimeout(resolve, delay);
+    });
   }
 
   /**
@@ -232,7 +249,7 @@ export class App {
    */
 
   private _ballStart(player: number, ball: number) {
-    this._store.dispatch(gameActions.setPlayerBall({player, ball}))
+    this._store.setPlayerBall(player, ball)
   }
 
   /**
@@ -243,32 +260,30 @@ export class App {
     switch(data['name']) {
       case 'index': {
         const player: number = parseInt(data['value'], 10)
-        console.log(`_updatePlayerVariable[index]`, player)
-        if (player > 0) { //TODO Check end of game
-          this._store.dispatch(gameActions.setCurrentPlayer({player}))
-        }
+        console.log(`IGNORED : _updatePlayerVariable[index]`, player)
+        //if (player > 0) { //TODO Check end of game
+          //this._store.setCurrentPlayer(player)
+        //}
         break
       }
       case 'score': {
         const player: number = parseInt(data['player_num'], 10)
         const score: number = parseInt(data['value'], 10)
         console.log(`_updatePlayerVariable[score]`, player, score)
-        this._store.dispatch(gameActions.setPlayerScore({player, score}))
+        this._store.setPlayerScore(player, score)
         break
       }
       case 'ball': {
         const player: number = parseInt(data['player_num'], 10)
         const ball: number = parseInt(data['value'], 10)
         console.log(`_updatePlayerVariable[ball]`, player, ball)
-        this._store.dispatch(gameActions.setPlayerBall({player, ball}))
+        this._store.setPlayerBall(player, ball)
         break
       }
       case 'number': {
-        console.log(data)
-        const players: number = parseInt(data['value'], 10)
-        this._store.dispatch(gameActions.setCurrentNumberOfPlayers({players}))
-
-        // Does nothing because number of players is the length of players array
+        const n: number = parseInt(data['value'], 10)
+        console.log("_updatePlayerVariable[number] =>", n)
+        this._store.setCurrentPlayer(n)
         break
       }
       default:
@@ -288,15 +303,16 @@ export class App {
       } catch (error) {
         value = v
       }
-      this._store.dispatch(machineActions.setMachineVariable({key, value}))
+      this._store.setMachineVariable(key, value)
     }
   }
 
   private _addPlayer() {
-    this._store.dispatch(gameActions.addPlayer())
+    console.log("Player added")
+    this._store.addPlayer()
   }
 
   private _playerTurnStart(player: number) {
-    this._store.dispatch(gameActions.setCurrentPlayer({player}))
+    this._store.setCurrentPlayer(player)
   }
 }

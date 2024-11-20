@@ -1,10 +1,9 @@
 import {CanvasLayer, Colors, Options, TextLayer, VideoLayer} from 'h5dmd'
 import {Mode} from "@mpf/modes/mode";
-import {selectMachineVariable} from "@store/machine/machine.selectors";
-import {Player} from "app/store/game";
 import {Utils} from "@mpf/utils/utils";
-import {filter, take} from "rxjs";
-import {selectPlayers} from "@store/game/game.selectors";
+import {computed, effect, inject, Signal, untracked} from "@angular/core";
+import {GameStore} from "../../store/game.store";
+import {Player} from "@models/player";
 
 const ATTRACT_MUSIC_RESTART_DELAY = 30000
 const ATTRACT_RESTART_TIMEOUT = 30000 * 2 * 5 // TODO Change
@@ -13,11 +12,11 @@ class AttractMode extends Mode {
   private _blinkInterval: number | undefined // WTF
   private _attractRestartTO: number | undefined
   private _attractMusicTO: number | undefined
-  private _startLayer!: TextLayer
-  private _titleLayer1!: TextLayer
-  private _titleLayer2!: TextLayer
-  private _subTitleLayer!: TextLayer
-  private _creditsLayer!: TextLayer
+  private _startLayer?: TextLayer
+  private _titleLayer1?: TextLayer
+  private _titleLayer2?: TextLayer
+  private _subTitleLayer?: TextLayer
+  private _creditsLayer?: TextLayer
   private _backgroundLayer!: CanvasLayer
   private _gameOverCloudsVideoLayer!: VideoLayer
   private _gameOverCloudsLayer2!: CanvasLayer
@@ -26,6 +25,16 @@ class AttractMode extends Mode {
   private _gameOverScoresLayer!: TextLayer
   private _gameIsPlaying: boolean
   private _delayAttractMusic: boolean
+
+  private readonly _store = inject(GameStore)
+
+  private creditString: Signal<string> = computed(() => this._store.variables()['credits_string'])
+
+  // Listen to credits string var changes to update the text in the layer
+  /*private creditStringEffect = effect(() => {
+    const creditString = this.creditString()
+    untracked(()=> this._onCreditsStringChanged(creditString))
+  })*/
 
   constructor() {
     super('attract')
@@ -54,16 +63,6 @@ class AttractMode extends Mode {
 
     const startString = this._resourcesManager.getString('attractModeStart')
     const goString = this._resourcesManager.getString('gameOver')
-
-    // Listen to credits string var changes to update the text in the layer
-    this._store
-      .select(selectMachineVariable('credits_string'))
-      .pipe(
-        filter((value) => value != undefined)
-      )
-      .subscribe((value: string) => {
-        this._onCreditsStringChanged(value)
-      })
 
     const initialCreditString = this._resourcesManager.getString("freePlayInitialText")
 
@@ -166,7 +165,7 @@ class AttractMode extends Mode {
         //vOffset : -1,
       },
       new Options({
-        text: initialCreditString,
+        text: this.creditString() ?? initialCreditString,
         fontSize: 95,
         fontFamily: 'Dusty',
         color: Colors.White,
@@ -275,51 +274,38 @@ class AttractMode extends Mode {
 
         this._dmd.fadeIn(150).then(() => {
 
-          //console.log(players)
+          const players: Player[] = this._store.players()
 
-          this._store
-            .select(selectPlayers)
-            .pipe(
-              take(1)
-            )
-            .subscribe((players: Player[]) => {
+          let top = (players.length - 1) * 3 * -1 + 5
+          let timeout = 0
 
-              let top = (players.length - 1) * 3 * -1 + 5
-              let timeout = 0
+          players.forEach((p: Player, i: number) => { // TODO Check Any
 
-              players.forEach((p: Player, i: number) => { // TODO Check Any
+            window.setTimeout(() => {
+              const score = Utils.formatScore(p.score)
+              const pTxt = this._resourcesManager.getString('playerTextLong') + ` ${i + 1}`
 
-                setTimeout(() => {
-                  const score = Utils.formatScore(p.score)
-                  //var score = Utils.formatScore(Math.round(Math.random()*50000000000))
+              this._dmd.addTextLayer(
+                `game-over-score-${i}`,
+                {},
+                new Options({
+                  text: `${pTxt} : ${score.toString()}`,
+                  fontSize: '10',
+                  fontFamily: 'Dusty',
+                  left: 50,
+                  vAlign: 'middle',
+                  vOffset: top
+                })
+              )
 
-                  //console.log(score)
+              this._audioManager.playSound('dong', `dong-p${i + 1}`)
 
-                  const pTxt = this._resourcesManager.getString('playerTextLong') + ` ${i + 1}`
+              top += 10
+            }, timeout)
 
-                  this._dmd.addTextLayer(
-                    `game-over-score-${i}`,
-                    {},
-                    new Options({
-                      text: `${pTxt} : ${score.toString()}`,
-                      fontSize: '10',
-                      fontFamily: 'Dusty',
-                      left: 50,
-                      vAlign: 'middle',
-                      vOffset: top
-                    })
-                  )
+            timeout += 1000
 
-                  this._audioManager.playSound('dong', `dong-p${i + 1}`)
-
-                  top += 10
-                }, timeout)
-
-                timeout += 1000
-
-              })
-
-            })
+          })
 
 
         })
@@ -340,19 +326,14 @@ class AttractMode extends Mode {
           //this._gameOverScoresLayer.setVisibility(false)
           //this._gameOverScoresLayer.removeAllTexts()
 
-          this._store
-            .select(selectPlayers)
-            .pipe(
-              take(1)
-            )
-            .subscribe((players: Player[]) => {
-              players.forEach((p: Player, i: number) => {
-                this._dmd.removeLayer(`game-over-score-${i}`)
-              })
+          const players: Player[] = this._store.players()
+          players.forEach((p: Player, i: number) => {
+            this._dmd.removeLayer(`game-over-score-${i}`)
+          })
 
-              this._delayAttractMusic = true
-              this.start(priority)
-            })
+          this._delayAttractMusic = true
+          this.start(priority)
+
         })
 
       }, ATTRACT_RESTART_TIMEOUT)
@@ -362,11 +343,11 @@ class AttractMode extends Mode {
     } else {
 
       this._backgroundLayer.setVisibility(true)
-      this._titleLayer1.setVisibility(true)
-      this._titleLayer2.setVisibility(true)
-      this._subTitleLayer.setVisibility(true)
-      this._creditsLayer.setVisibility(true)
-      this._startLayer.setVisibility(false)
+      this._titleLayer1?.setVisibility(true)
+      this._titleLayer2?.setVisibility(true)
+      this._subTitleLayer?.setVisibility(true)
+      this._creditsLayer?.setVisibility(true)
+      this._startLayer?.setVisibility(false)
       this._blinkInterval = window.setInterval(this._toggleStartText.bind(this), 1000)
 
       if (this._dmd.brightness < 1) {
@@ -386,8 +367,8 @@ class AttractMode extends Mode {
 
   // Update credit string
   private _onCreditsStringChanged(creditString: string) {
-    console.log(`credit string changed to => ${creditString}`)
-    this._creditsLayer.setText(creditString)
+    this._creditsLayer?.setText(creditString)
+    console.log(`credit string changed to => ${creditString}`, this._creditsLayer)
   }
 
   private _startAttractMusicIfNeeded() {
@@ -404,7 +385,7 @@ class AttractMode extends Mode {
   }
 
   private _toggleStartText() {
-    this._startLayer.toggleVisibility()
+    this._startLayer?.toggleVisibility()
   }
 
   private _onMusicEnded() {
@@ -422,11 +403,11 @@ class AttractMode extends Mode {
     this._audioManager.stopSound('attract-music')
 
     this._backgroundLayer.setVisibility(false)
-    this._titleLayer1.setVisibility(false)
-    this._titleLayer2.setVisibility(false)
-    this._subTitleLayer.setVisibility(false)
-    this._creditsLayer.setVisibility(false)
-    this._startLayer.setVisibility(false)
+    this._titleLayer1?.setVisibility(false)
+    this._titleLayer2?.setVisibility(false)
+    this._subTitleLayer?.setVisibility(false)
+    this._creditsLayer?.setVisibility(false)
+    this._startLayer?.setVisibility(false)
 
     this._gameOverCloudsVideoLayer.setVisibility(false)
     this._gameOverCloudsVideoLayer.stop()

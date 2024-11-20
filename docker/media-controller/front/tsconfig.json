@@ -5,7 +5,8 @@
     "baseUrl": "./src",
     "paths": {
       "@mpf/*": ["app/mpf/*"],
-      "@store/*": ["app/store/*"]
+      "@stores/*": ["app/stores/*"],
+      "@models/*": ["app/models/*"]
     },
     "outDir": "./dist/out-tsc",
     "strict": true,
@@ -27,7 +28,7 @@
       "ES2022",
       "DOM",
       "DOM.Iterable"
-    ]
+    ],
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

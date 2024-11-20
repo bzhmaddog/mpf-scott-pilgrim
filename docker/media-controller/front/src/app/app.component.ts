@@ -1,5 +1,5 @@
 import {
-  AfterViewInit,
+  AfterViewInit, ChangeDetectionStrategy,
   Component,
   ElementRef,
   EnvironmentInjector,
@@ -10,13 +10,15 @@ import {
 import {RouterOutlet} from '@angular/router';
 
 import {App} from '@mpf/app';
+import {JsonPipe} from "@angular/common";
+import {SwitchesDebugComponent} from "./components/switches-debug/switches-debug.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, JsonPipe, SwitchesDebugComponent],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements AfterViewInit{
   title = 'Scott Pilgrim vs the pinball';

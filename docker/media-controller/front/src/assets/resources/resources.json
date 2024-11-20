@@ -1,7 +1,7 @@
 {
     "strings" : {
 		"en-US" : {
-      "freePlayInitialText": ".",
+      "freePlayInitialText": "Loading...",
 			"attractModeStart" : "PRESS START",
 			"ballText" : "BALL:",
 			"playerText" : "P",

@@ -2,8 +2,8 @@ import {Dmd} from "h5dmd"
 import {inject} from "@angular/core";
 import {AudioManager} from "@mpf/services/audio-manager.service";
 import {ResourcesManager} from "@mpf/services/resources-manager.service";
-import {Store} from "@ngrx/store";
 import {DmdManagerService} from "@mpf/services/dmd-manager.service";
+import {GameStore} from "../../store/game.store";
 
 export abstract class Mode {
   private _isStarted = false
@@ -11,10 +11,10 @@ export abstract class Mode {
   private _isInitialized = false
   private readonly _name: string
 
-  protected readonly _dmdManager: DmdManagerService
-  protected readonly _resourcesManager: ResourcesManager
-  protected readonly _audioManager: AudioManager
-  protected readonly _store: Store
+  protected readonly _dmdManager: DmdManagerService = inject(DmdManagerService)
+  protected readonly _resourcesManager: ResourcesManager = inject(ResourcesManager)
+  protected readonly _audioManager: AudioManager = inject(AudioManager)
+  //protected readonly _store = inject(GameStore)
 
   protected get _dmd(): Dmd {
     return this._dmdManager.getDmd()!
@@ -22,10 +22,6 @@ export abstract class Mode {
 
   protected constructor(name: string) {
     this._name = name
-    this._dmdManager = inject(DmdManagerService)
-    this._resourcesManager = inject(ResourcesManager)
-    this._audioManager = inject(AudioManager)
-    this._store = inject(Store)
   }
 
   start(priority: number): boolean {

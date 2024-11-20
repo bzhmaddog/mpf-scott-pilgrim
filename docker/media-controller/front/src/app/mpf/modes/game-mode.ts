@@ -1,20 +1,47 @@
 import {Colors, ILayerRendererDictionary, NoiseEffectRenderer, Options, TextLayer} from "h5dmd"
 import {Mode} from "@mpf/modes/mode"
 import {Utils} from "@mpf/utils/utils"
-import {CurrentGameState} from 'app/store/game'
-import {selectCurrentGameState} from "@store/game/game.selectors";
-import {Subscription} from "rxjs";
+import {GameStore} from "../../store/game.store";
+import {effect, inject, untracked} from "@angular/core";
 
 /**
  * This mode runs all the time and is responsible for updating the score / player / ball texts
  */
 class GameMode extends Mode {
-  private _scoreLayer!: TextLayer
-  private _playerValueLayer!: TextLayer
-  private _ballValueLayer!: TextLayer
+  private _scoreLayer?: TextLayer
+  private _playerValueLayer?: TextLayer
+  private _ballValueLayer?: TextLayer
   private _to: number | undefined
 
-  private _gameStateChangedSubscription?: Subscription
+  private readonly _store = inject(GameStore)
+
+  private currentPlayerState = effect(() => {
+    const state = this._store.currentPlayerState();
+
+    untracked(()=> console.log("Current player state changed : ", state))
+  })
+
+  private playerValueEffect =
+    effect(() => {
+      const currentPlayer = this._store.player()
+      untracked(() => this._playerValueLayer?.setText(currentPlayer.toString()))
+    })
+
+  private ballValueEffect =
+    effect(() => {
+      const currentBallValue = this._store.currentPlayerBall()
+      untracked(() => {
+        console.log("here", currentBallValue);
+        this._ballValueLayer?.setText(currentBallValue.toString())
+      })
+    })
+
+  private scoreValueEffect =
+    effect(() => {
+      const currentScoreValue = this._store.currentPlayerScore()
+      untracked(() => this._scoreLayer?.setText(currentScoreValue.toString()))
+    })
+
 
   constructor() {
     super('game')
@@ -123,8 +150,8 @@ class GameMode extends Mode {
         strokeWidth: 2,
         strokeColor: Colors.Blue,
         zIndex: 1001,
-        aaTreshold: 144,
-        antialiasing: false,
+        //aaTreshold: 144,
+        //antialiasing: false,
         visible: false,
         groups: ['hud'],
         renderers: ['score-effect']
@@ -157,27 +184,11 @@ class GameMode extends Mode {
     )
   }
 
-  /**
-   * Update current player game data (score, ball, player
-   * @param currentGameState
-   * @private
-   */
-  private _onCurrentGameStateChanged(currentGameState: CurrentGameState) {
-    this._scoreLayer.setText(Utils.formatScore(currentGameState.score))
-    this._ballValueLayer.setText(currentGameState.ball.toString())
-    this._playerValueLayer.setText(currentGameState.player.toString())
-  }
-
   override start(priority: number): boolean {
     // Ugly but not sure howto do better
     if (!super.start(priority)) {
       return false
     }
-
-    this._gameStateChangedSubscription = this._store
-      .select(selectCurrentGameState)
-      .subscribe((currentGameState: CurrentGameState) => this._onCurrentGameStateChanged(currentGameState))
-
 
     //this._audioManager.playSound('start', 'start-first-player-sound')
 
@@ -208,8 +219,6 @@ class GameMode extends Mode {
 
   override stop() {
     super.stop()
-
-    this._gameStateChangedSubscription?.unsubscribe()
 
     this._audioManager.stopSound('main-music')
 

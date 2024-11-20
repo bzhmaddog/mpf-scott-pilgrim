@@ -1,6 +1,6 @@
 import {Inject, Injectable} from "@angular/core";
 import {Mode} from "@mpf/modes/mode"
-import {modesManager} from "@mpf/services/types";
+import {modesManager} from "@mpf/services";
 
 
 interface IModesDictionary {

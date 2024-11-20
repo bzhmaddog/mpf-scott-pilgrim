@@ -10,6 +10,8 @@ export class DmdManagerService {
 
   setDmd(dmd: Dmd) {
     this._dmd = dmd
+
+    window.dmd = this._dmd // Global dmd object for debugging
   }
 
   getDmd(): Dmd | null {

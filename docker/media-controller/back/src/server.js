@@ -16,11 +16,11 @@ stdin.setEncoding('utf8');
 
 const WEBSOCKET_PORT = 5000;
 const BCP_PORT = 5050;
-const __version__ = '0.57.0'
-const __short_version__ = '0.57'
+const __version__ = '0.80.0'
+const __short_version__ = '0.80'
 const __bcp_version__ = '1.1'
 const __config_version__ = '6'
-const __mpf_version_required__ = '0.57.0'
+const __mpf_version_required__ = '0.80.0'
 const startUsage = process.cpuUsage();
 
 const httpServer = http.createServer();
@@ -39,11 +39,10 @@ var clients_ready = 0;
 var kbdKeys = {};
 
 var mpf = {
-    settings: {},
+    //settings: {},
     mVars: {},
     modes: [],
     mode: {},
-    players: [],
 };
 
 try {
@@ -53,7 +52,7 @@ try {
     if (typeof data.keyboard === 'object') {
         Object.keys(data.keyboard).forEach(k => {
             var sw = data.keyboard[k];
-            sw.state = (sw.switch === 's_plunger') ? true : false; // Tmp hack to force plunger state to true
+            sw.state = (sw.switch === 's_plunger'); // Tmp hack to force plunger state to true
             sw.toggle = sw.toggle || false;
             kbdKeys[k] = sw;
         });
@@ -124,15 +123,17 @@ bcpServer.on('connection', function (socket) {
                     clients.forEach(client => client.send('mc_machine_variable?' + msgObj.params.name + '=' + v));
                     break;
                 case 'settings':
-                    var settingsObj = JSON.parse(msgObj.params['json']);
-                    mpf.settings = settingsObj.settings;
+                    const settingsObj = JSON.parse(msgObj.params['json']);
+                    const settings = settingsObj.settings;
+                    console.log("Settings received", msgObj);
+                    clients.forEach(client => client.send(`mc_settings?settings=${JSON.stringify(settings)}`));
                     break;
                 case 'mode_start':
                     mpf.mode = {
                         name: msgObj.params.name,
                         priority: str2int(msgObj.params.priority)
                     };
-                    console.log("Starting mode :", mpf.mode);
+                    console.log("Starting mode XXXXX :", mpf.mode);
                     clients.forEach(client => client.send('mc_mode_start?name=' + msgObj.params.name + '&priority=' + str2value(msgObj.params.priority)));
                     break;
                 case 'mode_stop':
@@ -145,11 +146,6 @@ bcpServer.on('connection', function (socket) {
                     clients.forEach(client => client.send('mc_player_variable?variables=' + cleanParams(msgObj.params)));
                     break;
                 case 'player_added':
-                    mpf.players.push({
-                        ball: 1,
-                        score: 0
-                    });
-                    //console.log(mpf.players);
                     clients.forEach(client => client.send('mc_player_added'));
                     break;
                 case 'player_turn_start':
@@ -180,10 +176,20 @@ bcpServer.on('connection', function (socket) {
                     // TODO : Send real data
                     //bcpSend(`status_report?cpu=${float2str(5.68, 1)}&vms=${int2str(123912192)}&rss=${int2str(1772883968)}`);
                     break;
+                case 'switch':
+                    var name = msgObj.params.name;
+                    var state = str2int(msgObj.params.state);
+                    clients.forEach(client => client.send(`mc_switch?name=${name}&state=${state}`));
+                    break;
                 case 'goodbye':
                     clients_ready = 0;
                     reset_sent = false;
                     clients.forEach(client => client.send('mc_goodbye'));
+                    break;
+                case 'error':
+                    var message = msgObj.params.message;
+                    var command = msgObj.params.command;
+                    clients.forEach(client => client.send(`mc_error?message=${message}&command=${command}`));
                     break;
                 default:
                     console.log("Received unhandled message from mpf :", msg);
@@ -222,16 +228,17 @@ webSocketServer.on('connection', function connection(_client) {
     clients.push(_client);
 
     _client.on('message', function incoming(message) {
-
-        //console.log("Message receiced from client : ")
-        //console.log(message);
-
         if (message.startsWith('mc_')) {
             handleLocalMessages(message);
         } else {
             bcpSend(message);
         }
     });
+
+    // Reset toggable switches
+    Object.entries(kbdKeys).filter(([, obj])=> obj.toggle).forEach(([key]) => {
+        kbdKeys[key].state = false;
+    })
 
     http.get({
         hostname: 'mpf',
@@ -385,6 +392,6 @@ function onKeyPressed(key) {
         }
 
     } else {
-        console.log(`Unhandle key pressed => ${key}`);
+        console.log(`Unhandled key pressed => ${key}`);
     }
 }

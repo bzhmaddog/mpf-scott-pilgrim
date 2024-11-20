@@ -5,7 +5,7 @@ import { AudioResource } from "@mpf/resources/audio-resource"
 import { VideoResource } from "@mpf/resources/video-resource"
 import { ImageResource } from "@mpf/resources/image-resource"
 import { FontResource } from "@mpf/resources/font-resource"
-import {resourcesManager} from "@mpf/services/types";
+import {resourcesManager} from "@mpf/services";
 
 interface IJsonResource {
     url: string

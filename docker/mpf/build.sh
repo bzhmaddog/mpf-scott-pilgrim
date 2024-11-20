@@ -1,1 +1,1 @@
-docker build -t mpf:0.57 .
+docker build -t mpf:latest .
