@@ -1,7 +1,5 @@
 import {ApplicationConfig, isDevMode} from '@angular/core';
-import {provideRouter} from '@angular/router';
 
-import {routes} from './app.routes';
 import {provideModesManager, provideResourcesManager} from "@mpf/services/types";
 import {provideAnimations} from "@angular/platform-browser/animations";
 import {provideToastr} from "ngx-toastr";
@@ -15,7 +13,6 @@ import {BaseMode} from "@mpf/modes/base-mode";
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes),
     provideResourcesManager({
       file: 'resources.json',
       basePath: '/assets/resources/'

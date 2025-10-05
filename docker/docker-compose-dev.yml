@@ -47,7 +47,7 @@ services:
       - mc-front
       - mc-back
     volumes:
-      - ../certs/2024:/certs
+      - ../certs/2025:/certs
 
 networks:
   mc-back:

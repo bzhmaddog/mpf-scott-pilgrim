@@ -7,16 +7,13 @@ import {
   runInInjectionContext,
   ViewChild
 } from '@angular/core';
-import {RouterOutlet} from '@angular/router';
 
 import {App} from '@mpf/app';
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrl: './app.component.scss'
 })
 export class AppComponent implements AfterViewInit{
   title = 'Scott Pilgrim vs the pinball';
