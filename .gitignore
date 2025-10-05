@@ -4,6 +4,10 @@ vpx/crash.txt
 
 # No need to version that
 /docker/media-controller/front/dist/
+/docker/.envrc
+
+# Don't version certificates
+/certs/2024
 
 # mpf runtime stuff
 mpf-config/logs

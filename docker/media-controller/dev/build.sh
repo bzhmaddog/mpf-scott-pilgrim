@@ -1,3 +1,3 @@
 #!/bin/sh
 
-docker build -t mc-front-dev:latest .
+$IMAGE_BUILDER build -t mc-front-dev:latest .

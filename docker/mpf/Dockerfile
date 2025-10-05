@@ -1,37 +1,23 @@
-# syntax=docker/dockerfile:1
-
-FROM python:3.9.19-slim
-#FROM python:3.9.19-alpine3.20
-
-RUN pip3 install --upgrade pip
-RUN pip3 install setuptools
-RUN pip3 install --upgrade pillow
-
-RUN pip3 install mpf --pre
-#RUN pip3 install mpf-mc
-#RUN pip3 install mpf-monitor
-RUN pip3 install Flask
-#RUN pip3 install pyserial
-
-#RUN apk add unzip
-
-RUN mkdir -p /mpf
-RUN mkdir -p /app
-RUN mkdir -p /opp
-
-#WORKDIR /opp
-
-#COPY ./tools/open-pinball-project-code-r303-trunk.zip ./
-#RUN unzip open-pinball-project-code-r303-trunk.zip
+# Stage 1: Build dependencies in a temporary image
+FROM python:3.9.19-slim AS builder
 
 WORKDIR /app
 
-COPY ./src/app.py ./
+# Install dependencies in the builder image
+RUN pip3 install --upgrade pip setuptools \
+    && pip3 install --prefix=/install --no-cache-dir pillow gunicorn mpf --pre Flask
 
+# Stage 2: Final lightweight runtime image
+FROM python:3.9.19-slim
 
+WORKDIR /app
 
-#CMD ["mpf", "-xt"]
-#CMD ["tail", "-f", "/dev/null"]
-CMD ["flask","--app", "app", "run", "--host=0.0.0.0"]
+# Copy only the necessary files from the builder stage
+COPY --from=builder /install /usr/local
+COPY ./src/ ./
 
+# Expose the application port
+EXPOSE 5000
 
+# Run the application with Gunicorn
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]

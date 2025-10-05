@@ -1,1 +1,3 @@
-docker build -t mpf:0.57 .
+#!/bin/sh
+
+$IMAGE_BUILDER build -t mpf:0.80 .

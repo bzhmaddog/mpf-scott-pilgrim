@@ -1,0 +1,2 @@
+KERNEL=="ttyACM*", ATTRS{serial}=="0051E4CE4743", SYMLINK+="cobrapin_board_1"
+KERNEL=="ttyACM*", ATTRS{serial}=="0054EAE24743", SYMLINK+="cobrapin_board_0"

@@ -2,7 +2,7 @@ name: mpf-scott-pilgrim
 
 services:
   mpf:
-    image: mpf:0.57
+    image: mpf:0.80
     container_name: mpf
     networks:
       - mc-back
