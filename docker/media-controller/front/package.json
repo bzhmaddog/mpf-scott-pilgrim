@@ -12,7 +12,7 @@
   },
   "private": true,
   "dependencies": {
-    "@angular-architects/ngrx-toolkit": "^18.1.1",
+    "@angular-architects/ngrx-toolkit": "^19.0.0",
     "@angular/animations": "^19.2.22",
     "@angular/common": "^19.2.22",
     "@angular/compiler": "^19.2.22",
@@ -21,13 +21,13 @@
     "@angular/platform-browser": "^19.2.22",
     "@angular/platform-browser-dynamic": "^19.2.22",
     "@angular/router": "^19.2.22",
-    "@ngrx/operators": "^18.1.1",
-    "@ngrx/signals": "^18.1.1",
+    "@ngrx/operators": "^19.2.1",
+    "@ngrx/signals": "^19.2.1",
     "@webgpu/types": "^0.1.40",
     "h5dmd": "^1.0.7",
     "ngx-toastr": "^19.0.0",
     "tslib": "^2.3.0",
-    "zone.js": "~0.14.3"
+    "zone.js": "~0.15.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.2.26",
@@ -43,6 +43,6 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "~5.4.2"
+    "typescript": "~5.7.0"
   }
 }
