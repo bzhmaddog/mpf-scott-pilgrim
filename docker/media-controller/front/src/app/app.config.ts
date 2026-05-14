@@ -1,17 +1,17 @@
-import {ApplicationConfig, isDevMode} from '@angular/core';
+import {ApplicationConfig, provideZonelessChangeDetection} from '@angular/core';
 import {provideRouter} from '@angular/router';
 
 import {routes} from './app.routes';
 import {provideModesManager, provideResourcesManager} from "@mpf/services";
-import {provideAnimations} from "@angular/platform-browser/animations";
 import {provideToastr} from "ngx-toastr";
 import {AttractMode} from "@mpf/modes/attract-mode";
 import {GameMode} from "@mpf/modes/game-mode";
 import {BaseMode} from "@mpf/modes/base-mode";
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideZonelessChangeDetection(),
     provideRouter(routes),
     provideResourcesManager({
       file: 'resources.json',
@@ -28,7 +28,7 @@ export const appConfig: ApplicationConfig = {
         return new GameMode()
       }
     }),
-    provideAnimations(),
-    provideToastr(), provideAnimationsAsync('noop'),
+    provideAnimationsAsync(),
+    provideToastr(),
   ]
 };
