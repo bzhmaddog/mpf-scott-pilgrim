@@ -3,11 +3,10 @@ import {provideRouter} from '@angular/router';
 
 import {routes} from './app.routes';
 import {provideModesManager, provideResourcesManager} from "@mpf/services";
-import {provideToastr} from "ngx-toastr";
+import {provideToastr, ToastNoAnimation} from "ngx-toastr";
 import {AttractMode} from "@mpf/modes/attract-mode";
 import {GameMode} from "@mpf/modes/game-mode";
 import {BaseMode} from "@mpf/modes/base-mode";
-import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -28,7 +27,6 @@ export const appConfig: ApplicationConfig = {
         return new GameMode()
       }
     }),
-    provideAnimationsAsync(),
-    provideToastr(),
+    provideToastr({ toastComponent: ToastNoAnimation }),
   ]
 };
