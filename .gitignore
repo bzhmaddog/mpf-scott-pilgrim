@@ -8,3 +8,5 @@ vpx/crash.txt
 # mpf runtime stuff
 mpf-config/logs
 mpf-config/data
+
+.envrc
