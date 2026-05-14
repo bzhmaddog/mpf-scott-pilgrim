@@ -4,9 +4,15 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "paths": {
-      "@mpf/*": ["app/mpf/*"],
-      "@stores/*": ["app/stores/*"],
-      "@models/*": ["app/models/*"]
+      "@mpf/*": [
+        "app/mpf/*"
+      ],
+      "@stores/*": [
+        "app/stores/*"
+      ],
+      "@models/*": [
+        "app/models/*"
+      ]
     },
     "outDir": "./dist/out-tsc",
     "strict": true,
@@ -19,7 +25,7 @@
     "sourceMap": true,
     "declaration": false,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",
@@ -28,7 +34,7 @@
       "ES2022",
       "DOM",
       "DOM.Iterable"
-    ],
+    ]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
