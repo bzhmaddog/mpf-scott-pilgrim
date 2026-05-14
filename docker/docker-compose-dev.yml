@@ -2,7 +2,7 @@ name: mpf-scott-pilgrim
 
 services:
   mpf:
-    image: mpf:latest
+    image: mpf:0.80
     container_name: mpf
     networks:
       - mc-back
@@ -47,7 +47,7 @@ services:
       - mc-front
       - mc-back
     volumes:
-      - ../certs/2024:/certs
+      - ../certs/2025:/certs
 
 networks:
   mc-back:

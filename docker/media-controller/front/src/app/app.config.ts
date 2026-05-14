@@ -1,4 +1,4 @@
-import {ApplicationConfig, provideZonelessChangeDetection} from '@angular/core';
+import {ApplicationConfig} from '@angular/core';
 import {provideRouter} from '@angular/router';
 
 import {routes} from './app.routes';
@@ -10,7 +10,6 @@ import {BaseMode} from "@mpf/modes/base-mode";
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZonelessChangeDetection(),
     provideRouter(routes),
     provideResourcesManager({
       file: 'resources.json',
