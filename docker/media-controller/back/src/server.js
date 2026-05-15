@@ -9,7 +9,7 @@ const fs = require('fs'),
     stdin = process.stdin;
 
 // without this, we would only get streams once enter is pressed
-stdin.setRawMode(true);
+if (stdin.isTTY) stdin.setRawMode(true);
 
 stdin.resume();
 stdin.setEncoding('utf8');

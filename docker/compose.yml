@@ -2,7 +2,7 @@ name: mpf-scott-pilgrim
 
 services:
   mpf:
-    image: mpf:latest
+    image: mpf:0.80
     container_name: mpf
     depends_on:
       - mc-front
@@ -11,9 +11,10 @@ services:
       - mc-back
     volumes:
       - ../mpf-config:/mpf
-    devices:
-      - /dev/cobrapin_board_0
-      - /dev/cobrapin_board_1
+    # Uncomment on the physical machine:
+    #devices:
+    #  - /dev/cobrapin_board_0
+    #  - /dev/cobrapin_board_1
 
   mc-back:
     image: mc-back:1.0.0
@@ -21,12 +22,10 @@ services:
     environment:
       - SSL_CRT_FILE=/certs/server.crt
       - SSL_KEY_FILE=/certs/server.key
-    stdin_open: true
-    tty: true
     networks:
       - mc-back
     volumes:
-      - ~/mpf-scott-pilgrim/mpf:/mpf-config
+      - ../mpf-config:/mpf-config
 
   mc-front:
     image: mc-front:1.0.0
@@ -37,7 +36,7 @@ services:
       - ./media-controller/front/dist:/var/www
 
   mc-proxy:
-    image: mc-proxy:latest
+    image: mc-proxy:1.0.0
     container_name: mc-proxy
     depends_on:
       - mc-back
@@ -50,7 +49,7 @@ services:
       - mc-front
       - mc-back
     volumes:
-      - ../certs/2024:/certs
+      - ../certs/2025:/certs
 
 networks:
   mc-back:
