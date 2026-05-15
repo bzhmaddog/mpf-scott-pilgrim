@@ -1,0 +1,27 @@
+#config_version=6
+
+machine:
+  balls_installed: 4
+  min_balls: 3
+
+game:
+  balls_per_game: 3
+  max_players: 4
+
+playfields:
+  playfield:
+    tags: default
+    default_source_device: bd_plunger
+
+modes:
+  - base
+
+config:
+  - hardware.yaml
+  - bcp.yaml
+  - switches.yaml
+  - coils.yaml
+  - ball-devices.yaml
+  - flippers.yaml
+  - keyboard.yaml
+#  - modes.yaml

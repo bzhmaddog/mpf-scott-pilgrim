@@ -1,0 +1,11 @@
+#config_version=6
+
+hardware:
+  platform: opp
+  driverboards: gen2
+
+opp:
+  ports: /dev/cobrapin_board_0, /dev/cobrapin_board_1
+  chains:
+    0: /dev/cobrapin_board_0
+    1: /dev/cobrapin_board_1
