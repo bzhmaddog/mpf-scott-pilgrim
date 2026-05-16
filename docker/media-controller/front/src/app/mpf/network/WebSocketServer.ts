@@ -3,6 +3,7 @@ import {WebSocketMessageParams} from "@mpf/types";
 export interface IWebSocketServerConfig {
   hostname: string,
   port: number,
+  path?: string,
   secure?: boolean,
   onMessage: (cmd: string, _params: WebSocketMessageParams, rawData: unknown) => void
   onOpen?: (event: Event) => void
@@ -24,12 +25,14 @@ export class WebSocketServer {
   private readonly _onCloseListener?: (event: CloseEvent) => void
   private readonly _onErrorListener?: (event: Event) => void
   private readonly _onMessageListener: (cmd: string, _params: WebSocketMessageParams, rawData: unknown) => void
-  private readonly _isSecure
+  private readonly _path: string
+  private readonly _isSecure: boolean
 
   constructor(config: IWebSocketServerConfig) {
     this._isConnected = false
     this._hostname = config.hostname
     this._port = config.port
+    this._path = config.path ?? ''
     this._isSecure = config.secure ?? false
 
     this._onMessageListener = config.onMessage
@@ -103,9 +106,7 @@ export class WebSocketServer {
    */
   connect() {
     const protocol = this._isSecure ? 'wss': 'ws'
-
-    // Connect to the server via a websocket
-    this._server = new WebSocket(`${protocol}://${this._hostname}:${this._port}`, ['soap', 'xmpp'])
+    this._server = new WebSocket(`${protocol}://${this._hostname}:${this._port}${this._path}`, ['soap', 'xmpp'])
 
     this._server.onerror = this._onError.bind(this)
     this._server.onopen = this._onOpen.bind(this)

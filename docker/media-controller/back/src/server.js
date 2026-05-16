@@ -25,20 +25,22 @@ const startUsage = process.cpuUsage();
 
 const httpServer = http.createServer();
 
-var tcpSocket;
-var webSocketServer = new WebSocketServer({server: httpServer});
-var bcpServer = net.createServer((socket) => {
+let tcpSocket;
+let webSocketServer = new WebSocketServer({server: httpServer});
+let bcpServer = net.createServer((socket) => {
     tcpSocket = socket;
 }).on('error', (err) => {
     throw err;
 });
 
-var clients = [];
-var reset_sent = false;
-var clients_ready = 0;
-var kbdKeys = {};
+let clients = [];
+let reset_sent = false;
+let clients_ready = 0;
+let mpfRunning = false;
+let reconnectingClients = new Set();
+let kbdKeys = {};
 
-var mpf = {
+let mpf = {
     //settings: {},
     mVars: {},
     modes: [],
@@ -51,7 +53,7 @@ try {
 
     if (typeof data.keyboard === 'object') {
         Object.keys(data.keyboard).forEach(k => {
-            var sw = data.keyboard[k];
+            let sw = data.keyboard[k];
             sw.state = (sw.switch === 's_plunger'); // Tmp hack to force plunger state to true
             sw.toggle = sw.toggle || false;
             kbdKeys[k] = sw;
@@ -83,14 +85,14 @@ bcpServer.on('connection', function (socket) {
     socket.on('data', function (chunk) {
 
         // Split received data in multiple messages
-        var messages = chunk.toString().split('\n');
+        let messages = chunk.toString().split('\n');
 
         //handle all messages and forward them to the UIs
         messages.forEach(msg => {
             //console.log(msg);
             if (msg === "") return;
 
-            var msgObj = parseMessageData(msg);
+            let msgObj = parseMessageData(msg);
 
             switch (msgObj.command) {
                 case 'hello':
@@ -102,7 +104,7 @@ bcpServer.on('connection', function (socket) {
                     clients.forEach(client => client.send('mc_reset'));
                     break;
                 case 'machine_variable':
-                    var v;
+                    let v;
 
                     if (msgObj.params.hasOwnProperty('json')) {
                         msgObj.params = JSON.parse(msgObj.params.json);
@@ -148,20 +150,22 @@ bcpServer.on('connection', function (socket) {
                 case 'player_added':
                     clients.forEach(client => client.send('mc_player_added'));
                     break;
-                case 'player_turn_start':
-                    var p = str2int(msgObj.params.player_num);
+                case 'player_turn_start': {
+                    let p = str2int(msgObj.params.player_num);
                     clients.forEach(client => client.send(`mc_player_turn_start?player_num=${p}`));
                     break;
-                case 'ball_start':
-                    var p = str2int(msgObj.params.player_num);
-                    var b = str2int(msgObj.params.ball);
+                }
+                case 'ball_start': {
+                    let p = str2int(msgObj.params.player_num);
+                    let b = str2int(msgObj.params.ball);
                     clients.forEach(client => client.send(`mc_ball_start?player_num=${p}&ball=${b}`));
                     break;
+                }
                 case 'ball_end':
                     clients.forEach(client => client.send(`mc_ball_end`));
                     break;
                 case 'mode_list':
-                    var jsonObj = JSON.parse(msgObj.params.json);
+                    let jsonObj = JSON.parse(msgObj.params.json);
                     mpf.modes = [];
                     jsonObj.running_modes.forEach(mode => {
                         mpf.modes.push({
@@ -177,18 +181,19 @@ bcpServer.on('connection', function (socket) {
                     //bcpSend(`status_report?cpu=${float2str(5.68, 1)}&vms=${int2str(123912192)}&rss=${int2str(1772883968)}`);
                     break;
                 case 'switch':
-                    var name = msgObj.params.name;
-                    var state = str2int(msgObj.params.state);
+                    let name = msgObj.params.name;
+                    let state = str2int(msgObj.params.state);
                     clients.forEach(client => client.send(`mc_switch?name=${name}&state=${state}`));
                     break;
                 case 'goodbye':
                     clients_ready = 0;
                     reset_sent = false;
+                    mpfRunning = false;
                     clients.forEach(client => client.send('mc_goodbye'));
                     break;
                 case 'error':
-                    var message = msgObj.params.message;
-                    var command = msgObj.params.command;
+                    let message = msgObj.params.message;
+                    let command = msgObj.params.command;
                     clients.forEach(client => client.send(`mc_error?message=${message}&command=${command}`));
                     break;
                 default:
@@ -229,9 +234,22 @@ webSocketServer.on('connection', function connection(_client) {
 
     _client.on('message', function incoming(message) {
         if (message.startsWith('mc_')) {
-            handleLocalMessages(message);
+            handleLocalMessages(message, _client);
         } else {
             bcpSend(message);
+        }
+    });
+
+    _client.on('close', function () {
+        const index = clients.indexOf(_client);
+        if (index > -1) {
+            clients.splice(index, 1);
+        }
+        reconnectingClients.delete(_client);
+        console.log(`DMD client disconnected. Remaining clients: ${clients.length}`);
+        if (clients.length === 0 && !mpfRunning) {
+            clients_ready = 0;
+            reset_sent = false;
         }
     });
 
@@ -240,21 +258,26 @@ webSocketServer.on('connection', function connection(_client) {
         kbdKeys[key].state = false;
     })
 
-    http.get({
-        hostname: 'mpf',
-        port: 5000,
-        path: '/stop',
-        agent: false,  // Create a new agent just for this one request
-    }, (response) => {
-        const {statusCode} = response;
+    if (mpfRunning) {
+        console.log('MPF already running, reconnecting client');
+        reconnectingClients.add(_client);
+        _client.send('mc_reset');
+    } else {
+        http.get({
+            hostname: 'mpf',
+            port: 5000,
+            path: '/stop',
+            agent: false,
+        }, (response) => {
+            const {statusCode} = response;
 
-        if (statusCode !== 200) {
-            clients.forEach((client) => client.send('mpf_stop_error'))
-        } else {
-            setTimeout(startMpf, 100);
-        }
-    });
-
+            if (statusCode !== 200) {
+                clients.forEach((client) => client.send('mpf_stop_error'))
+            } else {
+                setTimeout(startMpf, 100);
+            }
+        });
+    }
 
     console.log(clients.length);
 
@@ -277,7 +300,18 @@ function parseMessageData(message) {
     }
 }
 
-function handleLocalMessages(data) {
+function sendStateSnapshot(client) {
+    if (tcpSocket) client.send('mc_hello');
+    Object.entries(mpf.mVars).forEach(([name, value]) => {
+        const v = typeof value === 'object' ? JSON.stringify(value) : value;
+        client.send(`mc_machine_variable?${name}=${v}`);
+    });
+    mpf.modes.forEach(mode => {
+        client.send(`mc_mode_start?name=${mode.name}&priority=${mode.priority}`);
+    });
+}
+
+function handleLocalMessages(data, sender) {
     const parts = data.split('?');
     let cmd = "";
     let params = {};
@@ -294,13 +328,18 @@ function handleLocalMessages(data) {
 
     switch (cmd) {
         case 'mc_ready':
-            if (!reset_sent) {
+            if (reconnectingClients.has(sender)) {
+                reconnectingClients.delete(sender);
+                console.log('Reconnecting client ready, sending state snapshot');
+                sendStateSnapshot(sender);
+            } else if (!reset_sent) {
                 clients_ready++;
 
                 if (clients_ready === clients.length) {
                     console.log('All clients are ready')
                     bcpSend('reset_complete');
                     reset_sent = true;
+                    mpfRunning = true;
                     console.log(mpf);
                 }
             }
@@ -384,7 +423,7 @@ function onKeyPressed(key) {
     if (typeof kbdKeys[key] === 'object') {
         if (kbdKeys[key].toggle === true) {
             kbdKeys[key].state = !kbdKeys[key].state;
-            var state = kbdKeys[key].state ? 1 : 0;
+            let state = kbdKeys[key].state ? 1 : 0;
             bcpSend(`switch?name=${kbdKeys[key].switch}&state=${state}`);
         } else {
             bcpSend(`switch?name=${kbdKeys[key].switch}&state=1`);

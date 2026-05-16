@@ -21,7 +21,7 @@ const initialState: GameState = {
 
 export const GameStore = signalStore(
   {providedIn: 'root'},
-  withDevtools('game'), // <-- add this
+  withDevtools('gameStore'),
   withState(initialState),
   withMethods((store) =>
     ({

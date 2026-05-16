@@ -28,6 +28,7 @@ export class App {
     this._wsServer = new WebSocketServer({
       hostname: "archpinball.dev",
       port: 4443,
+      path: '/ws',
       secure: true,
       onMessage: this._wsOnMessage.bind(this),
       onOpen: this._wsOnOpen.bind(this),
