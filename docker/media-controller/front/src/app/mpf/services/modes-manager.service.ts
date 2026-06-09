@@ -1,6 +1,7 @@
-import {Inject, Injectable} from "@angular/core";
+import {inject, Service} from "@angular/core";
 import {Mode} from "@mpf/modes/mode"
 import {modesManager} from "@mpf/services";
+import {Logger} from "../../utils/logger";
 
 
 interface IModesDictionary {
@@ -11,19 +12,19 @@ export interface IModesConfigDictionary {
   [key: string]: () => Mode
 }
 
-@Injectable({
-  providedIn: 'root'
-})
-class ModesManager {
+@Service()
+export class ModesManager {
+  private readonly _availableModes = inject<IModesConfigDictionary>(modesManager);
+  private readonly _logger = inject(Logger).getInstance('ModesManager');
   private _modes: IModesDictionary
   private _activeMode?: Mode
 
-  constructor(@Inject(modesManager) availableModes: IModesConfigDictionary) {
+  constructor() {
     this._modes = {}
     this._activeMode = undefined // typeof null === object so break stopActiveMode
 
-    Object.keys(availableModes).forEach((name: string) => {
-      this._modes[name] = availableModes[name]();
+    Object.keys(this._availableModes).forEach((name: string) => {
+      this._modes[name] = this._availableModes[name]();
     })
   }
 
@@ -44,7 +45,7 @@ class ModesManager {
       this._activeMode = this._modes[name]
       this._activeMode.start(priority)
     } else {
-      console.log(`Mode [${name}] does not exists`)
+      this._logger.log(`Mode [${name}] does not exists`)
     }
   }
 
@@ -65,5 +66,3 @@ class ModesManager {
   }
 
 }
-
-export {ModesManager}

@@ -14,8 +14,6 @@ export abstract class Resource<T> implements IResource {
     protected constructor(url: string, preload: boolean) {
         this._url = url
 
-        console.log(`Resource[${url} => Preload = ${preload}`)
-
         /*if (preload) {
             this._loadResource()
             .then(r => {

@@ -8,6 +8,7 @@ import {AudioManager} from "@mpf/services/audio-manager.service";
 import {ModesManager} from "@mpf/services/modes-manager.service";
 import {DmdManagerService} from "@mpf/services/dmd-manager.service";
 import {GameStore} from "../store/game.store";
+import {Logger} from "../utils/logger";
 
 export class App {
   private readonly _wsServer: WebSocketServer
@@ -16,6 +17,7 @@ export class App {
   private readonly _modesManager: ModesManager = inject(ModesManager)
   private readonly _dmdManager: DmdManagerService = inject(DmdManagerService)
   private readonly _toasterService: ToastrService = inject(ToastrService)
+  private readonly _logger = inject(Logger).getInstance('App')
 
   private readonly _store = inject(GameStore)
 
@@ -39,7 +41,7 @@ export class App {
     // Listen to keyboard events and send them to the backend
     document.addEventListener("keypress", (event) => {
       if (!this._wsServer.isConnected()) {
-        console.warn("Websocket server is not connected")
+        this._logger.warn("Websocket server is not connected")
         return;
       }
 
@@ -53,7 +55,7 @@ export class App {
         new Dmd(canvasElement, 2, 1, 1, 1, DotShape.Square, 14, 0, true)
       )
 
-      console.log("Resources file loaded", resources)
+      this._logger.log("Resources file loaded", resources)
 
       // Init DMD then
       this._dmd.init().then(() => {
@@ -105,13 +107,13 @@ export class App {
     //const params = new Options(_params)
     switch (cmd) {
       case 'mc_connected':
-        console.log("MPF connected")
+        this._logger.log("MPF connected")
         break
       case 'mc_hello':
-        console.log("MPF says hello")
+        this._logger.log("MPF says hello")
         break
       case 'mc_reset':
-        console.log("MPF requested reset")
+        this._logger.log("MPF requested reset")
         this._dmd.fadeOut(150).then(() => {
           this._dmd.removeLayer("logo")
 
@@ -124,19 +126,19 @@ export class App {
         })
         break
       case 'mc_settings':
-        console.log("MPF sent settings")
+        this._logger.log("MPF sent settings")
         this._store.setSettings(JSON.parse(_params["settings"]))
         break
       case 'mc_goodbye':
-        console.log("MPF said goodbye")
+        this._logger.log("MPF said goodbye")
         this._resetDMD()
         break
       case 'mc_machine_variable':
-        console.log("MPF sent machine variables")
+        this._logger.log("MPF sent machine variables")
         this._updateMachineVariables(_params)
         break
       case 'mc_player_variable':
-        console.log("MPF sent player variables")
+        this._logger.log("MPF sent player variables")
         this._updatePlayerVariable(JSON.parse(_params['variables']))
         break
       case 'mc_mode_start':
@@ -163,14 +165,14 @@ export class App {
         )
         break
       case 'mc_ball_end':
-        console.log('ball_end')
+        this._logger.log('ball_end')
         // todo : Play some animation
         break
       case 'mc_switch':
-        console.log("BCP Switches", _params, rawData)
+        this._logger.log("BCP Switches", _params, rawData)
         break
       default:
-        console.log(`_wsOnMessage()[${cmd}] :`, _params, rawData)
+        this._logger.log(`_wsOnMessage()[${cmd}] :`, _params, rawData)
       //console.log("Unhandled message received : ", rawData)
     }
 
@@ -191,7 +193,7 @@ export class App {
    * Reset all layers and add the two default layers
    */
   private _resetDMD(): Promise<void> {
-    console.log("Reseting DMD")
+    this._logger.log("Reseting DMD")
 
     return new Promise((resolve) => {
 
@@ -261,7 +263,7 @@ export class App {
     switch(data['name']) {
       case 'index': {
         const player: number = parseInt(data['value'], 10)
-        console.log(`IGNORED : _updatePlayerVariable[index]`, player)
+        this._logger.log(`IGNORED : _updatePlayerVariable[index]`, player)
         //if (player > 0) { //TODO Check end of game
           //this._store.setCurrentPlayer(player)
         //}
@@ -270,25 +272,25 @@ export class App {
       case 'score': {
         const player: number = parseInt(data['player_num'], 10)
         const score: number = parseInt(data['value'], 10)
-        console.log(`_updatePlayerVariable[score]`, player, score)
+        this._logger.log(`_updatePlayerVariable[score]`, player, score)
         this._store.setPlayerScore(player, score)
         break
       }
       case 'ball': {
         const player: number = parseInt(data['player_num'], 10)
         const ball: number = parseInt(data['value'], 10)
-        console.log(`_updatePlayerVariable[ball]`, player, ball)
+        this._logger.log(`_updatePlayerVariable[ball]`, player, ball)
         this._store.setPlayerBall(player, ball)
         break
       }
       case 'number': {
         const n: number = parseInt(data['value'], 10)
-        console.log("_updatePlayerVariable[number] =>", n)
+        this._logger.log("_updatePlayerVariable[number] =>", n)
         this._store.setCurrentPlayer(n)
         break
       }
       default:
-        console.log('_updatePlayerVariable(): Unhandled case', data);
+        this._logger.log('_updatePlayerVariable(): Unhandled case', data);
     }
   }
 
@@ -309,7 +311,7 @@ export class App {
   }
 
   private _addPlayer() {
-    console.log("Player added")
+    this._logger.log("Player added")
     this._store.addPlayer()
   }
 

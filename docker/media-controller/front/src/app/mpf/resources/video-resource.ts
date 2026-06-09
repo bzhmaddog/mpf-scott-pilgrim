@@ -1,4 +1,8 @@
 import {Resource} from "@mpf/resources/resource"
+import { Logger, TaggedLogger } from "../../utils/logger"
+
+let _logger: TaggedLogger | undefined
+const logger = () => _logger ??= Logger.instance.getInstance('VideoResource')
 
 export class VideoResource extends Resource<HTMLVideoElement> {
   constructor(url: string, preload: boolean) {
@@ -22,6 +26,7 @@ export class VideoResource extends Resource<HTMLVideoElement> {
 
       const errorCallback = (error: Event) => {
         this._resource!.removeEventListener('error', errorCallback)
+        logger().error(`Resource "${this.url}" failed to load: ${error}`)
         reject(Error(`Resource "${this.url}" failed to load: ${error}`))
       }
 

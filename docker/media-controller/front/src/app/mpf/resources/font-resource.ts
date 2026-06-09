@@ -1,4 +1,8 @@
 import { Resource } from "@mpf/resources/resource"
+import { Logger, TaggedLogger } from "../../utils/logger"
+
+let _logger: TaggedLogger | undefined
+const logger = () => _logger ??= Logger.instance.getInstance('FontResource')
 
 export class FontResource extends Resource<FontFace> {
 
@@ -20,7 +24,7 @@ export class FontResource extends Resource<FontFace> {
                 resolve(this._resource)
             })
             .catch( error => {
-                console.error(`Resource "${this.url}" failed to load: ${error.message}`)
+                logger().error(`Resource "${this.url}" failed to load: ${error.message}`)
                 reject(error)
              })
         })

@@ -1,4 +1,8 @@
 import { Resource } from "@mpf/resources/resource"
+import { Logger, TaggedLogger } from "../../utils/logger"
+
+let _logger: TaggedLogger | undefined
+const logger = () => _logger ??= Logger.instance.getInstance('AudioResource')
 
 export class AudioResource extends Resource<AudioBuffer> {
     constructor(url: string, preload: boolean) {
@@ -18,7 +22,7 @@ export class AudioResource extends Resource<AudioBuffer> {
                 resolve(this._resource)
             })
             .catch( error => {
-                 console.error(`Resource "${this.url}" failed to load: ${error.message}`)
+                 logger().error(`Resource "${this.url}" failed to load: ${error.message}`)
                  reject(error)
             })
         })

@@ -4,6 +4,7 @@ import {Utils} from "@mpf/utils/utils";
 import {computed, effect, inject, Signal, untracked} from "@angular/core";
 import {GameStore} from "../../store/game.store";
 import {Player} from "@models/player";
+import {Logger} from "../../utils/logger";
 
 const ATTRACT_MUSIC_RESTART_DELAY = 30000
 const ATTRACT_RESTART_TIMEOUT = 30000 * 2 * 5 // TODO Change
@@ -27,6 +28,7 @@ class AttractMode extends Mode {
   private _delayAttractMusic: boolean
 
   private readonly _store = inject(GameStore)
+  private readonly _logger = inject(Logger).getInstance('AttractMode')
 
   private creditString: Signal<string> = computed(() => this._store.variables()['credits_string'])
 
@@ -262,7 +264,6 @@ class AttractMode extends Mode {
 
       this._dmd.fadeOut(150).then(() => {
 
-        console.log('here')
         this._gameOverCloudsVideoLayer.setVisibility(true)
         this._gameOverCloudsVideoLayer.play()
 
@@ -368,7 +369,7 @@ class AttractMode extends Mode {
   // Update credit string
   private _onCreditsStringChanged(creditString: string) {
     this._creditsLayer?.setText(creditString)
-    console.log(`credit string changed to => ${creditString}`, this._creditsLayer)
+    this._logger.log(`credit string changed to => ${creditString}`, this._creditsLayer)
   }
 
   private _startAttractMusicIfNeeded() {
@@ -390,10 +391,10 @@ class AttractMode extends Mode {
 
   private _onMusicEnded() {
     if (this.isStarted()) {
-      console.log("onMusicEnded() : Attract music ended, restarting later")
+      this._logger.log("onMusicEnded() : Attract music ended, restarting later")
       this._attractMusicTO = window.setTimeout(this._startAttractMusic.bind(this), ATTRACT_MUSIC_RESTART_DELAY)
     } else {
-      console.log("onMusicEnded() : Mode not started so I will not restart attract music")
+      this._logger.log("onMusicEnded() : Mode not started so I will not restart attract music")
     }
   }
 

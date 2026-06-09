@@ -2,7 +2,8 @@ import {Colors, ILayerRendererDictionary, NoiseEffectRenderer, Options, TextLaye
 import {Mode} from "@mpf/modes/mode"
 import {Utils} from "@mpf/utils/utils"
 import {GameStore} from "../../store/game.store";
-import {effect, inject, untracked} from "@angular/core";
+import {effect, inject} from "@angular/core";
+import {Logger} from "../../utils/logger";
 
 /**
  * This mode runs all the time and is responsible for updating the score / player / ball texts
@@ -14,32 +15,28 @@ class GameMode extends Mode {
   private _to: number | undefined
 
   private readonly _store = inject(GameStore)
+  private readonly _logger = inject(Logger).getInstance('GameMode')
 
-  private currentPlayerState = effect(() => {
+  /*private currentPlayerState = effect(() => {
     const state = this._store.currentPlayerState();
-
-    untracked(()=> console.log("Current player state changed : ", state))
-  })
+  })*/
 
   private playerValueEffect =
     effect(() => {
       const currentPlayer = this._store.player()
-      untracked(() => this._playerValueLayer?.setText(currentPlayer.toString()))
+      this._playerValueLayer?.setText(currentPlayer.toString())
     })
 
   private ballValueEffect =
     effect(() => {
       const currentBallValue = this._store.currentPlayerBall()
-      untracked(() => {
-        console.log("here", currentBallValue);
-        this._ballValueLayer?.setText(currentBallValue.toString())
-      })
+      this._ballValueLayer?.setText(currentBallValue.toString())
     })
 
   private scoreValueEffect =
     effect(() => {
       const currentScoreValue = this._store.currentPlayerScore()
-      untracked(() => this._scoreLayer?.setText(currentScoreValue.toString()))
+      this._scoreLayer?.setText(currentScoreValue.toString())
     })
 
 

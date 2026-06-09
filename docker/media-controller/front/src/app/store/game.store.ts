@@ -1,7 +1,8 @@
 import {patchState, signalStore, withComputed, withMethods, withState} from "@ngrx/signals";
 import {Player} from "@models/player";
-import {computed} from "@angular/core";
+import {computed, inject} from "@angular/core";
 import {withDevtools} from "@angular-architects/ngrx-toolkit";
+import {Logger} from "../utils/logger";
 
 export type MachineVariables = Record<string, string>;
 
@@ -12,7 +13,7 @@ interface GameState {
   settings: []
 }
 
-const initialState: GameState = {
+export const initialState: GameState = {
   players: [],
   player: 0,
   variables: {},
@@ -24,7 +25,9 @@ export const GameStore = signalStore(
   withDevtools('gameStore'),
   withState(initialState),
   withMethods((store) =>
-    ({
+    {
+      const logger = inject(Logger).getInstance('GameStore');
+      return ({
 
       /**
        * Set variable
@@ -61,12 +64,9 @@ export const GameStore = signalStore(
         patchState(store, (state) => {
 
           if (player < 1) {
-            console.error("setCurrentPlayer() : player cannot be lower than 1")
+            logger.error("setCurrentPlayer() : player cannot be lower than 1")
             return state;
           }
-
-          console.log("Players[]", player, state.players)
-
 
           return {
             ...state,
@@ -83,7 +83,7 @@ export const GameStore = signalStore(
         patchState(store, (state) => {
 
           if (ball < 1) {
-            console.error("setCurrentBall() : ball cannot be lower than 1")
+            logger.error("setCurrentBall() : ball cannot be lower than 1")
             return state;
           }
 
@@ -127,7 +127,7 @@ export const GameStore = signalStore(
       setPlayerBall(player: number, ball: number) {
         patchState(store, (state) => {
             if (player < 1) {
-              console.error("setCurrentBall() : ball cannot be lower than 1")
+              logger.error("setCurrentBall() : ball cannot be lower than 1")
               return state;
             }
 
@@ -151,7 +151,7 @@ export const GameStore = signalStore(
       setPlayerScore(player: number, score: number) {
         patchState(store, (state) => {
             if (player < 1) {
-              console.error("setCurrentBall() : ball cannot be lower than 1")
+              logger.error("setCurrentBall() : ball cannot be lower than 1")
               return state;
             }
             const players = structuredClone(state.players);
@@ -174,11 +174,11 @@ export const GameStore = signalStore(
         )
       }
 
-    }),
+    });}
   ),
   withComputed(({players, player}) => ({
     currentPlayerState: computed(() => players()[player() - 1]),
     currentPlayerScore: computed(() => players()[player() - 1]?.score ?? 0),
-    currentPlayerBall: computed(() => players()[player() - 1]?.ball ?? 1),
+    currentPlayerBall: computed(() => players()[player() - 1]?.ball ?? 0),
   }))
 )

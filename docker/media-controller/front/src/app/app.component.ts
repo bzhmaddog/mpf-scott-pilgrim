@@ -8,6 +8,7 @@ import {
   ViewChild
 } from '@angular/core';
 import {App} from '@mpf/app';
+import {Logger} from './utils/logger';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +19,7 @@ import {App} from '@mpf/app';
 })
 export class AppComponent implements AfterViewInit{
   title = 'Scott Pilgrim vs the pinball';
+  private readonly _logger = inject(Logger);
 
   private environmentInjector = inject(EnvironmentInjector)
 
