@@ -8,5 +8,4 @@ WORKDIR /app
 
 USER node
 
-CMD ["sh", "-c", "npm install --no-package-lock && npm run docker"]
-#CMD ["/bin/sh"]
+CMD ["sh", "-c", "npm install --force --no-package-lock && npm run docker-serve"]

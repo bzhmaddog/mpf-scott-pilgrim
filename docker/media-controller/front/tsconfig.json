@@ -2,16 +2,15 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./src",
     "paths": {
       "@mpf/*": [
-        "app/mpf/*"
+        "./src/app/mpf/*"
       ],
       "@stores/*": [
-        "app/stores/*"
+        "./src/app/stores/*"
       ],
       "@models/*": [
-        "app/models/*"
+        "./src/app/models/*"
       ]
     },
     "outDir": "./dist/out-tsc",
