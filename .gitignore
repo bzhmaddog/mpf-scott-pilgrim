@@ -10,3 +10,9 @@ mpf-config/logs
 mpf-config/data
 
 .envrc
+
+#Do not version certificates, but keep the config files
+certs/**
+!certs/Readme.md
+!certs/server.csr.cnf
+!certs/v3.ext

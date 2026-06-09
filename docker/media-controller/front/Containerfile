@@ -14,7 +14,7 @@ WORKDIR /var/www
 #COPY ./dist/ /var/www/
 COPY ./conf/lighttpd.conf /conf/
 
-COPY --chown=www-data:www-data . .
+COPY --chown=lighttpd:lighttpd . .
 
 USER lighttpd
 
