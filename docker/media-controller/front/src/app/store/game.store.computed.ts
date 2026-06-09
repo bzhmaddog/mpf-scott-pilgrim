@@ -3,7 +3,6 @@ import {computed} from "@angular/core";
 
 export function withGameStoreComputed() {
   return withComputed(({players, player}) => ({
-    currentPlayerState: computed(() => players()[player() - 1]),
     currentPlayerScore: computed(() => players()[player() - 1]?.score ?? 0),
     currentPlayerBall:  computed(() => players()[player() - 1]?.ball ?? 0),
   }));
