@@ -1,6 +1,7 @@
 /// <reference types="vitest/globals" />
 import {TestBed} from '@angular/core/testing';
-import {GameStore, initialState} from './game.store';
+import {GameStore} from './game.store';
+import {initialState} from './game-store-base-feature';
 
 describe('GameStore', () => {
   let store: InstanceType<typeof GameStore>;
@@ -137,27 +138,27 @@ describe('GameStore', () => {
     });
 
     it('currentPlayerState should return current player', () => {
-      expect(store.currentPlayerState()).toEqual({score: 1234, ball: 2});
+      expect(store.currentPlayerState()).toEqual({index: 1, score: 1234, ball: 2});
     });
 
-    it('currentPlayerScore should return current player score', () => {
-      expect(store.currentPlayerScore()).toBe(1234);
+    it('currentPlayerState.score should return current player score', () => {
+      expect(store.currentPlayerState().score).toBe(1234);
     });
 
-    it('currentPlayerBall should return current player ball', () => {
-      expect(store.currentPlayerBall()).toBe(2);
+    it('currentPlayerState.ball should return current player ball', () => {
+      expect(store.currentPlayerState().ball).toBe(2);
     });
 
-    it('currentPlayerScore should return 0 when player index is out of bounds', () => {
+    it('currentPlayerState.score should return 0 when player index is out of bounds', () => {
       // beforeEach adds only 2 players; player 99 does not exist in the array
       store.setCurrentPlayer(99);
-      expect(store.currentPlayerScore()).toBe(0);
+      expect(store.currentPlayerState().score).toBe(0);
     });
 
-    it('currentPlayerBall should return 0 when player index is out of bounds', () => {
+    it('currentPlayerState.ball should return 0 when player index is out of bounds', () => {
       // beforeEach adds only 2 players; player 99 does not exist in the array
       store.setCurrentPlayer(99);
-      expect(store.currentPlayerBall()).toBe(0);
+      expect(store.currentPlayerState().ball).toBe(0);
     });
   });
 });

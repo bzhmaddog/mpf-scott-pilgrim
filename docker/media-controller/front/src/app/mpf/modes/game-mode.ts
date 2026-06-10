@@ -1,6 +1,5 @@
 import {Colors, ILayerRendererDictionary, NoiseEffectRenderer, Options, TextLayer} from "h5dmd"
 import {Mode} from "@mpf/modes/mode"
-import {Utils} from "@mpf/utils/utils"
 import {GameStore} from "../../store/game.store";
 import {effect, inject} from "@angular/core";
 import {Logger} from "../../utils/logger";
@@ -29,13 +28,13 @@ class GameMode extends Mode {
 
   private ballValueEffect =
     effect(() => {
-      const currentBallValue = this._store.currentPlayerBall()
+      const currentBallValue = this._store.currentPlayerState().ball
       this._ballValueLayer?.setText(currentBallValue.toString())
     })
 
   private scoreValueEffect =
     effect(() => {
-      const currentScoreValue = this._store.currentPlayerScore()
+      const currentScoreValue = this._store.currentPlayerState().score
       this._scoreLayer?.setText(currentScoreValue.toString())
     })
 

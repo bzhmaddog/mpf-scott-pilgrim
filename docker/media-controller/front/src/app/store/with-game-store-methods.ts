@@ -8,7 +8,7 @@ export function withGameStoreMethods() {
   return signalStoreFeature(
     type<GameStoreBaseFeature>(),
     withMethods((store, loggerService = inject(Logger)) => {
-      const logger = loggerService.getInstance('GameStore');
+      const logger = loggerService.getInstance('GameStoreMethods');
       
       return ({
 

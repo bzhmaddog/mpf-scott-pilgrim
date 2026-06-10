@@ -9,11 +9,12 @@ import {
 } from '@angular/core';
 import {App} from '@mpf/app';
 import {Logger} from './utils/logger';
+import { StoreDebugComponent } from "./components/store-debug/store-debug.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [],
+  imports: [StoreDebugComponent],
   templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
