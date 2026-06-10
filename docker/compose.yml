@@ -7,6 +7,8 @@ services:
     depends_on:
       - mc-front
       - mc-back
+    ports:
+      - "5051:5051"      
     networks:
       - mc-back
     volumes:

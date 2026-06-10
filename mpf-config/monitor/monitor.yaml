@@ -1,0 +1,84 @@
+coils:
+  c_flipper_left_hold:
+    x: 0.21
+    y: 0.875
+  c_flipper_left_main:
+    x: 0.24
+    y: 0.875
+  c_flipper_right_hold:
+    x: 0.75
+    y: 0.875
+  c_flipper_right_main:
+    x: 0.72
+    y: 0.875
+  c_kickback:
+    x: 0.07
+    y: 0.73
+  c_left_sling:
+    x: 0.19
+    y: 0.68
+  c_plunger_eject:
+    x: 0.91
+    y: 0.83
+  c_right_sling:
+    x: 0.77
+    y: 0.68
+  c_trough_eject:
+    x: 0.45
+    y: 0.96
+device_size: 0.24
+switches:
+  s_add_score:
+    x: 0.5
+    y: 0.52
+  s_enter_playfield:
+    x: 0.5
+    y: 0.42
+  s_kickback:
+    x: 0.08
+    y: 0.75
+  s_launch:
+    x: 0.91
+    y: 0.76
+  s_left_flipper:
+    x: 0.28
+    y: 0.855
+  s_left_inlane:
+    x: 0.3
+    y: 0.78
+  s_left_outlane:
+    x: 0.12
+    y: 0.79
+  s_left_sling:
+    x: 0.2
+    y: 0.7
+  s_plunger:
+    x: 0.91
+    y: 0.81
+  s_right_flipper:
+    x: 0.68
+    y: 0.855
+  s_right_inlane:
+    x: 0.65
+    y: 0.78
+  s_right_outlane:
+    x: 0.84
+    y: 0.77
+  s_right_sling:
+    x: 0.76
+    y: 0.7
+  s_start:
+    x: 0.5
+    y: 0.97
+  s_trough1:
+    x: 0.38
+    y: 0.94
+  s_trough2:
+    x: 0.43
+    y: 0.94
+  s_trough3:
+    x: 0.5
+    y: 0.94
+  s_trough4:
+    x: 0.55
+    y: 0.94

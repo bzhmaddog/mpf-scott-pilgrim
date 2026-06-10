@@ -37,15 +37,8 @@ let clients = [];
 let reset_sent = false;
 let clients_ready = 0;
 let mpfRunning = false;
-let reconnectingClients = new Set();
 let kbdKeys = {};
 
-let mpf = {
-    //settings: {},
-    mVars: {},
-    modes: [],
-    mode: {},
-};
 
 try {
     let fileContents = fs.readFileSync('/mpf-config/config/keyboard.yaml', 'utf8');
@@ -101,6 +94,7 @@ bcpServer.on('connection', function (socket) {
                     break;
                 case 'reset':
                     reset_sent = false;
+                    clients_ready = 0;
                     clients.forEach(client => client.send('mc_reset'));
                     break;
                 case 'machine_variable':
@@ -108,11 +102,6 @@ bcpServer.on('connection', function (socket) {
 
                     if (msgObj.params.hasOwnProperty('json')) {
                         msgObj.params = JSON.parse(msgObj.params.json);
-                    }
-
-                    if (msgObj.params.hasOwnProperty('name') && msgObj.params.hasOwnProperty('value')) {
-                        //console.log('here', msgObj);
-                        mpf.mVars[msgObj.params.name] = str2value(msgObj.params.value);
                     }
 
                     if (typeof msgObj.params.value === 'object') {
@@ -124,29 +113,30 @@ bcpServer.on('connection', function (socket) {
 
                     clients.forEach(client => client.send('mc_machine_variable?' + msgObj.params.name + '=' + v));
                     break;
-                case 'settings':
+                case 'settings': {
                     const settingsObj = JSON.parse(msgObj.params['json']);
-                    const settings = settingsObj.settings;
                     console.log("Settings received", msgObj);
-                    clients.forEach(client => client.send(`mc_settings?settings=${JSON.stringify(settings)}`));
+                    clients.forEach(client => client.send(`mc_settings?settings=${JSON.stringify(settingsObj.settings)}`));
                     break;
-                case 'mode_start':
-                    mpf.mode = {
-                        name: msgObj.params.name,
-                        priority: str2int(msgObj.params.priority)
-                    };
-                    console.log("Starting mode XXXXX :", mpf.mode);
-                    clients.forEach(client => client.send('mc_mode_start?name=' + msgObj.params.name + '&priority=' + str2value(msgObj.params.priority)));
+                }
+                case 'mode_start': {
+                    const modeName = msgObj.params.name;
+                    const modePriority = str2int(msgObj.params.priority);
+                    console.log("Starting mode :", modeName);
+                    clients.forEach(client => client.send(`mc_mode_start?name=${modeName}&priority=${modePriority}`));
                     break;
-                case 'mode_stop':
-                    console.log("Stopping mode :", msgObj.params.name);
-                    clients.forEach(client => client.send('mc_mode_stop?name=' + msgObj.params.name));
+                }
+                case 'mode_stop': {
+                    const modeName = msgObj.params.name;
+                    console.log("Stopping mode :", modeName);
+                    clients.forEach(client => client.send(`mc_mode_stop?name=${modeName}`));
                     break;
-                case 'player_variable':
+                }
+                case 'player_variable': {
                     console.log("Player variable changed : ", msgObj.params);
-                    //var cleanedParams = cleanParams(msgObj.params);
                     clients.forEach(client => client.send('mc_player_variable?variables=' + cleanParams(msgObj.params)));
                     break;
+                }
                 case 'player_added':
                     clients.forEach(client => client.send('mc_player_added'));
                     break;
@@ -165,16 +155,6 @@ bcpServer.on('connection', function (socket) {
                     clients.forEach(client => client.send(`mc_ball_end`));
                     break;
                 case 'mode_list':
-                    let jsonObj = JSON.parse(msgObj.params.json);
-                    mpf.modes = [];
-                    jsonObj.running_modes.forEach(mode => {
-                        mpf.modes.push({
-                            name: mode[0],
-                            priority: mode[1],
-                            running: true
-                        });
-                    });
-                    console.log("List of modes :", mpf.modes);
                     break;
                 case 'status_request':
                     // TODO : Send real data
@@ -245,7 +225,6 @@ webSocketServer.on('connection', function connection(_client) {
         if (index > -1) {
             clients.splice(index, 1);
         }
-        reconnectingClients.delete(_client);
         console.log(`DMD client disconnected. Remaining clients: ${clients.length}`);
         if (clients.length === 0 && !mpfRunning) {
             clients_ready = 0;
@@ -258,26 +237,26 @@ webSocketServer.on('connection', function connection(_client) {
         kbdKeys[key].state = false;
     })
 
-    if (mpfRunning) {
-        console.log('MPF already running, reconnecting client');
-        reconnectingClients.add(_client);
-        _client.send('mc_reset');
-    } else {
-        http.get({
-            hostname: 'mpf',
-            port: 5000,
-            path: '/stop',
-            agent: false,
-        }, (response) => {
-            const {statusCode} = response;
+    clients_ready = 0;
+    reset_sent = false;
+    mpfRunning = false;
 
-            if (statusCode !== 200) {
-                clients.forEach((client) => client.send('mpf_stop_error'))
-            } else {
-                setTimeout(startMpf, 100);
-            }
-        });
-    }
+    http.get({
+        hostname: 'mpf',
+        port: 5000,
+        path: '/stop',
+        agent: false,
+    }, (response) => {
+        const {statusCode} = response;
+
+        if (statusCode !== 200) {
+            clients.forEach((client) => client.send('mpf_stop_error'))
+        } else {
+            setTimeout(startMpf, 100);
+        }
+    }).on('error', () => {
+        setTimeout(startMpf, 100);
+    });
 
     console.log(clients.length);
 
@@ -300,16 +279,6 @@ function parseMessageData(message) {
     }
 }
 
-function sendStateSnapshot(client) {
-    if (tcpSocket) client.send('mc_hello');
-    Object.entries(mpf.mVars).forEach(([name, value]) => {
-        const v = typeof value === 'object' ? JSON.stringify(value) : value;
-        client.send(`mc_machine_variable?${name}=${v}`);
-    });
-    mpf.modes.forEach(mode => {
-        client.send(`mc_mode_start?name=${mode.name}&priority=${mode.priority}`);
-    });
-}
 
 function handleLocalMessages(data, sender) {
     const parts = data.split('?');
@@ -328,11 +297,7 @@ function handleLocalMessages(data, sender) {
 
     switch (cmd) {
         case 'mc_ready':
-            if (reconnectingClients.has(sender)) {
-                reconnectingClients.delete(sender);
-                console.log('Reconnecting client ready, sending state snapshot');
-                sendStateSnapshot(sender);
-            } else if (!reset_sent) {
+            if (!reset_sent) {
                 clients_ready++;
 
                 if (clients_ready === clients.length) {
@@ -340,7 +305,6 @@ function handleLocalMessages(data, sender) {
                     bcpSend('reset_complete');
                     reset_sent = true;
                     mpfRunning = true;
-                    console.log(mpf);
                 }
             }
             break;
