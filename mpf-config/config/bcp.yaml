@@ -8,6 +8,8 @@ bcp:
       host: mc-back
       port: 5050
   
-#  servers:
-#    url_style:
-#      ip: 127.0.0.1
+  servers:
+    url_style:
+      ip: 0.0.0.0
+      port: 5051
+      type: mpf.core.bcp.bcp_socket_client.BCPClientSocket  

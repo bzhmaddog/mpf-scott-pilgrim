@@ -31,4 +31,4 @@ keyboard:
     toggle: true
   p:
     switch: s_plunger
-    #toggle: true
+    toggle: true
