@@ -1,29 +1,11 @@
-import {signalStore, withState} from "@ngrx/signals";
-import {Player} from "@models/player";
-import {withDevtools} from "@angular-architects/ngrx-toolkit";
-import {withGameStoreMethods} from "./game.store.methods";
-import {withGameStoreComputed} from "./game.store.computed";
-
-export type MachineVariables = Record<string, string>;
-
-export interface GameState {
-  players: Player[],
-  player: number,
-  variables: MachineVariables;
-  settings: []
-}
-
-export const initialState: GameState = {
-  players: [],
-  player: 0,
-  variables: {},
-  settings: []
-}
+import {signalStore} from "@ngrx/signals";
+import {withGameStoreMethods} from "./with-game-store-methods";
+import {withGameStoreComputed} from "./with-game-store-computed";
+import {withGameStoreBase} from "./game-store-base-feature";
 
 export const GameStore = signalStore(
   {providedIn: 'root'},
-  withDevtools('gameStore'),
-  withState(initialState),
+  withGameStoreBase(),
   withGameStoreMethods(),
   withGameStoreComputed(),
 )

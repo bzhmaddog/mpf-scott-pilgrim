@@ -11,6 +11,9 @@
       ],
       "@models/*": [
         "./src/app/models/*"
+      ],
+      "@types": [
+        "./src/app/types/index.ts"
       ]
     },
     "outDir": "./dist/out-tsc",
