@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "docker-serve": "ng serve --host 0.0.0.0 --live-reload=false",
+    "check:peers": "node scripts/check-peers.mjs",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
@@ -25,7 +26,7 @@
     "@ngrx/signals": "^21.1.1",
     "@webgpu/types": "^0.1.70",
     "h5dmd": "^1.0.7",
-    "ngx-json-treeview": "^21.2.1",
+    "ngx-json-treeview": "^22.0.2",
     "ngx-toastr": "^20.0.5",
     "tslib": "^2.3.0"
   },
@@ -52,6 +53,19 @@
     "vite": ">=7.3.5 <8",
     "esbuild": ">=0.28.1",
     "minimatch": ">=9.0.7",
-    "@babel/core": ">=7.29.6 <8"
+    "@babel/core": ">=7.29.6 <8",
+    "@ngrx/signals": {
+      "@angular/common": "$@angular/common",
+      "@angular/core": "$@angular/core"
+    },
+    "@angular-architects/ngrx-toolkit": {
+      "@angular/common": "$@angular/common",
+      "@angular/core": "$@angular/core"
+    },
+    "ngx-toastr": {
+      "@angular/common": "$@angular/common",
+      "@angular/core": "$@angular/core"
+    },
+    "piscina": "^5.2.0"
   }
 }
