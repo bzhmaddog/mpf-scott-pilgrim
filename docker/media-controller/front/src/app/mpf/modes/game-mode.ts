@@ -1,8 +1,8 @@
-import {Colors, ILayerRendererDictionary, NoiseEffectRenderer, Options, TextLayer} from "h5dmd"
+import {Colors, LayerRendererDictionary, NoiseEffectRenderer, Options, TextLayer} from "h5dmd"
 import {Mode} from "@mpf/modes/mode"
 import {GameStore} from "../../store/game.store";
 import {effect, inject} from "@angular/core";
-import {Logger} from "../../utils/logger";
+
 
 /**
  * This mode runs all the time and is responsible for updating the score / player / ball texts
@@ -14,11 +14,6 @@ class GameMode extends Mode {
   private _to: number | undefined
 
   private readonly _store = inject(GameStore)
-  private readonly _logger = inject(Logger).getInstance('GameMode')
-
-  /*private currentPlayerState = effect(() => {
-    const state = this._store.currentPlayerState();
-  })*/
 
   private playerValueEffect =
     effect(() => {
@@ -176,7 +171,7 @@ class GameMode extends Mode {
         groups: ['hud'],
         renderers: ['score-effect']
       }),
-      {"score-effect": new NoiseEffectRenderer(this._dmd.width, this._dmd.height, 200, noises)} as ILayerRendererDictionary
+      {"score-effect": new NoiseEffectRenderer(this._dmd.width, this._dmd.height, 200, noises)} as LayerRendererDictionary
     )
   }
 

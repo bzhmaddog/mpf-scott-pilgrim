@@ -6,15 +6,15 @@
       "@mpf/*": [
         "./src/app/mpf/*"
       ],
-      "@stores/*": [
-        "./src/app/stores/*"
-      ],
       "@models/*": [
         "./src/app/models/*"
       ],
       "@types": [
         "./src/app/types/index.ts"
-      ]
+      ],
+      "@utils/*": [
+        "./src/app/utils/*"
+      ],
     },
     "outDir": "./dist/out-tsc",
     "strict": true,

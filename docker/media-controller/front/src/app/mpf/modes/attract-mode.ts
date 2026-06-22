@@ -28,15 +28,8 @@ class AttractMode extends Mode {
   private _delayAttractMusic: boolean
 
   private readonly _store = inject(GameStore)
-  private readonly _logger = inject(Logger).getInstance('AttractMode')
 
   private creditString: Signal<string> = computed(() => this._store.variables()['credits_string'])
-
-  // Listen to credits string var changes to update the text in the layer
-  /*private creditStringEffect = effect(() => {
-    const creditString = this.creditString()
-    untracked(()=> this._onCreditsStringChanged(creditString))
-  })*/
 
   constructor() {
     super('attract')
