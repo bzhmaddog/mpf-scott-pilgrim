@@ -7,9 +7,9 @@ import {
   runInInjectionContext,
   ViewChild
 } from '@angular/core';
-import {App} from '@mpf/app';
+import {MpfApp} from '@mpf/mpf-app';
 import {Logger} from './utils/logger';
-import { StoreDebugComponent } from "./components/store-debug/store-debug.component";
+import {StoreDebugComponent} from "./components/store-debug/store-debug.component";
 
 @Component({
   selector: 'app-root',
@@ -29,7 +29,9 @@ export class AppComponent implements AfterViewInit{
 
   ngAfterViewInit() {
     runInInjectionContext(this.environmentInjector, () => {
-      new App(this.dmdElementRef.nativeElement)
+      this._logger.getInstance('AppComponent').log("Initializing MpfApp")
+      
+      new MpfApp(this.dmdElementRef.nativeElement)
     });
   }
 

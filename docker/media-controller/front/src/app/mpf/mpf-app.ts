@@ -10,7 +10,7 @@ import {DmdManagerService} from "@mpf/services/dmd-manager.service";
 import {GameStore} from "../store/game.store";
 import {Logger} from "../utils/logger";
 
-export class App {
+export class MpfApp {
   private readonly _wsServer: WebSocketServer
   private readonly _resourcesManager: ResourcesManager = inject(ResourcesManager)
   private readonly _audioManager: AudioManager = inject(AudioManager)
@@ -59,6 +59,9 @@ export class App {
 
       // Init DMD then
       this._dmd.init().then(() => {
+
+        this._logger.log(`DMD(v${this._dmd.version}) initialized`)
+
 
         // Start rendering dmd
         this._dmd.run()
