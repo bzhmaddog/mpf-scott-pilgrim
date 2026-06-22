@@ -1,10 +1,10 @@
 {
   "dependencies": {
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.2.0",
     "keypress": "^0.2.1",
     "os-utils": "^0.0.14",
-    "underscore": ">=1.12.1",
-    "ws": "^7.5.3"
+    "underscore": ">=1.13.8",
+    "ws": "^7.5.11"
   },
   "devDependencies": {
     "websocket": "^1.0.34"

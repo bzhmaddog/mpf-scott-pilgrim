@@ -47,5 +47,11 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~6.0.3",
     "vitest": "^4.0.8"
+  },
+  "overrides": {
+    "vite": ">=7.3.5 <8",
+    "esbuild": ">=0.28.1",
+    "minimatch": ">=9.0.7",
+    "@babel/core": ">=7.29.6 <8"
   }
 }
