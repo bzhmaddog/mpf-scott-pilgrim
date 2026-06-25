@@ -2,15 +2,13 @@ import {inject, Service} from "@angular/core";
 import {Mode} from "@mpf/modes/mode"
 import {modesManager} from "@mpf/services";
 import {Logger} from "../../utils/logger";
+import {IModesConfigDictionary} from '@mpf/models';
 
 
 interface IModesDictionary {
   [index: string]: Mode
 }
 
-export interface IModesConfigDictionary {
-  [key: string]: () => Mode
-}
 
 @Service()
 export class ModesManager {

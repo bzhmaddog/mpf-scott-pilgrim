@@ -3,7 +3,7 @@ import {CanvasLayer, Dmd, DotShape, Options} from "h5dmd";
 import {ResourcesManager} from "@mpf/services/resources-manager.service";
 import {inject} from "@angular/core";
 import {ToastrService} from "ngx-toastr";
-import {WebSocketMessageParams} from "@mpf/types"
+import {WebSocketMessageParams} from '@mpf/models'
 import {AudioManager} from "@mpf/services/audio-manager.service";
 import {ModesManager} from "@mpf/services/modes-manager.service";
 import {DmdManagerService} from "@mpf/services/dmd-manager.service";

@@ -1,6 +1,8 @@
 import {EnvironmentProviders, InjectionToken, makeEnvironmentProviders} from "@angular/core";
-import {IResourcesManagerConfig, ResourcesManager} from "@mpf/services/resources-manager.service";
-import {IModesConfigDictionary, ModesManager} from "@mpf/services/modes-manager.service";
+import {ResourcesManager} from "@mpf/services/resources-manager.service";
+import {ModesManager} from "@mpf/services/modes-manager.service";
+import {IModesConfigDictionary, IResourcesManagerConfig} from '@mpf/models';
+export type {IResourcesData, IResourcesManagerConfig, IModesConfigDictionary} from '@mpf/models';
 
 export const resourcesManager: InjectionToken<ResourcesManager> = new InjectionToken<ResourcesManager>('resourceManager')
 export const modesManager: InjectionToken<ModesManager> = new InjectionToken<ModesManager>('modesManager')

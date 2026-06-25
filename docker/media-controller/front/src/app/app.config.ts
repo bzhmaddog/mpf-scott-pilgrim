@@ -2,7 +2,8 @@ import {ApplicationConfig} from '@angular/core';
 import {provideRouter} from '@angular/router';
 
 import {routes} from './app.routes';
-import {provideModesManager, provideResourcesManager} from "@mpf/services";
+import {IResourcesData, provideModesManager, provideResourcesManager} from "@mpf/services";
+import resourcesData from '@mpf/config/resources.json';
 import {provideToastr, ToastNoAnimation} from "ngx-toastr";
 import {AttractMode} from "@mpf/modes/attract-mode";
 import {GameMode} from "@mpf/modes/game-mode";
@@ -12,7 +13,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideResourcesManager({
-      file: 'resources.json',
+      data: resourcesData as IResourcesData,
       basePath: '/assets/resources/'
     }),
     provideModesManager({

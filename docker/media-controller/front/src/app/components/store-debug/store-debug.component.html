@@ -1,10 +1,5 @@
-<div class="debug"
-     (mousedown)="onMouseDown($event)"
-     (mousemove)="onMouseMove($event)"
-     (mouseup)="onMouseUp()"
-     (mouseleave)="onMouseUp()"
-     [style.left.px]="position().left"
-     [style.top.px]="position().top">
-  <div class="debug-header">GameStore Debug</div>
-  <ngx-json-treeview [json]="snapshot()" />
-</div>
+<app-debug-panel
+  title="GameStore"
+  storageKey="debug-store-position"
+  [defaultPosition]="{ left: 0, top: 400 }"
+  [data]="snapshot()" />
