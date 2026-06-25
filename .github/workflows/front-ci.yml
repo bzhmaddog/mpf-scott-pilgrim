@@ -2,12 +2,12 @@ name: Front-end CI
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
     paths:
       - 'docker/media-controller/front/**'
       - '.github/workflows/front-ci.yml'
   pull_request:
-    branches: [main, master]
+    branches: [main]
     paths:
       - 'docker/media-controller/front/**'
       - '.github/workflows/front-ci.yml'
