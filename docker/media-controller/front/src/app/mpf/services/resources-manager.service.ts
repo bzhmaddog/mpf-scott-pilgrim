@@ -142,12 +142,12 @@ export class ResourcesManager {
                 })
                 .catch(error => {
                     this._logger.error(error)
-                    reject()
+                    reject(error)
                 })
             })
             .catch(error => {
                 this._logger.error(error)
-                reject()
+                reject(error)
             })
         })
     }

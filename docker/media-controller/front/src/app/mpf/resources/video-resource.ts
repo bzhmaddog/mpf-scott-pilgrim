@@ -10,31 +10,29 @@ export class VideoResource extends Resource<HTMLVideoElement> {
   }
 
   protected _loadResource(): Promise<HTMLVideoElement> {
-
-    this._resource = document.createElement('video')
+    const videoElement = document.createElement('video')
+    this._resource = videoElement
 
     return new Promise<HTMLVideoElement>((resolve, reject) => {
-      this._resource!.src = this.url
-
-      const resource = this._resource!
+      videoElement.src = this.url
 
       const successCallback = () => {
         this._isLoaded = true
-        this._resource!.removeEventListener('loadeddata', successCallback)
-        resolve(resource)
+        videoElement.removeEventListener('loadeddata', successCallback)
+        videoElement.removeEventListener('error', errorCallback)
+        resolve(videoElement)
       }
 
       const errorCallback = (error: Event) => {
-        this._resource!.removeEventListener('error', errorCallback)
+        videoElement.removeEventListener('loadeddata', successCallback)
+        videoElement.removeEventListener('error', errorCallback)
         logger().error(`Resource "${this.url}" failed to load: ${error}`)
         reject(Error(`Resource "${this.url}" failed to load: ${error}`))
       }
 
-      this._resource!.addEventListener('loadeddata', successCallback)
-
-      this._resource!.addEventListener('error', errorCallback)
-
-      this._resource!.load()
+      videoElement.addEventListener('loadeddata', successCallback)
+      videoElement.addEventListener('error', errorCallback)
+      videoElement.load()
     })
   }
 }

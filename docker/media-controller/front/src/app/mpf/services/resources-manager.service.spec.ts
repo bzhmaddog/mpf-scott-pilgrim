@@ -1,7 +1,11 @@
 /// <reference types="vitest/globals" />
 import {TestBed} from '@angular/core/testing';
 import {ResourcesManager, IResourcesManagerConfig} from './resources-manager.service';
-import {provideResourcesManager, resourcesManager} from '@mpf/services';
+import {provideResourcesManager} from '@mpf/services';
+import {AudioResource} from '@mpf/resources/audio-resource';
+import {VideoResource} from '@mpf/resources/video-resource';
+import {ImageResource} from '@mpf/resources/image-resource';
+import {FontResource} from '@mpf/resources/font-resource';
 
 const mockConfig: IResourcesManagerConfig = {
   file: 'resources.json',
@@ -9,13 +13,23 @@ const mockConfig: IResourcesManagerConfig = {
   locale: 'en-US'
 };
 
-const mockResourcesJson = {
+const emptyResourcesJson = {
   strings: { 'en-US': { greeting: 'Hello' } },
   musics: [],
   sounds: [],
   videos: [],
   images: [],
   fonts: []
+};
+
+const fullResourcesJson = {
+  strings: { 'en-US': { greeting: 'Hello', playerText: 'Player' } },
+  musics:  [{ key: 'main',  url: 'main.mp3',  preload: false, group: 'audio' }],
+  sounds:  [{ key: 'ding',  url: 'ding.mp3',  preload: false, group: 'audio' },
+            { key: 'dong',  url: 'dong.mp3',  preload: false }],
+  videos:  [{ key: 'intro', url: 'intro.mp4', preload: false }],
+  images:  [{ key: 'logo',  url: 'logo.png',  preload: false }],
+  fonts:   [{ key: 'Dusty', url: 'dusty.woff2', preload: false }],
 };
 
 describe('ResourcesManager', () => {
@@ -29,6 +43,11 @@ describe('ResourcesManager', () => {
       ]
     });
     service = TestBed.inject(ResourcesManager);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it('should be created', () => {
@@ -62,13 +81,9 @@ describe('ResourcesManager', () => {
 
   describe('load()', () => {
     beforeEach(() => {
-      globalThis.fetch = vi.fn().mockResolvedValue({
-        json: () => Promise.resolve(mockResourcesJson)
-      } as Response);
-    });
-
-    afterEach(() => {
-      vi.restoreAllMocks();
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        json: () => Promise.resolve(emptyResourcesJson)
+      } as Response));
     });
 
     it('should load resources and resolve', async () => {
@@ -86,8 +101,69 @@ describe('ResourcesManager', () => {
     });
 
     it('should reject if fetch fails', async () => {
-      (globalThis.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('network error'));
-      await expect(service.load()).rejects.toBeUndefined();
+      vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network error')));
+      await expect(service.load()).rejects.toThrow('network error');
+    });
+  });
+
+  describe('load() with resources', () => {
+    beforeEach(() => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        json: () => Promise.resolve(fullResourcesJson)
+      } as Response));
+    });
+
+    it('should register all resource types', async () => {
+      await service.load();
+      expect(service.getMusic('main')).toBeInstanceOf(AudioResource);
+      expect(service.getSound('ding')).toBeInstanceOf(AudioResource);
+      expect(service.getVideo('intro')).toBeInstanceOf(VideoResource);
+      expect(service.getImage('logo')).toBeInstanceOf(ImageResource);
+      expect(service.getFont('Dusty')).toBeInstanceOf(FontResource);
+    });
+
+    it('should build correct resource URLs', async () => {
+      await service.load();
+      expect(service.getMusic('main').url).toBe('/assets/audio/musics/main.mp3');
+      expect(service.getSound('ding').url).toBe('/assets/audio/sounds/ding.mp3');
+      expect(service.getVideo('intro').url).toBe('/assets/videos/intro.mp4');
+      expect(service.getImage('logo').url).toBe('/assets/images/logo.png');
+      expect(service.getFont('Dusty').url).toBe('/assets/fonts/dusty.woff2');
+    });
+
+    it('should preload=false on resources when not specified', async () => {
+      await service.load();
+      expect(service.getMusic('main').preload).toBe(false);
+    });
+  });
+
+  describe('load() with preload:true resources', () => {
+    const preloadJson = {
+      strings: { 'en-US': {} },
+      musics:  [{ key: 'bg',    url: 'bg.mp3',    preload: true }],
+      sounds:  [{ key: 'coin',  url: 'coin.mp3',  preload: true }],
+      videos:  [],
+      images:  [{ key: 'bg',    url: 'bg.png',    preload: true }],
+      fonts:   [],
+    };
+
+    beforeEach(() => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        json: () => Promise.resolve(preloadJson)
+      } as Response));
+      vi.spyOn(AudioResource.prototype, 'load').mockResolvedValue({} as AudioBuffer);
+      vi.spyOn(ImageResource.prototype, 'load').mockResolvedValue({} as ImageBitmap);
+    });
+
+    it('should call load() on preload:true resources', async () => {
+      await service.load();
+      expect(AudioResource.prototype.load).toHaveBeenCalledTimes(2); // bg + coin
+      expect(ImageResource.prototype.load).toHaveBeenCalledTimes(1);
+    });
+
+    it('should reject if a preload fails', async () => {
+      vi.spyOn(AudioResource.prototype, 'load').mockRejectedValue(new Error('preload failed'));
+      await expect(service.load()).rejects.toThrow('preload failed');
     });
   });
 });

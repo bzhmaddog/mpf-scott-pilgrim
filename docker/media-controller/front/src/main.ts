@@ -14,5 +14,6 @@ bootstrapApplication(
   }
 )
 .catch(
+  // eslint-disable-next-line no-console -- Logger is unavailable if bootstrapApplication fails
   (err) => console.error(err)
 );

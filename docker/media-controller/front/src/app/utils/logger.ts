@@ -63,18 +63,15 @@ export class Logger {
 
   constructor() {
     Logger.instance = this;
-    console.debug = (...args) => this.debug(...args);
-    console.log   = (...args) => this.log(...args);
-    console.info  = (...args) => this.info(...args);
-    console.warn  = (...args) => this.warn(...args);
-    console.error = (...args) => this.error(...args);
   }
 
   getInstance(tag: string): TaggedLogger {
-    if (!this._instances.has(tag)) {
-      this._instances.set(tag, new TaggedLogger(tag, this));
+    let instance = this._instances.get(tag)
+    if (!instance) {
+      instance = new TaggedLogger(tag, this)
+      this._instances.set(tag, instance)
     }
-    return this._instances.get(tag)!;
+    return instance
   }
 
   debug(...args: unknown[]): void {

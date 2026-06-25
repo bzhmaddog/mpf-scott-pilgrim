@@ -1,11 +1,13 @@
 
 export interface IResource {
     url: string
+    preload: boolean
     isLoaded: boolean
 }
 
 export abstract class Resource<T> implements IResource {
     private _url: string
+    readonly preload: boolean
 
     protected _isLoaded: boolean = false
 
@@ -13,16 +15,7 @@ export abstract class Resource<T> implements IResource {
 
     protected constructor(url: string, preload: boolean) {
         this._url = url
-
-        /*if (preload) {
-            this._loadResource()
-            .then(r => {
-                console.log(`Resource preloaded : ${url}`)
-            })
-            .catch(error => {
-                console.error(`Resource "${url}" preloading failed for : ${error.message}`)
-            })
-        }*/
+        this.preload = preload
     }
 
     get resource() {
@@ -35,7 +28,7 @@ export abstract class Resource<T> implements IResource {
 
     load(): Promise<T> {
         if (this._isLoaded) {
-            return new Promise<T>( resolve => resolve(this._resource!))
+            return new Promise<T>( resolve => resolve(this._resource as T))
         } else {
             return this._loadResource()
         }

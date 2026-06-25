@@ -71,9 +71,7 @@ export function withGameStoreMethods() {
             }
 
             const player = state.player;
-            const players = structuredClone(state.players);
-
-            players[player - 1].ball = ball;
+            const players = state.players.map((p, i) => i === player - 1 ? { ...p, ball } : p);
 
             return {
               ...state,
@@ -90,9 +88,7 @@ export function withGameStoreMethods() {
           patchState(store, (state: GameState) => {
 
               const player = state.player;
-              const players = structuredClone(state.players);
-
-              players[player - 1].score = Math.max(score, 0); // prevent negative number
+              const players = state.players.map((p, i) => i === player - 1 ? { ...p, score: Math.max(score, 0) } : p);
 
               return {
                 ...state,
@@ -114,9 +110,7 @@ export function withGameStoreMethods() {
                 return state;
               }
 
-              const players = structuredClone(state.players);
-
-              players[player - 1].ball = ball;
+              const players = state.players.map((p, i) => i === player - 1 ? { ...p, ball } : p);
 
               return {
                 ...state,
@@ -137,9 +131,7 @@ export function withGameStoreMethods() {
                 logger.error("setPlayerScore() : player cannot be lower than 1")
                 return state;
               }
-              const players = structuredClone(state.players);
-
-              players[player - 1].score = score;
+              const players = state.players.map((p, i) => i === player - 1 ? { ...p, score } : p);
 
               return {
                 ...state,

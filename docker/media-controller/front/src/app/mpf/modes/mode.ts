@@ -20,7 +20,9 @@ export abstract class Mode {
 
 
   protected get _dmd(): Dmd {
-    return this._dmdManager.getDmd()!
+    const dmd = this._dmdManager.getDmd()
+    if (!dmd) throw new Error('DMD not initialized')
+    return dmd
   }
 
   protected constructor(name: string) {

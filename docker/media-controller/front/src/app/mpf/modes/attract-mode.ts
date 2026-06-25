@@ -1,10 +1,9 @@
 import {CanvasLayer, Colors, Options, TextLayer, VideoLayer} from 'h5dmd'
 import {Mode} from "@mpf/modes/mode";
 import {Utils} from "@mpf/utils/utils";
-import {computed, effect, inject, Signal, untracked} from "@angular/core";
+import {computed, inject, Signal} from "@angular/core";
 import {GameStore} from "../../store/game.store";
 import {Player} from "@models/player";
-import {Logger} from "../../utils/logger";
 
 const ATTRACT_MUSIC_RESTART_DELAY = 30000
 const ATTRACT_RESTART_TIMEOUT = 30000 * 2 * 5 // TODO Change
@@ -200,8 +199,6 @@ class AttractMode extends Mode {
     })
 
 
-    //console.log(this._resources.getImage('game-over'))
-
     this._gameOverBackgroundLayer = this._dmd.addCanvasLayer(
       'gameover-bg',
       {},
@@ -263,8 +260,6 @@ class AttractMode extends Mode {
         this._gameOverCloudsLayer2.setVisibility(true)
         this._gameOverBackgroundLayer.setVisibility(true)
         this._gameOverTextLayer.setVisibility(true)
-        //this._gameOverScoresLayer.setVisibility(true)
-
 
         this._dmd.fadeIn(150).then(() => {
 
@@ -310,6 +305,8 @@ class AttractMode extends Mode {
       this._attractRestartTO = window.setTimeout(() => {
 
         this._dmd.fadeOut(150).then(() => {
+          if (!this.isStarted()) return
+
           this._gameOverCloudsVideoLayer.setVisibility(false)
 
           this._gameOverCloudsVideoLayer.stop()

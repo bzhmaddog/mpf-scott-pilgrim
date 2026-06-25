@@ -23,7 +23,9 @@ export class MpfApp {
 
 
   get _dmd(): Dmd {
-    return this._dmdManager.getDmd()!
+    const dmd = this._dmdManager.getDmd()
+    if (!dmd) throw new Error('DMD not initialized')
+    return dmd
   }
 
   constructor(canvasElement: HTMLCanvasElement) {
@@ -129,7 +131,11 @@ export class MpfApp {
         break
       case 'mc_settings':
         this._logger.log("MPF sent settings")
-        this._store.setSettings(JSON.parse(_params["settings"]))
+        try {
+          this._store.setSettings(JSON.parse(_params["settings"]))
+        } catch (error) {
+          this._logger.error(`Failed to parse mc_settings payload: ${error}`)
+        }
         break
       case 'mc_goodbye':
         this._logger.log("MPF said goodbye")
@@ -141,7 +147,11 @@ export class MpfApp {
         break
       case 'mc_player_variable':
         this._logger.log("MPF sent player variables")
-        this._updatePlayerVariable(JSON.parse(_params['variables']))
+        try {
+          this._updatePlayerVariable(JSON.parse(_params['variables']))
+        } catch (error) {
+          this._logger.error(`Failed to parse mc_player_variable payload: ${error}`)
+        }
         break
       case 'mc_mode_start':
         this._modesManager.startMode(
@@ -222,7 +232,7 @@ export class MpfApp {
                 })
               )
             })
-            .catch(error => alert(error))
+            .catch(error => this._toasterService.error(String(error), 'Resource Error'))
         })
 
       // DMD has been created with brightness = 0 so show it now
@@ -305,7 +315,7 @@ export class MpfApp {
 
       try {
         value = JSON.parse(v as string)
-      } catch (error) {
+      } catch {
         value = v
       }
       this._store.setMachineVariable(key, value)

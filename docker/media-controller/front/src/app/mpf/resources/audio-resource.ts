@@ -4,13 +4,16 @@ import { Logger, TaggedLogger } from "../../utils/logger"
 let _logger: TaggedLogger | undefined
 const logger = () => _logger ??= Logger.instance.getInstance('AudioResource')
 
+let _sharedAudioContext: AudioContext | undefined
+const getAudioContext = () => _sharedAudioContext ??= new AudioContext()
+
 export class AudioResource extends Resource<AudioBuffer> {
     constructor(url: string, preload: boolean) {
         super(url, preload)
     }
 
     protected _loadResource(): Promise<AudioBuffer> {
-        const context = new AudioContext()
+        const context = getAudioContext()
 
         return new Promise<AudioBuffer>( (resolve, reject) => {
             fetch(this.url)

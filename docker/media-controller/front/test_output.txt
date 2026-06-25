@@ -1,0 +1,137 @@
+
+> front@0.0.0 test:coverage
+> ng test --no-watch --coverage
+
+❯ Building...
+✔ Building...
+Application bundle generation complete. [1.338 seconds] - 2026-06-25T13:09:06.331Z
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.9 [39m[90m/home/cma15450/Projects/Personnal/mpf-scott-pilgrim/docker/media-controller/front[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+[90mstderr[2m | src/app/mpf/resources/resources.spec.ts[2m > [22m[2mAudioResource[2m > [22m[2mresolves with AudioBuffer on success
+[22m[39m[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+[90mstderr[2m | src/app/mpf/resources/resources.spec.ts[2m > [22m[2mAudioResource[2m > [22m[2mload() returns cached result without re-fetching
+[22m[39m[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+[90mstderr[2m | src/app/mpf/resources/resources.spec.ts[2m > [22m[2mAudioResource[2m > [22m[2mrejects on fetch failure
+[22m[39m[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+[90mstderr[2m | src/app/mpf/resources/resources.spec.ts[2m > [22m[2mAudioResource[2m > [22m[2mrejects on decodeAudioData failure
+[22m[39m[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+[90mstderr[2m | src/app/mpf/resources/resources.spec.ts[2m > [22m[2mFontResource[2m > [22m[2mresolves with FontFace on success
+[22m[39m[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+[90mstderr[2m | src/app/mpf/resources/resources.spec.ts[2m > [22m[2mFontResource[2m > [22m[2mrejects on load failure
+[22m[39m[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+ [31m❯[39m [30m[45m front [49m[39m src/app/mpf/resources/resources.spec.ts [2m([22m[2m12 tests[22m[2m | [22m[31m6 failed[39m[2m)[22m[32m 46[2mms[22m[39m
+[31m     [31m×[31m resolves with AudioBuffer on success[39m[32m 5[2mms[22m[39m
+[31m     [31m×[31m load() returns cached result without re-fetching[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m rejects on fetch failure[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m rejects on decodeAudioData failure[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m resolves with FontFace on success[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m rejects on load failure[39m[32m 6[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 6 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[45m front [49m[39m src/app/mpf/resources/resources.spec.ts[2m > [22mAudioResource[2m > [22mresolves with AudioBuffer on success
+[31m[1mTypeError[22m: () => ({ decodeAudioData: mockDecodeAudioData }) is not a constructor[39m
+[90m [2m❯[22m getAudioContext src/app/mpf/resources/audio-resource.ts:[2m8:55[22m[39m
+[90m [2m❯[22m AudioResource._loadResource src/app/mpf/resources/audio-resource.ts:[2m16:25[22m[39m
+[90m [2m❯[22m AudioResource.load src/app/mpf/resources/resource.ts:[2m33:25[22m[39m
+[36m [2m❯[22m src/app/mpf/resources/resources.spec.ts:[2m57:28[22m[39m
+    [90m 55|[39m   [34mit[39m([32m'resolves with AudioBuffer on success'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m 56|[39m     [35mconst[39m r [33m=[39m [35mnew[39m [33mAudioResource[39m([32m'test.mp3'[39m[33m,[39m [35mfalse[39m)[33m;[39m
+    [90m 57|[39m     [35mconst[39m result [33m=[39m [35mawait[39m r[33m.[39m[34mload[39m()[33m;[39m
+    [90m   |[39m                            [31m^[39m
+    [90m 58|[39m     [34mexpect[39m(result)[33m.[39m[34mtoBe[39m(mockBuffer)[33m;[39m
+    [90m 59|[39m     [34mexpect[39m(r[33m.[39misLoaded)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[45m front [49m[39m src/app/mpf/resources/resources.spec.ts[2m > [22mAudioResource[2m > [22mload() returns cached result without re-fetching
+[31m[1mTypeError[22m: () => ({ decodeAudioData: mockDecodeAudioData }) is not a constructor[39m
+[90m [2m❯[22m getAudioContext src/app/mpf/resources/audio-resource.ts:[2m8:55[22m[39m
+[90m [2m❯[22m AudioResource._loadResource src/app/mpf/resources/audio-resource.ts:[2m16:25[22m[39m
+[90m [2m❯[22m AudioResource.load src/app/mpf/resources/resource.ts:[2m33:25[22m[39m
+[36m [2m❯[22m src/app/mpf/resources/resources.spec.ts:[2m65:13[22m[39m
+    [90m 63|[39m   [34mit[39m([32m'load() returns cached result without re-fetching'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m 64|[39m     [35mconst[39m r [33m=[39m [35mnew[39m [33mAudioResource[39m([32m'test.mp3'[39m[33m,[39m [35mfalse[39m)[33m;[39m
+    [90m 65|[39m     [35mawait[39m r[33m.[39m[34mload[39m()[33m;[39m
+    [90m   |[39m             [31m^[39m
+    [90m 66|[39m     [35mawait[39m r[33m.[39m[34mload[39m()[33m;[39m
+    [90m 67|[39m     [34mexpect[39m(vi[33m.[39m[34mmocked[39m(fetch))[33m.[39m[34mtoHaveBeenCalledTimes[39m([34m1[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[45m front [49m[39m src/app/mpf/resources/resources.spec.ts[2m > [22mAudioResource[2m > [22mrejects on fetch failure
+[31m[1mTypeError[22m: () => ({ decodeAudioData: mockDecodeAudioData }) is not a constructor[39m
+[90m [2m❯[22m getAudioContext src/app/mpf/resources/audio-resource.ts:[2m8:55[22m[39m
+[90m [2m❯[22m AudioResource._loadResource src/app/mpf/resources/audio-resource.ts:[2m16:25[22m[39m
+[90m [2m❯[22m AudioResource.load src/app/mpf/resources/resource.ts:[2m33:25[22m[39m
+[36m [2m❯[22m src/app/mpf/resources/resources.spec.ts:[2m73:20[22m[39m
+    [90m 71|[39m     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('networ…
+    [90m 72|[39m     [35mconst[39m r [33m=[39m [35mnew[39m [33mAudioResource[39m([32m'fail.mp3'[39m[33m,[39m [35mfalse[39m)[33m;[39m
+    [90m 73|[39m     [35mawait[39m [34mexpect[39m(r[33m.[39m[34mload[39m())[33m.[39mrejects[33m.[39m[34mtoThrow[39m([32m'network error'[39m)[33m;[39m
+    [90m   |[39m                    [31m^[39m
+    [90m 74|[39m     [34mexpect[39m(r[33m.[39misLoaded)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+    [90m 75|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[45m front [49m[39m src/app/mpf/resources/resources.spec.ts[2m > [22mAudioResource[2m > [22mrejects on decodeAudioData failure
+[31m[1mTypeError[22m: () => ({ decodeAudioData: mockDecodeAudioData }) is not a constructor[39m
+[90m [2m❯[22m getAudioContext src/app/mpf/resources/audio-resource.ts:[2m8:55[22m[39m
+[90m [2m❯[22m AudioResource._loadResource src/app/mpf/resources/audio-resource.ts:[2m16:25[22m[39m
+[90m [2m❯[22m AudioResource.load src/app/mpf/resources/resource.ts:[2m33:25[22m[39m
+[36m [2m❯[22m src/app/mpf/resources/resources.spec.ts:[2m80:20[22m[39m
+    [90m 78|[39m     mockDecodeAudioData.mockRejectedValueOnce(new Error('decode error'…
+    [90m 79|[39m     [35mconst[39m r [33m=[39m [35mnew[39m [33mAudioResource[39m([32m'bad.mp3'[39m[33m,[39m [35mfalse[39m)[33m;[39m
+    [90m 80|[39m     [35mawait[39m [34mexpect[39m(r[33m.[39m[34mload[39m())[33m.[39mrejects[33m.[39m[34mtoThrow[39m([32m'decode error'[39m)[33m;[39m
+    [90m   |[39m                    [31m^[39m
+    [90m 81|[39m     [34mexpect[39m(r[33m.[39misLoaded)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+    [90m 82|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[45m front [49m[39m src/app/mpf/resources/resources.spec.ts[2m > [22mFontResource[2m > [22mresolves with FontFace on success
+[31m[1mTypeError[22m: () => mockFontFace is not a constructor[39m
+[90m [2m❯[22m src/app/mpf/resources/font-resource.ts:[2m19:13[22m[39m
+[90m [2m❯[22m FontResource._loadResource src/app/mpf/resources/font-resource.ts:[2m17:16[22m[39m
+[90m [2m❯[22m FontResource.load src/app/mpf/resources/resource.ts:[2m33:25[22m[39m
+[36m [2m❯[22m src/app/mpf/resources/resources.spec.ts:[2m151:28[22m[39m
+    [90m149|[39m
+    [90m150|[39m     [35mconst[39m r [33m=[39m [35mnew[39m [33mFontResource[39m([32m'Dusty'[39m[33m,[39m [32m'dusty.woff2'[39m[33m,[39m [35mfalse[39m)[33m;[39m
+    [90m151|[39m     [35mconst[39m result [33m=[39m [35mawait[39m r[33m.[39m[34mload[39m()[33m;[39m
+    [90m   |[39m                            [31m^[39m
+    [90m152|[39m     [34mexpect[39m(result)[33m.[39m[34mtoBe[39m(mockFontFace)[33m;[39m
+    [90m153|[39m     [34mexpect[39m(r[33m.[39misLoaded)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[45m front [49m[39m src/app/mpf/resources/resources.spec.ts[2m > [22mFontResource[2m > [22mrejects on load failure
+[31m[1mAssertionError[22m: expected [Function] to throw error including 'font error' but got '() => mockFontFace is not a construct…'[39m
+
+Expected: "font error"
+Received: "() => mockFontFace is not a constructor"
+
+[36m [2m❯[22m src/app/mpf/resources/resources.spec.ts:[2m162:26[22m[39m
+    [90m160|[39m
+    [90m161|[39m     [35mconst[39m r [33m=[39m [35mnew[39m [33mFontResource[39m([32m'Dusty'[39m[33m,[39m [32m'fail.woff2'[39m[33m,[39m [35mfalse[39m)[33m;[39m
+    [90m162|[39m     [35mawait[39m [34mexpect[39m(r[33m.[39m[34mload[39m())[33m.[39mrejects[33m.[39m[34mtoThrow[39m([32m'font error'[39m)[33m;[39m
+    [90m   |[39m                          [31m^[39m
+    [90m163|[39m     [34mexpect[39m(r[33m.[39misLoaded)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+    [90m164|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m3 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[31m6 failed[39m[22m[2m | [22m[1m[32m43 passed[39m[22m[90m (49)[39m
+[2m   Start at [22m 15:09:06
+[2m   Duration [22m 1.57s[2m (transform 200ms, setup 1.14s, import 231ms, tests 226ms, environment 2.84s)[22m
+

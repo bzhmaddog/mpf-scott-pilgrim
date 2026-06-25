@@ -9,7 +9,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "eslint . --ext .ts"
+    "test:coverage": "ng test --no-watch --coverage",
+    "lint": "eslint ."
   },
   "private": true,
   "dependencies": {
@@ -37,7 +38,8 @@
     "@types/jasmine": "~5.1.0",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
-    "eslint": "^8.57.0",
+    "@vitest/coverage-v8": "^4.1.9",
+    "eslint": "^10.5.0",
     "istanbul-lib-instrument": "^6.0.3",
     "jasmine-core": "~5.1.0",
     "jsdom": "^29.1.1",
@@ -47,6 +49,7 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~6.0.3",
+    "typescript-eslint": "^8.62.0",
     "vitest": "^4.0.8"
   },
   "overrides": {

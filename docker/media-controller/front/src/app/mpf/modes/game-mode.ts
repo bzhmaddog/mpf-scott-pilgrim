@@ -18,19 +18,19 @@ class GameMode extends Mode {
   private playerValueEffect =
     effect(() => {
       const currentPlayer = this._store.player()
-      this._playerValueLayer?.setText(currentPlayer.toString())
+      if (this.isStarted()) this._playerValueLayer?.setText(currentPlayer.toString())
     })
 
   private ballValueEffect =
     effect(() => {
       const currentBallValue = this._store.currentPlayerState().ball
-      this._ballValueLayer?.setText(currentBallValue.toString())
+      if (this.isStarted()) this._ballValueLayer?.setText(currentBallValue.toString())
     })
 
   private scoreValueEffect =
     effect(() => {
       const currentScoreValue = this._store.currentPlayerState().score
-      this._scoreLayer?.setText(currentScoreValue.toString())
+      if (this.isStarted()) this._scoreLayer?.setText(currentScoreValue.toString())
     })
 
 
@@ -183,7 +183,7 @@ class GameMode extends Mode {
 
     //this._audioManager.playSound('start', 'start-first-player-sound')
 
-    if (this._dmd.brightness == 1) {
+    if (this._dmd.brightness === 1) {
       this._dmd.fadeOut(150).then(() => {
 
 
