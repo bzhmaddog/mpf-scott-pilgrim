@@ -2,8 +2,8 @@
 
 FROM nginx:stable-alpine3.19-perl AS nginx-base
 
-COPY conf/default.conf /etc/nginx/
-
-COPY ./conf/default.conf /etc/nginx/conf.d/default.conf
+COPY ./conf/01-set-resolver.envsh /docker-entrypoint.d/01-set-resolver.envsh
+RUN chmod +x /docker-entrypoint.d/01-set-resolver.envsh
+COPY ./conf/default.conf.template /etc/nginx/templates/default.conf.template
 COPY ./includes/ /etc/nginx/includes/
 COPY ./html/ /usr/share/nginx/html/

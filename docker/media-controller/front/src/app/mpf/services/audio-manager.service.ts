@@ -1,4 +1,5 @@
-import {Injectable} from "@angular/core";
+import {inject, Service} from "@angular/core";
+import {Logger} from "../../utils/logger";
 
 interface IAudioBufferDictionary {
   [index: string] : AudioBuffer
@@ -8,9 +9,7 @@ interface IAudioBufferSourceNodeDictionary {
   [index: string]: AudioBufferSourceNode
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class AudioManager {
   private readonly _context: AudioContext
   private readonly _sounds: IAudioBufferDictionary
@@ -21,6 +20,8 @@ export class AudioManager {
     this._sounds = {}
     this._sources = {}
   }
+
+  private readonly _logger = inject(Logger).getInstance('AudioManager');
 
   addSound(key: string, sound: AudioBuffer, overwrite: boolean = false) {
     if (this._sounds[key] === undefined || overwrite) {
@@ -37,12 +38,12 @@ export class AudioManager {
     }
 
     if (typeof this._sounds[key] === 'undefined') {
-      console.log(`Sound [${key}] is not loaded`)
+      this._logger.log(`Sound [${key}] is not loaded`)
       return
     }
 
     if (typeof this._sources[playKey] !== 'undefined') {
-      console.log(`Sound [${playKey}] is already beeing played`)
+      this._logger.log(`Sound [${playKey}] is already beeing played`)
       return
     }
 
@@ -67,13 +68,13 @@ export class AudioManager {
     source.buffer = this._sounds[key]
     source.connect(this._context.destination)
 
-    console.log(`Playing sound => ${key} as ${playKey}`)
+    this._logger.log(`Playing sound => ${key} as ${playKey}`)
     source.start(0)
   }
 
   stopSound(pKey: string) {
     if (typeof this._sources[pKey] === 'undefined') {
-      console.log(`Nothing to stop : [${pKey}] is not beeing played`)
+      this._logger.log(`Nothing to stop : [${pKey}] is not beeing played`)
       return
     }
 

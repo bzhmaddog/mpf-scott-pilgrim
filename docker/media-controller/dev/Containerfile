@@ -8,5 +8,5 @@ WORKDIR /app
 
 USER node
 
-CMD ["sh", "-c", "diff -q package.json node_modules/.install-stamp > /dev/null 2>&1 || (npm install --no-package-lock && cp package.json node_modules/.install-stamp); npm run docker"]
-#CMD ["/bin/sh"]
+CMD ["sh", "-c", "diff -q package.json node_modules/.install-stamp > /dev/null 2>&1 || (npm install --no-package-lock && cp package.json node_modules/.install-stamp); npm run docker-serve"]
+

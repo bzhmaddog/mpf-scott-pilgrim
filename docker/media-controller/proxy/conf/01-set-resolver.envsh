@@ -1,0 +1,5 @@
+#!/bin/sh
+# Extract the first nameserver from /etc/resolv.conf and export it for envsubst
+NAMESERVER=$(grep -m1 'nameserver' /etc/resolv.conf | awk '{print $2}')
+export NAMESERVER
+echo "resolver: $NAMESERVER"

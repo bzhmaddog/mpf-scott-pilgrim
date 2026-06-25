@@ -1,6 +1,18 @@
 name: mpf-scott-pilgrim
 
 services:
+  mc-proxy:
+    image: mc-proxy:1.0.0
+    container_name: mc-proxy
+    ports:
+      - "4443:4443/tcp"
+      - "8080:8080/tcp"
+    networks:
+      - mc-front
+      - mc-back
+    volumes:
+      - ../certs/2026:/certs
+
   mpf:
     image: mpf:0.80
     container_name: mpf
@@ -21,9 +33,6 @@ services:
   mc-back:
     image: mc-back:1.0.0
     container_name: mc-back
-    environment:
-      - SSL_CRT_FILE=/certs/server.crt
-      - SSL_KEY_FILE=/certs/server.key
     networks:
       - mc-back
     volumes:
@@ -36,21 +45,6 @@ services:
       - mc-front
     volumes:
       - ./media-controller/front/dist:/var/www
-
-  mc-proxy:
-    image: mc-proxy:1.0.0
-    container_name: mc-proxy
-    depends_on:
-      - mc-back
-      - mc-front
-    ports:
-      - "4443:4443/tcp"
-      - "8080:8080/tcp"
-    networks:
-      - mc-front
-      - mc-back
-    volumes:
-      - ../certs/2025:/certs
 
 networks:
   mc-back:

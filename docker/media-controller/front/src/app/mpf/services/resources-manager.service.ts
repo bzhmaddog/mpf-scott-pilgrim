@@ -1,4 +1,5 @@
-import {Inject, Injectable} from "@angular/core";
+import {inject, Service} from "@angular/core";
+import {Logger} from "../../utils/logger";
 
 
 import { AudioResource } from "@mpf/resources/audio-resource"
@@ -45,9 +46,7 @@ export interface IResourcesManagerConfig {
   locale?: string;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ResourcesManager {
     private _resourcesLoaded: boolean = false
     private readonly _resFile: string
@@ -61,10 +60,13 @@ export class ResourcesManager {
     private _fonts: IFontResourceDictionary = {}
     private _groups: string[] = []
 
-    constructor(@Inject(resourcesManager) config: IResourcesManagerConfig) {
-        this._basePath = config.basePath.endsWith("/") ? config.basePath : config.basePath + "/"
-        this._resFile = this._basePath + config.file
-        this._locale = config.locale ?? 'en-US'
+    private readonly _config = inject<IResourcesManagerConfig>(resourcesManager);
+    private readonly _logger = inject(Logger).getInstance('ResourcesManager');
+
+    constructor() {
+        this._basePath = this._config.basePath.endsWith("/") ? this._config.basePath : this._config.basePath + "/"
+        this._resFile = this._basePath + this._config.file
+        this._locale = this._config.locale ?? 'en-US'
     }
 
     load(): Promise<ResourcesManager> {
@@ -97,7 +99,7 @@ export class ResourcesManager {
                     this._sounds[r.key] = resource
                     this._addGroup(r.group)
                     if (r.preload) {
-                        console.log(`Preloading sound : ${r.key}`)
+                        this._logger.log(`Preloading sound : ${r.key}`)
                         preloadList.push(resource.load())
                     }
                 })
@@ -139,13 +141,13 @@ export class ResourcesManager {
                     resolve(this)
                 })
                 .catch(error => {
-                    console.error(error)
-                    reject()
+                    this._logger.error(error)
+                    reject(error)
                 })
             })
             .catch(error => {
-                console.error(error)
-                reject()
+                this._logger.error(error)
+                reject(error)
             })
         })
     }

@@ -16,16 +16,10 @@ openssl req -new -sha256 -nodes -out server.csr -newkey rsa:2048 -keyout server.
 openssl x509 -req -in server.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out server.crt -days 500 -sha256 -extfile v3.ext
 ```
 
-## Step 4 - Copy the private key and certificate into your ssl folder (~/.ssh/ssl)
-
-
-## Step 5 - Generate lighttpd certificate
+## Step 4 - Place the private key and certificate in the certs/202x folder
 ```
-cat server.crt > server.pem
-cat server.key >> server.pem
+mv server.crt certs/2026/server.crt
+mv server.key certs/2026/server.key
 ```
 
-## Step 6 - Copy the pem file where your lighttpd configuration is expecting it
-```
-ex: cp server.pem /etc/lighttpd/certs/
-```
+> The compose file mounts `certs/2026/` into the proxy container as `/certs`. SSL termination is handled by the nginx proxy.

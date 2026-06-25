@@ -8,20 +8,24 @@ import {AudioManager} from "@mpf/services/audio-manager.service";
 import {ModesManager} from "@mpf/services/modes-manager.service";
 import {DmdManagerService} from "@mpf/services/dmd-manager.service";
 import {GameStore} from "../store/game.store";
+import {Logger} from "../utils/logger";
 
-export class App {
+export class MpfApp {
   private readonly _wsServer: WebSocketServer
   private readonly _resourcesManager: ResourcesManager = inject(ResourcesManager)
   private readonly _audioManager: AudioManager = inject(AudioManager)
   private readonly _modesManager: ModesManager = inject(ModesManager)
   private readonly _dmdManager: DmdManagerService = inject(DmdManagerService)
   private readonly _toasterService: ToastrService = inject(ToastrService)
+  private readonly _logger = inject(Logger).getInstance('App')
 
   private readonly _store = inject(GameStore)
 
 
   get _dmd(): Dmd {
-    return this._dmdManager.getDmd()!
+    const dmd = this._dmdManager.getDmd()
+    if (!dmd) throw new Error('DMD not initialized')
+    return dmd
   }
 
   constructor(canvasElement: HTMLCanvasElement) {
@@ -36,38 +40,40 @@ export class App {
       onError: this._wsOnError.bind(this)
     })
 
-    // Listen to keyboard events and send them to the backend
-    document.addEventListener("keypress", (event) => {
-      if (!this._wsServer.isConnected()) {
-        console.warn("Websocket server is not connected")
-        return;
-      }
+    this._init(canvasElement)
+  }
 
-      this._wsServer.send(`mc_keyboard_event?key=${event.key}`)
-    });
+  handleKeyEvent(event: KeyboardEvent): void {
+    if (!this._wsServer.isConnected()) {
+      this._logger.warn("Websocket server is not connected")
+      return;
+    }
+    this._wsServer.send(`mc_keyboard_event?key=${event.key}`)
+  }
 
+  private async _init(canvasElement: HTMLCanvasElement): Promise<void> {
     // Load resources file then reset dmd
-    this._resourcesManager.load().then(resources => {
+    const resources = await this._resourcesManager.load()
 
-      this._dmdManager.setDmd(
-        new Dmd(canvasElement, 2, 1, 1, 1, DotShape.Square, 14, 0, true)
-      )
+    this._logger.log("Resources file loaded", resources)
 
-      console.log("Resources file loaded", resources)
+    this._dmdManager.setDmd(
+      new Dmd(canvasElement, 2, 1, 1, 1, DotShape.Square, 14, 0, true)
+    )
 
-      // Init DMD then
-      this._dmd.init().then(() => {
+    // Init DMD then
+    await this._dmd.init()
 
-        // Start rendering dmd
-        this._dmd.run()
+    this._logger.log(`DMD(v${this._dmd.version}) initialized`)
 
-        // Reset the DMD (show only background layer and mpf logo)
-        this._resetDMD()
+    // Start rendering dmd
+    this._dmd.run()
 
-        // Connect to backend (start the game)
-        this._wsServer.connect()
-      })
-    })
+    // Reset the DMD (show only background layer and mpf logo)
+    this._resetDMD()
+
+    // Connect to backend (start the game)
+    this._wsServer.connect()
   }
 
   private _wsOnError(event: Event) {
@@ -105,13 +111,13 @@ export class App {
     //const params = new Options(_params)
     switch (cmd) {
       case 'mc_connected':
-        console.log("MPF connected")
+        this._logger.log("MPF connected")
         break
       case 'mc_hello':
-        console.log("MPF says hello")
+        this._logger.log("MPF says hello")
         break
       case 'mc_reset':
-        console.log("MPF requested reset")
+        this._logger.log("MPF requested reset")
         this._dmd.fadeOut(150).then(() => {
           this._dmd.removeLayer("logo")
 
@@ -124,20 +130,28 @@ export class App {
         })
         break
       case 'mc_settings':
-        console.log("MPF sent settings")
-        this._store.setSettings(JSON.parse(_params["settings"]))
+        this._logger.log("MPF sent settings")
+        try {
+          this._store.setSettings(JSON.parse(_params["settings"]))
+        } catch (error) {
+          this._logger.error(`Failed to parse mc_settings payload: ${error}`)
+        }
         break
       case 'mc_goodbye':
-        console.log("MPF said goodbye")
+        this._logger.log("MPF said goodbye")
         this._resetDMD()
         break
       case 'mc_machine_variable':
-        console.log("MPF sent machine variables")
+        this._logger.log("MPF sent machine variables")
         this._updateMachineVariables(_params)
         break
       case 'mc_player_variable':
-        console.log("MPF sent player variables")
-        this._updatePlayerVariable(JSON.parse(_params['variables']))
+        this._logger.log("MPF sent player variables")
+        try {
+          this._updatePlayerVariable(JSON.parse(_params['variables']))
+        } catch (error) {
+          this._logger.error(`Failed to parse mc_player_variable payload: ${error}`)
+        }
         break
       case 'mc_mode_start':
         this._modesManager.startMode(
@@ -163,14 +177,14 @@ export class App {
         )
         break
       case 'mc_ball_end':
-        console.log('ball_end')
+        this._logger.log('ball_end')
         // todo : Play some animation
         break
       case 'mc_switch':
-        console.log("BCP Switches", _params, rawData)
+        this._logger.log("BCP Switches", _params, rawData)
         break
       default:
-        console.log(`_wsOnMessage()[${cmd}] :`, _params, rawData)
+        this._logger.log(`_wsOnMessage()[${cmd}] :`, _params, rawData)
       //console.log("Unhandled message received : ", rawData)
     }
 
@@ -191,7 +205,7 @@ export class App {
    * Reset all layers and add the two default layers
    */
   private _resetDMD(): Promise<void> {
-    console.log("Reseting DMD")
+    this._logger.log("Reseting DMD")
 
     return new Promise((resolve) => {
 
@@ -218,7 +232,7 @@ export class App {
                 })
               )
             })
-            .catch(error => alert(error))
+            .catch(error => this._toasterService.error(String(error), 'Resource Error'))
         })
 
       // DMD has been created with brightness = 0 so show it now
@@ -261,7 +275,7 @@ export class App {
     switch(data['name']) {
       case 'index': {
         const player: number = parseInt(data['value'], 10)
-        console.log(`IGNORED : _updatePlayerVariable[index]`, player)
+        this._logger.log(`IGNORED : _updatePlayerVariable[index]`, player)
         //if (player > 0) { //TODO Check end of game
           //this._store.setCurrentPlayer(player)
         //}
@@ -270,25 +284,25 @@ export class App {
       case 'score': {
         const player: number = parseInt(data['player_num'], 10)
         const score: number = parseInt(data['value'], 10)
-        console.log(`_updatePlayerVariable[score]`, player, score)
+        this._logger.log(`_updatePlayerVariable[score]`, player, score)
         this._store.setPlayerScore(player, score)
         break
       }
       case 'ball': {
         const player: number = parseInt(data['player_num'], 10)
         const ball: number = parseInt(data['value'], 10)
-        console.log(`_updatePlayerVariable[ball]`, player, ball)
+        this._logger.log(`_updatePlayerVariable[ball]`, player, ball)
         this._store.setPlayerBall(player, ball)
         break
       }
       case 'number': {
         const n: number = parseInt(data['value'], 10)
-        console.log("_updatePlayerVariable[number] =>", n)
+        this._logger.log("_updatePlayerVariable[number] =>", n)
         this._store.setCurrentPlayer(n)
         break
       }
       default:
-        console.log('_updatePlayerVariable(): Unhandled case', data);
+        this._logger.log('_updatePlayerVariable(): Unhandled case', data);
     }
   }
 
@@ -301,7 +315,7 @@ export class App {
 
       try {
         value = JSON.parse(v as string)
-      } catch (error) {
+      } catch {
         value = v
       }
       this._store.setMachineVariable(key, value)
@@ -309,7 +323,7 @@ export class App {
   }
 
   private _addPlayer() {
-    console.log("Player added")
+    this._logger.log("Player added")
     this._store.addPlayer()
   }
 

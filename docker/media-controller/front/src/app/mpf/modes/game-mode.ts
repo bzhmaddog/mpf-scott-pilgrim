@@ -1,8 +1,8 @@
-import {Colors, ILayerRendererDictionary, NoiseEffectRenderer, Options, TextLayer} from "h5dmd"
+import {Colors, LayerRendererDictionary, NoiseEffectRenderer, Options, TextLayer} from "h5dmd"
 import {Mode} from "@mpf/modes/mode"
-import {Utils} from "@mpf/utils/utils"
 import {GameStore} from "../../store/game.store";
-import {effect, inject, untracked} from "@angular/core";
+import {effect, inject} from "@angular/core";
+
 
 /**
  * This mode runs all the time and is responsible for updating the score / player / ball texts
@@ -15,31 +15,22 @@ class GameMode extends Mode {
 
   private readonly _store = inject(GameStore)
 
-  private currentPlayerState = effect(() => {
-    const state = this._store.currentPlayerState();
-
-    untracked(()=> console.log("Current player state changed : ", state))
-  })
-
   private playerValueEffect =
     effect(() => {
       const currentPlayer = this._store.player()
-      untracked(() => this._playerValueLayer?.setText(currentPlayer.toString()))
+      if (this.isStarted()) this._playerValueLayer?.setText(currentPlayer.toString())
     })
 
   private ballValueEffect =
     effect(() => {
-      const currentBallValue = this._store.currentPlayerBall()
-      untracked(() => {
-        console.log("here", currentBallValue);
-        this._ballValueLayer?.setText(currentBallValue.toString())
-      })
+      const currentBallValue = this._store.currentPlayerState().ball
+      if (this.isStarted()) this._ballValueLayer?.setText(currentBallValue.toString())
     })
 
   private scoreValueEffect =
     effect(() => {
-      const currentScoreValue = this._store.currentPlayerScore()
-      untracked(() => this._scoreLayer?.setText(currentScoreValue.toString()))
+      const currentScoreValue = this._store.currentPlayerState().score
+      if (this.isStarted()) this._scoreLayer?.setText(currentScoreValue.toString())
     })
 
 
@@ -180,7 +171,7 @@ class GameMode extends Mode {
         groups: ['hud'],
         renderers: ['score-effect']
       }),
-      {"score-effect": new NoiseEffectRenderer(this._dmd.width, this._dmd.height, 200, noises)} as ILayerRendererDictionary
+      {"score-effect": new NoiseEffectRenderer(this._dmd.width, this._dmd.height, 200, noises)} as LayerRendererDictionary
     )
   }
 
@@ -192,7 +183,7 @@ class GameMode extends Mode {
 
     //this._audioManager.playSound('start', 'start-first-player-sound')
 
-    if (this._dmd.brightness == 1) {
+    if (this._dmd.brightness === 1) {
       this._dmd.fadeOut(150).then(() => {
 
 

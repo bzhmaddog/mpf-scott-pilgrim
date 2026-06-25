@@ -1,7 +1,7 @@
 import {CanvasLayer, Colors, Options, TextLayer, VideoLayer} from 'h5dmd'
 import {Mode} from "@mpf/modes/mode";
 import {Utils} from "@mpf/utils/utils";
-import {computed, effect, inject, Signal, untracked} from "@angular/core";
+import {computed, inject, Signal} from "@angular/core";
 import {GameStore} from "../../store/game.store";
 import {Player} from "@models/player";
 
@@ -29,12 +29,6 @@ class AttractMode extends Mode {
   private readonly _store = inject(GameStore)
 
   private creditString: Signal<string> = computed(() => this._store.variables()['credits_string'])
-
-  // Listen to credits string var changes to update the text in the layer
-  /*private creditStringEffect = effect(() => {
-    const creditString = this.creditString()
-    untracked(()=> this._onCreditsStringChanged(creditString))
-  })*/
 
   constructor() {
     super('attract')
@@ -205,8 +199,6 @@ class AttractMode extends Mode {
     })
 
 
-    //console.log(this._resources.getImage('game-over'))
-
     this._gameOverBackgroundLayer = this._dmd.addCanvasLayer(
       'gameover-bg',
       {},
@@ -262,15 +254,12 @@ class AttractMode extends Mode {
 
       this._dmd.fadeOut(150).then(() => {
 
-        console.log('here')
         this._gameOverCloudsVideoLayer.setVisibility(true)
         this._gameOverCloudsVideoLayer.play()
 
         this._gameOverCloudsLayer2.setVisibility(true)
         this._gameOverBackgroundLayer.setVisibility(true)
         this._gameOverTextLayer.setVisibility(true)
-        //this._gameOverScoresLayer.setVisibility(true)
-
 
         this._dmd.fadeIn(150).then(() => {
 
@@ -316,6 +305,8 @@ class AttractMode extends Mode {
       this._attractRestartTO = window.setTimeout(() => {
 
         this._dmd.fadeOut(150).then(() => {
+          if (!this.isStarted()) return
+
           this._gameOverCloudsVideoLayer.setVisibility(false)
 
           this._gameOverCloudsVideoLayer.stop()
@@ -368,7 +359,7 @@ class AttractMode extends Mode {
   // Update credit string
   private _onCreditsStringChanged(creditString: string) {
     this._creditsLayer?.setText(creditString)
-    console.log(`credit string changed to => ${creditString}`, this._creditsLayer)
+    this._logger.log(`credit string changed to => ${creditString}`, this._creditsLayer)
   }
 
   private _startAttractMusicIfNeeded() {
@@ -390,10 +381,10 @@ class AttractMode extends Mode {
 
   private _onMusicEnded() {
     if (this.isStarted()) {
-      console.log("onMusicEnded() : Attract music ended, restarting later")
+      this._logger.log("onMusicEnded() : Attract music ended, restarting later")
       this._attractMusicTO = window.setTimeout(this._startAttractMusic.bind(this), ATTRACT_MUSIC_RESTART_DELAY)
     } else {
-      console.log("onMusicEnded() : Mode not started so I will not restart attract music")
+      this._logger.log("onMusicEnded() : Mode not started so I will not restart attract music")
     }
   }
 

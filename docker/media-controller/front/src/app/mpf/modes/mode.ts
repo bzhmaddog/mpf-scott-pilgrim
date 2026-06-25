@@ -3,7 +3,8 @@ import {inject} from "@angular/core";
 import {AudioManager} from "@mpf/services/audio-manager.service";
 import {ResourcesManager} from "@mpf/services/resources-manager.service";
 import {DmdManagerService} from "@mpf/services/dmd-manager.service";
-import {GameStore} from "../../store/game.store";
+import {Logger, TaggedLogger} from "@utils/logger";
+
 
 export abstract class Mode {
   private _isStarted = false
@@ -14,35 +15,40 @@ export abstract class Mode {
   protected readonly _dmdManager: DmdManagerService = inject(DmdManagerService)
   protected readonly _resourcesManager: ResourcesManager = inject(ResourcesManager)
   protected readonly _audioManager: AudioManager = inject(AudioManager)
-  //protected readonly _store = inject(GameStore)
+  
+  protected readonly _logger: TaggedLogger
+
 
   protected get _dmd(): Dmd {
-    return this._dmdManager.getDmd()!
+    const dmd = this._dmdManager.getDmd()
+    if (!dmd) throw new Error('DMD not initialized')
+    return dmd
   }
 
   protected constructor(name: string) {
     this._name = name
+    this._logger = inject(Logger).getInstance(`Mode:${name}`)
   }
 
   start(priority: number): boolean {
     if (this._isInitialized) {
       this._isStarted = true
       this._priority = priority
-      console.log(`Starting ${this.name} mode with priority ${priority}`)
+      this._logger.info(`Starting ${this.name} mode with priority ${priority}`)
       return true
     } else {
-      console.log(`Mode '${this.name}' is not initialized !`)
+      this._logger.warn(`Mode '${this.name}' is not initialized !`)
       return false
     }
   }
 
   stop() {
     if (!this._isStarted) {
-      console.log(`${this.name} mode is not started`)
+      this._logger.warn(`${this.name} mode is not started`)
       return
     }
 
-    console.log(`Stopping ${this.name} mode`)
+    this._logger.info(`Stopping ${this.name} mode`)
 
     this._isStarted = false
   }
@@ -58,7 +64,7 @@ export abstract class Mode {
   }
 
   init() {
-    console.log(`Init Mode => ${this._name}`)
+    this._logger.info(`Init Mode => ${this._name}`)
 
     this._isInitialized = true
     this._isStarted = false

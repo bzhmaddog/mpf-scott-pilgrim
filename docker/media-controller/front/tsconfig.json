@@ -2,19 +2,22 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./src",
     "paths": {
       "@mpf/*": [
-        "app/mpf/*"
-      ],
-      "@stores/*": [
-        "app/stores/*"
+        "./src/app/mpf/*"
       ],
       "@models/*": [
-        "app/models/*"
-      ]
+        "./src/app/models/*"
+      ],
+      "@types": [
+        "./src/app/types/index.ts"
+      ],
+      "@utils/*": [
+        "./src/app/utils/*"
+      ],
     },
     "outDir": "./dist/out-tsc",
+    "rootDir": "./src",
     "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,

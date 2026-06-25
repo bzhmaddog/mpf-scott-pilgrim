@@ -1,18 +1,4 @@
 
-upstream mc_front {
-    server mc-front:4200 max_fails=0;
-}
-
-upstream mc_back {
-    server mc-back:5000;
-    keepalive 60;
-}
-
-upstream dev_tools {
-    server localhost:9223;
-    keepalive 60;
-}
-
 server {
     listen    8080;
     return 301 https://$host$request_uri;
@@ -26,7 +12,14 @@ server {
     ssl_certificate_key /certs/server.key;
     include /etc/nginx/includes/ssl.conf;
 
-    error_page 502 /waiting.html;
+    # Resolve upstreams at request time, not at startup
+    resolver ${NAMESERVER} valid=2s;
+    resolver_timeout 1s;
+    set $mc_front_upstream mc-front:4200;
+    set $mc_back_upstream mc-back:5000;
+    set $dev_tools_upstream localhost:9223;
+
+    error_page 502 503 504 /waiting.html;
 
     location = /waiting.html {
         root /usr/share/nginx/html;
@@ -36,18 +29,18 @@ server {
     location /ws {
         include /etc/nginx/includes/proxy.conf;
         include /etc/nginx/includes/wss.conf;
-        proxy_pass http://mc_back;
+        proxy_pass http://$mc_back_upstream;
         proxy_read_timeout 36000s;
     }
 
     location / {
         include /etc/nginx/includes/proxy.conf;
-        proxy_pass http://mc_front;
+        proxy_pass http://$mc_front_upstream;
     }
 
     location /rdt {
         include /etc/nginx/includes/proxy.conf;
-        proxy_pass http://dev_tools;
+        proxy_pass http://$dev_tools_upstream;
     }
 
     access_log on;
@@ -59,27 +52,11 @@ server {
     http2 on;
     server_name archpinball.dev;
 
+    resolver ${NAMESERVER} valid=5s;
+    set $dev_tools_upstream localhost:9223;
+
     location / {
         include /etc/nginx/includes/proxy.conf;
-        proxy_pass http://dev_tools;
+        proxy_pass http://$dev_tools_upstream;
     }
 }
-
-
-
-#server {
-#    listen 80;
-#    server_name _;
-#    root /var/www/html;
-#    charset UTF-8;
-#    error_page 404 /page-not-found.html;
-#    location = /404.html {
-#        allow all;
-#    }
-#    location / {
- #       return 404;
- #   }
- #   access_log off;
- #   log_not_found off;
- #   error_log /var/log/nginx/error.log error;
-#}
