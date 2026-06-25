@@ -38,41 +38,40 @@ export class MpfApp {
       onError: this._wsOnError.bind(this)
     })
 
-    // Listen to keyboard events and send them to the backend
-    document.addEventListener("keypress", (event) => {
-      if (!this._wsServer.isConnected()) {
-        this._logger.warn("Websocket server is not connected")
-        return;
-      }
+    this._init(canvasElement)
+  }
 
-      this._wsServer.send(`mc_keyboard_event?key=${event.key}`)
-    });
+  handleKeyEvent(event: KeyboardEvent): void {
+    if (!this._wsServer.isConnected()) {
+      this._logger.warn("Websocket server is not connected")
+      return;
+    }
+    this._wsServer.send(`mc_keyboard_event?key=${event.key}`)
+  }
 
+  private async _init(canvasElement: HTMLCanvasElement): Promise<void> {
     // Load resources file then reset dmd
-    this._resourcesManager.load().then(resources => {
+    const resources = await this._resourcesManager.load()
 
-      this._dmdManager.setDmd(
-        new Dmd(canvasElement, 2, 1, 1, 1, DotShape.Square, 14, 0, true)
-      )
+    this._logger.log("Resources file loaded", resources)
 
-      this._logger.log("Resources file loaded", resources)
+    this._dmdManager.setDmd(
+      new Dmd(canvasElement, 2, 1, 1, 1, DotShape.Square, 14, 0, true)
+    )
 
-      // Init DMD then
-      this._dmd.init().then(() => {
+    // Init DMD then
+    await this._dmd.init()
 
-        this._logger.log(`DMD(v${this._dmd.version}) initialized`)
+    this._logger.log(`DMD(v${this._dmd.version}) initialized`)
 
+    // Start rendering dmd
+    this._dmd.run()
 
-        // Start rendering dmd
-        this._dmd.run()
+    // Reset the DMD (show only background layer and mpf logo)
+    this._resetDMD()
 
-        // Reset the DMD (show only background layer and mpf logo)
-        this._resetDMD()
-
-        // Connect to backend (start the game)
-        this._wsServer.connect()
-      })
-    })
+    // Connect to backend (start the game)
+    this._wsServer.connect()
   }
 
   private _wsOnError(event: Event) {

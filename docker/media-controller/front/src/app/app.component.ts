@@ -1,8 +1,10 @@
 import {
-  AfterViewInit, ChangeDetectionStrategy,
+  afterNextRender,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   EnvironmentInjector,
+  HostListener,
   inject,
   runInInjectionContext,
   ViewChild
@@ -18,7 +20,7 @@ import {StoreDebugComponent} from "./components/store-debug/store-debug.componen
   templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent implements AfterViewInit{
+export class AppComponent {
   title = 'Scott Pilgrim vs the pinball';
   private readonly _logger = inject(Logger);
 
@@ -27,12 +29,20 @@ export class AppComponent implements AfterViewInit{
   @ViewChild('dmd')
   dmdElementRef!: ElementRef
 
-  ngAfterViewInit() {
-    runInInjectionContext(this.environmentInjector, () => {
-      this._logger.getInstance('AppComponent').log("Initializing MpfApp")
-      
-      new MpfApp(this.dmdElementRef.nativeElement)
-    });
+  private _mpfApp: MpfApp | undefined
+
+  @HostListener('document:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent): void {
+    this._mpfApp?.handleKeyEvent(event)
+  }
+
+  constructor() {
+    afterNextRender(() => {
+      runInInjectionContext(this.environmentInjector, () => {
+        this._logger.getInstance('AppComponent').log("Initializing MpfApp")
+        this._mpfApp = new MpfApp(this.dmdElementRef.nativeElement)
+      })
+    })
   }
 
 }
