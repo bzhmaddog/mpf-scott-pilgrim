@@ -12,11 +12,12 @@ import {
 import {MpfApp} from '@mpf/mpf-app';
 import {Logger} from './utils/logger';
 import {StoreDebugComponent} from "./components/store-debug/store-debug.component";
+import {ResourcesDebugComponent} from "./components/resources-debug/resources-debug.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [StoreDebugComponent],
+  imports: [StoreDebugComponent, ResourcesDebugComponent],
   templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -1,17 +1,12 @@
 /// <reference types="vitest/globals" />
 import {TestBed} from '@angular/core/testing';
-import {ResourcesManager, IResourcesManagerConfig} from './resources-manager.service';
+import {ResourcesManager} from './resources-manager.service';
+import {IResourcesManagerConfig} from '@mpf/models';
 import {provideResourcesManager} from '@mpf/services';
 import {AudioResource} from '@mpf/resources/audio-resource';
 import {VideoResource} from '@mpf/resources/video-resource';
 import {ImageResource} from '@mpf/resources/image-resource';
 import {FontResource} from '@mpf/resources/font-resource';
-
-const mockConfig: IResourcesManagerConfig = {
-  file: 'resources.json',
-  basePath: '/assets/',
-  locale: 'en-US'
-};
 
 const emptyResourcesJson = {
   strings: { 'en-US': { greeting: 'Hello' } },
@@ -30,6 +25,12 @@ const fullResourcesJson = {
   videos:  [{ key: 'intro', url: 'intro.mp4', preload: false }],
   images:  [{ key: 'logo',  url: 'logo.png',  preload: false }],
   fonts:   [{ key: 'Dusty', url: 'dusty.woff2', preload: false }],
+};
+
+const mockConfig: IResourcesManagerConfig = {
+  data: emptyResourcesJson,
+  basePath: '/assets/',
+  locale: 'en-US'
 };
 
 describe('ResourcesManager', () => {
@@ -62,7 +63,7 @@ describe('ResourcesManager', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideResourcesManager({ file: 'resources.json', basePath: '/assets' }),
+        provideResourcesManager({ data: emptyResourcesJson, basePath: '/assets' }),
         ResourcesManager,
       ]
     });
@@ -80,12 +81,6 @@ describe('ResourcesManager', () => {
   });
 
   describe('load()', () => {
-    beforeEach(() => {
-      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-        json: () => Promise.resolve(emptyResourcesJson)
-      } as Response));
-    });
-
     it('should load resources and resolve', async () => {
       await expect(service.load()).resolves.toBe(service);
     });
@@ -99,18 +94,18 @@ describe('ResourcesManager', () => {
       await service.load();
       expect(service.getString('unknown')).toBe('String unknown not found');
     });
-
-    it('should reject if fetch fails', async () => {
-      vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network error')));
-      await expect(service.load()).rejects.toThrow('network error');
-    });
   });
 
   describe('load() with resources', () => {
     beforeEach(() => {
-      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-        json: () => Promise.resolve(fullResourcesJson)
-      } as Response));
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          provideResourcesManager({ data: fullResourcesJson, basePath: '/assets/' }),
+          ResourcesManager,
+        ]
+      });
+      service = TestBed.inject(ResourcesManager);
     });
 
     it('should register all resource types', async () => {
@@ -148,9 +143,14 @@ describe('ResourcesManager', () => {
     };
 
     beforeEach(() => {
-      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-        json: () => Promise.resolve(preloadJson)
-      } as Response));
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          provideResourcesManager({ data: preloadJson, basePath: '/assets/' }),
+          ResourcesManager,
+        ]
+      });
+      service = TestBed.inject(ResourcesManager);
       vi.spyOn(AudioResource.prototype, 'load').mockResolvedValue({} as AudioBuffer);
       vi.spyOn(ImageResource.prototype, 'load').mockResolvedValue({} as ImageBitmap);
     });

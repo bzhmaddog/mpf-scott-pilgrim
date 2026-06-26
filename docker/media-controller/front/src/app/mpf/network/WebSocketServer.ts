@@ -1,15 +1,4 @@
-import {WebSocketMessageParams} from "@mpf/types";
-
-export interface IWebSocketServerConfig {
-  hostname: string,
-  port: number,
-  path?: string,
-  secure?: boolean,
-  onMessage: (cmd: string, _params: WebSocketMessageParams, rawData: unknown) => void
-  onOpen?: (event: Event) => void
-  onClose?: (event: CloseEvent) => void
-  onError?: (event: Event) => void
-}
+import {IWebSocketServerConfig, WebSocketMessageParams} from '@mpf/models';
 
 
 /**

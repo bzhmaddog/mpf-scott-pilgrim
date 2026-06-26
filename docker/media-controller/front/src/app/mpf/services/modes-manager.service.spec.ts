@@ -1,6 +1,7 @@
 /// <reference types="vitest/globals" />
 import {TestBed} from '@angular/core/testing';
-import {ModesManager, IModesConfigDictionary} from './modes-manager.service';
+import {ModesManager} from './modes-manager.service';
+import {IModesConfigDictionary} from '@mpf/models';
 import {provideModesManager} from '@mpf/services';
 import {Mode} from '@mpf/modes/mode';
 

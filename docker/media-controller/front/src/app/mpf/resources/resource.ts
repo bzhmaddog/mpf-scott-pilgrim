@@ -1,9 +1,4 @@
-
-export interface IResource {
-    url: string
-    preload: boolean
-    isLoaded: boolean
-}
+import {IResource} from '@mpf/models';
 
 export abstract class Resource<T> implements IResource {
     private _url: string

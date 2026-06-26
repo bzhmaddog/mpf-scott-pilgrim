@@ -1,0 +1,14 @@
+<div #panel
+     class="debug"
+     (mousedown)="onMouseDown($event)"
+     (mousemove)="onMouseMove($event)"
+     (mouseup)="onMouseUp()"
+     (mouseleave)="onMouseUp()"
+     [style.left.px]="position().left"
+     [style.top.px]="position().top"
+     [style.width.px]="size().width"
+     [style.height.px]="size().height">
+  <div class="debug-header">{{ title() }}</div>
+  <ngx-json-treeview [json]="data()" />
+  <div class="resize-handle" (mousedown)="onResizeStart($event)"></div>
+</div>
