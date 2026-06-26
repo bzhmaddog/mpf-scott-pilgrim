@@ -12,9 +12,12 @@ on:
       - 'docker/media-controller/front/**'
       - '.github/workflows/front-ci.yml'
 
+permissions:
+  contents: read
+
 jobs:
-  ci:
-    name: Lint · Test · Coverage
+  front-ci:
+    name: Media Controller Front-end => Lint · Test · Coverage
     runs-on: ubuntu-latest
     defaults:
       run:
