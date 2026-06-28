@@ -11,7 +11,7 @@ services:
       - mc-front
       - mc-back
     volumes:
-      - ../certs/2026:/certs
+      - ../certs/current:/certs
 
   mpf:
     image: mpf:0.80

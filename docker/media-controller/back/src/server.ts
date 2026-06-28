@@ -1,64 +1,62 @@
-const fs = require('fs'),
-    yaml = require('js-yaml'),
-    net = require('net'),
-    http = require("node:http"),
-    rl = require('readline'),
-    WebSocketServer = require('ws').Server,
-    process = require('process'),
-    os = require('os-utils'),
-    stdin = process.stdin;
+import fs from 'fs';
+import yaml from 'js-yaml';
+import net from 'net';
+import http from 'node:http';
+import WebSocket from 'ws';
+import process from 'process';
+import { parseMessageData, str2int, str2value, cleanParams } from './bcp.js';
 
-// without this, we would only get streams once enter is pressed
-if (stdin.isTTY) stdin.setRawMode(true);
+const stdin = process.stdin;
+if (stdin.isTTY) (stdin as { setRawMode: (mode: boolean) => void }).setRawMode(true);
 
 stdin.resume();
 stdin.setEncoding('utf8');
 
 const WEBSOCKET_PORT = 5000;
 const BCP_PORT = 5050;
-const __version__ = '0.80.0'
-const __short_version__ = '0.80'
-const __bcp_version__ = '1.1'
-const __config_version__ = '6'
-const __mpf_version_required__ = '0.80.0'
-const startUsage = process.cpuUsage();
+const __version__ = '0.80.0';
+const __bcp_version__ = '1.1';
+const __config_version__ = '6';
+const __mpf_version_required__ = '0.80.0';
 
 const httpServer = http.createServer();
 
-let tcpSocket;
-let webSocketServer = new WebSocketServer({server: httpServer});
-let bcpServer = net.createServer((socket) => {
+let tcpSocket: net.Socket | undefined;
+const webSocketServer = new WebSocket.WebSocketServer({ server: httpServer });
+const bcpServer = net.createServer((socket) => {
     tcpSocket = socket;
 }).on('error', (err) => {
     throw err;
 });
 
-let clients = [];
+const clients: WebSocket[] = [];
 let reset_sent = false;
 let clients_ready = 0;
 let mpfRunning = false;
-let kbdKeys = {};
 
+interface KeyboardKey {
+    switch: string;
+    state: boolean;
+    toggle: boolean;
+}
+
+const kbdKeys: Record<string, KeyboardKey> = {};
 
 try {
-    let fileContents = fs.readFileSync('/mpf-config/config/keyboard.yaml', 'utf8');
-    let data = yaml.load(fileContents);
+    const fileContents = fs.readFileSync('/mpf-config/config/keyboard.yaml', 'utf8');
+    const data = yaml.load(fileContents) as { keyboard?: Record<string, KeyboardKey> };
 
     if (typeof data.keyboard === 'object') {
         Object.keys(data.keyboard).forEach(k => {
-            let sw = data.keyboard[k];
+            const sw = data.keyboard![k];
             sw.state = (sw.switch === 's_plunger'); // Tmp hack to force plunger state to true
             sw.toggle = sw.toggle || false;
             kbdKeys[k] = sw;
         });
-
-        //console.log(kbdKeys);
     }
 } catch (e) {
     console.log(e);
 }
-
-//console.log(webSocketServer);
 
 httpServer.listen(WEBSOCKET_PORT, function () {
     console.log(`Websocket server listening for connection requests on socket localhost:${WEBSOCKET_PORT}`);
@@ -71,21 +69,15 @@ bcpServer.listen(BCP_PORT, function () {
 bcpServer.on('connection', function (socket) {
     console.log('BCP server : A new connection has been established.');
 
-    // Send message to UI (just for debugging)
     clients.forEach(client => client.send('mc_connected'));
 
-    // The server can also receive data from the client by reading from its socket.
     socket.on('data', function (chunk) {
+        const messages = chunk.toString().split('\n');
 
-        // Split received data in multiple messages
-        let messages = chunk.toString().split('\n');
-
-        //handle all messages and forward them to the UIs
         messages.forEach(msg => {
-            //console.log(msg);
-            if (msg === "") return;
+            if (msg === '') return;
 
-            let msgObj = parseMessageData(msg);
+            const msgObj = parseMessageData(msg);
 
             switch (msgObj.command) {
                 case 'hello':
@@ -97,43 +89,46 @@ bcpServer.on('connection', function (socket) {
                     clients_ready = 0;
                     clients.forEach(client => client.send('mc_reset'));
                     break;
-                case 'machine_variable':
-                    let v;
+                case 'machine_variable': {
+                    const parsedParams: Record<string, unknown> = 'json' in msgObj.params
+                        ? JSON.parse(msgObj.params['json']) as Record<string, unknown>
+                        : msgObj.params;
 
-                    if (msgObj.params.hasOwnProperty('json')) {
-                        msgObj.params = JSON.parse(msgObj.params.json);
-                    }
-
-                    if (typeof msgObj.params.value === 'object') {
-                        v = JSON.stringify(msgObj.params.value);
+                    const rawValue = parsedParams['value'];
+                    let v: string | number;
+                    if (typeof rawValue === 'object' && rawValue !== null) {
+                        v = JSON.stringify(rawValue);
+                    } else if (typeof rawValue === 'string' || typeof rawValue === 'number') {
+                        v = str2value(String(rawValue));
                     } else {
-                        //console.log('there', msgObj);
-                        v = str2value(msgObj.params.value);
+                        v = '';
                     }
 
-                    clients.forEach(client => client.send('mc_machine_variable?' + msgObj.params.name + '=' + v));
+                    const name = typeof parsedParams['name'] === 'string' ? parsedParams['name'] : '';
+                    clients.forEach(client => client.send(`mc_machine_variable?${name}=${v}`));
                     break;
+                }
                 case 'settings': {
-                    const settingsObj = JSON.parse(msgObj.params['json']);
-                    console.log("Settings received", msgObj);
+                    const settingsObj = JSON.parse(msgObj.params['json']) as { settings: unknown };
+                    console.log('Settings received', msgObj);
                     clients.forEach(client => client.send(`mc_settings?settings=${JSON.stringify(settingsObj.settings)}`));
                     break;
                 }
                 case 'mode_start': {
-                    const modeName = msgObj.params.name;
+                    const modeName: string = msgObj.params.name;
                     const modePriority = str2int(msgObj.params.priority);
-                    console.log("Starting mode :", modeName);
+                    console.log('Starting mode :', modeName);
                     clients.forEach(client => client.send(`mc_mode_start?name=${modeName}&priority=${modePriority}`));
                     break;
                 }
                 case 'mode_stop': {
-                    const modeName = msgObj.params.name;
-                    console.log("Stopping mode :", modeName);
+                    const modeName: string = msgObj.params.name;
+                    console.log('Stopping mode :', modeName);
                     clients.forEach(client => client.send(`mc_mode_stop?name=${modeName}`));
                     break;
                 }
                 case 'player_variable': {
-                    console.log("Player variable changed : ", msgObj.params);
+                    console.log('Player variable changed : ', msgObj.params);
                     clients.forEach(client => client.send('mc_player_variable?variables=' + cleanParams(msgObj.params)));
                     break;
                 }
@@ -141,80 +136,78 @@ bcpServer.on('connection', function (socket) {
                     clients.forEach(client => client.send('mc_player_added'));
                     break;
                 case 'player_turn_start': {
-                    let p = str2int(msgObj.params.player_num);
+                    const p = str2int(msgObj.params.player_num);
                     clients.forEach(client => client.send(`mc_player_turn_start?player_num=${p}`));
                     break;
                 }
                 case 'ball_start': {
-                    let p = str2int(msgObj.params.player_num);
-                    let b = str2int(msgObj.params.ball);
+                    const p = str2int(msgObj.params.player_num);
+                    const b = str2int(msgObj.params.ball);
                     clients.forEach(client => client.send(`mc_ball_start?player_num=${p}&ball=${b}`));
                     break;
                 }
                 case 'ball_end':
-                    clients.forEach(client => client.send(`mc_ball_end`));
+                    clients.forEach(client => client.send('mc_ball_end'));
                     break;
                 case 'mode_list':
                     break;
                 case 'status_request':
-                    // TODO : Send real data
-                    //bcpSend(`status_report?cpu=${float2str(5.68, 1)}&vms=${int2str(123912192)}&rss=${int2str(1772883968)}`);
+                    // TODO: Send real data
                     break;
-                case 'switch':
-                    let name = msgObj.params.name;
-                    let state = str2int(msgObj.params.state);
+                case 'switch': {
+                    const name: string = msgObj.params.name;
+                    const state = str2int(msgObj.params.state);
                     clients.forEach(client => client.send(`mc_switch?name=${name}&state=${state}`));
                     break;
+                }
                 case 'goodbye':
                     clients_ready = 0;
                     reset_sent = false;
                     mpfRunning = false;
                     clients.forEach(client => client.send('mc_goodbye'));
                     break;
-                case 'error':
-                    let message = msgObj.params.message;
-                    let command = msgObj.params.command;
+                case 'error': {
+                    const message: string = msgObj.params.message;
+                    const command: string = msgObj.params.command;
                     clients.forEach(client => client.send(`mc_error?message=${message}&command=${command}`));
                     break;
+                }
                 default:
-                    console.log("Received unhandled message from mpf :", msg);
-
+                    console.log('Received unhandled message from mpf :', msg);
             }
-
-            //clients.forEach(client => client.send('mc_' + msg));
         });
     });
 
-    // When the client requests to end the TCP connection with the server, the server
-    // ends the connection.
     socket.on('end', function () {
         console.log('Closing connection with the mpf client');
     });
 
-    // Don't forget to catch error, for your own sake.
     socket.on('error', function (err) {
         console.log(`BCP server error: ${err}`);
     });
 
-    const encoded_extended_version = encodeURI(`MPF-MC v${__version__} (config_version=${__config_version__}, BCP v${__bcp_version__}, Requires MPF v${__mpf_version_required__})`)
+    const encoded_extended_version = encodeURI(`MPF-MC v${__version__} (config_version=${__config_version__}, BCP v${__bcp_version__}, Requires MPF v${__mpf_version_required__})`);
 
     bcpSend(`set_machine_var?name=mc_version&value=MPF-MC ${__version__}`);
     bcpSend(`set_machine_var?name=mc_extended_version&value=${encoded_extended_version}`);
-    bcpSend("monitor_start?category=machine_vars");
-    bcpSend("monitor_start?category=player_vars");
-    bcpSend("monitor_start?category=modes");
-    bcpSend("monitor_start?category=core_events");
-    bcpSend("monitor_start?category=status_request");
+    bcpSend('monitor_start?category=machine_vars');
+    bcpSend('monitor_start?category=player_vars');
+    bcpSend('monitor_start?category=modes');
+    bcpSend('monitor_start?category=core_events');
+    bcpSend('monitor_start?category=status_request');
 });
 
 
-webSocketServer.on('connection', function connection(_client) {
+webSocketServer.on('connection', function connection(_client: WebSocket) {
     console.log('DMD client connection established');
     clients.push(_client);
 
-    _client.on('message', function incoming(message) {
+    _client.on('message', function incoming(rawMessage: WebSocket.RawData) {
+        const message = Buffer.isBuffer(rawMessage)
+            ? rawMessage.toString('utf8')
+            : Buffer.concat(Array.isArray(rawMessage) ? rawMessage : [Buffer.from(rawMessage)]).toString('utf8');
         if (message.startsWith('mc_')) {
-            handleLocalMessages(message, _client);
+            handleLocalMessages(message);
         } else {
             bcpSend(message);
         }
@@ -232,10 +225,10 @@ webSocketServer.on('connection', function connection(_client) {
         }
     });
 
-    // Reset toggable switches
-    Object.entries(kbdKeys).filter(([, obj])=> obj.toggle).forEach(([key]) => {
+    // Reset togglable switches
+    Object.entries(kbdKeys).filter(([, obj]) => obj.toggle).forEach(([key]) => {
         kbdKeys[key].state = false;
-    })
+    });
 
     clients_ready = 0;
     reset_sent = false;
@@ -247,10 +240,10 @@ webSocketServer.on('connection', function connection(_client) {
         path: '/stop',
         agent: false,
     }, (response) => {
-        const {statusCode} = response;
+        const { statusCode } = response;
 
         if (statusCode !== 200) {
-            clients.forEach((client) => client.send('mpf_stop_error'))
+            clients.forEach((client) => client.send('mpf_stop_error'));
         } else {
             setTimeout(startMpf, 100);
         }
@@ -259,33 +252,12 @@ webSocketServer.on('connection', function connection(_client) {
     });
 
     console.log(clients.length);
-
 });
 
-function parseMessageData(message) {
-    const parts = message.split('?');
-    let cmd = message;
-    let params = {};
-
-    if (parts.length > 1) {
-        const urlSearchParams = new URLSearchParams(parts[1]);
-        params = Object.fromEntries(urlSearchParams.entries());
-        cmd = parts[0];
-    }
-
-    return {
-        command: cmd,
-        params: params
-    }
-}
-
-
-function handleLocalMessages(data, sender) {
+function handleLocalMessages(data: string): void {
     const parts = data.split('?');
-    let cmd = "";
-    let params = {};
-
-    //console.log(data);
+    let cmd = '';
+    let params: Record<string, string> = {};
 
     if (parts.length > 1) {
         const urlSearchParams = new URLSearchParams(parts[1]);
@@ -301,99 +273,62 @@ function handleLocalMessages(data, sender) {
                 clients_ready++;
 
                 if (clients_ready === clients.length) {
-                    console.log('All clients are ready')
+                    console.log('All clients are ready');
                     bcpSend('reset_complete');
                     reset_sent = true;
                     mpfRunning = true;
                 }
             }
             break;
-        case 'mc_keyboard_event':
+        case 'mc_keyboard_event': {
             const key = params['key'];
-
             console.log('key pressed');
-
             onKeyPressed(key);
-
             break;
+        }
         default:
-            console.log(`Unhandled message received from web client`);
+            console.log('Unhandled message received from web client');
     }
-
 }
 
-// on any data into stdin
-stdin.on('data', function (key) {
-    // ctrl-c ( end of text )
-    if (key === '\u0003') {
+stdin.on('data', function (key: string) {
+    if (key === '') {
         process.exit();
     }
     onKeyPressed(key);
 });
 
-
-function bcpSend(message) {
+function bcpSend(message: string): void {
     console.log(`Sending message to mpf : ${message}`);
-    tcpSocket.write(message + '\n');
+    tcpSocket!.write(message + '\n');
 }
 
-function str2int(str) {
-    return parseInt(str.replace('int:', ''), 10);
-}
 
-function str2value(str) {
-    if (!str) {
-        console.log("str2value(): Empty var");
-        return "";
-    }
-
-    if (str.toString().startsWith('int:')) {
-        return parseInt(str.replace('int:', ''), 10);
-    } else if (str.toString().startsWith('float:')) {
-        return parseFloat(str.replace('float:', ''));
-    } else {
-        return str.toString();
-    }
-}
-
-function int2str(v) {
-    return `int:${v}`;
-}
-
-function float2str(v, d) {
-    return `float:${v.toFixed(d)}`;
-}
-
-function cleanParams(obj) {
-    return JSON.stringify(obj).replace(/"(int|float):(\d+)"/gi, "$2");
-}
-
-function startMpf() {
+function startMpf(): void {
     http.get({
         hostname: 'mpf',
         port: 5000,
         path: '/start',
-        agent: false,  // Create a new agent just for this one request
+        agent: false,
     }, (response) => {
-        const {statusCode} = response;
+        const { statusCode } = response;
 
         if (statusCode !== 200) {
-            clients.forEach((client) => client.send('mpf_launch_error'))
+            clients.forEach((client) => client.send('mpf_launch_error'));
         }
     });
 }
 
-function onKeyPressed(key) {
+function onKeyPressed(key: string): void {
     if (typeof kbdKeys[key] === 'object') {
         if (kbdKeys[key].toggle === true) {
             kbdKeys[key].state = !kbdKeys[key].state;
-            let state = kbdKeys[key].state ? 1 : 0;
+            const state = kbdKeys[key].state ? 1 : 0;
             bcpSend(`switch?name=${kbdKeys[key].switch}&state=${state}`);
         } else {
             bcpSend(`switch?name=${kbdKeys[key].switch}&state=1`);
             bcpSend(`switch?name=${kbdKeys[key].switch}&state=0`);
         }
-
     } else {
         console.log(`Unhandled key pressed => ${key}`);
     }
