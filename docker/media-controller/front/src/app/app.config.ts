@@ -4,7 +4,6 @@ import {provideRouter} from '@angular/router';
 import {routes} from './app.routes';
 import {IResourcesData, provideModesManager, provideResourcesManager} from "@mpf/services";
 import resourcesData from '@mpf/config/resources.json';
-import {provideToastr, ToastNoAnimation} from "ngx-toastr";
 import {AttractMode} from "@mpf/modes/attract-mode";
 import {GameMode} from "@mpf/modes/game-mode";
 import {BaseMode} from "@mpf/modes/base-mode";
@@ -27,6 +26,5 @@ export const appConfig: ApplicationConfig = {
         return new GameMode()
       }
     }),
-    provideToastr({ toastComponent: ToastNoAnimation }),
   ]
 };

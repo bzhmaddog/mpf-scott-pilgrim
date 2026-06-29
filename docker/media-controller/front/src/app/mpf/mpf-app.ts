@@ -1,13 +1,13 @@
 import {WebSocketServer} from '@mpf/network/WebSocketServer'
-import {CanvasLayer, Dmd, DotShape, Options} from "h5dmd";
+import {BaseLayer, CanvasLayer, Dmd, DotShape, Options, TextLayer} from "h5dmd";
 import {ResourcesManager} from "@mpf/services/resources-manager.service";
 import {inject} from "@angular/core";
-import {ToastrService} from "ngx-toastr";
 import {WebSocketMessageParams} from '@mpf/models'
 import {AudioManager} from "@mpf/services/audio-manager.service";
 import {ModesManager} from "@mpf/services/modes-manager.service";
 import {DmdManagerService} from "@mpf/services/dmd-manager.service";
 import {GameStore} from "../store/game.store";
+import {AppColors} from "./utils/utils";
 import {Logger} from "../utils/logger";
 
 export class MpfApp {
@@ -16,7 +16,6 @@ export class MpfApp {
   private readonly _audioManager: AudioManager = inject(AudioManager)
   private readonly _modesManager: ModesManager = inject(ModesManager)
   private readonly _dmdManager: DmdManagerService = inject(DmdManagerService)
-  private readonly _toasterService: ToastrService = inject(ToastrService)
   private readonly _logger = inject(Logger).getInstance('App')
 
   private readonly _store = inject(GameStore)
@@ -89,18 +88,13 @@ export class MpfApp {
   }
 
   private _wsOnOpen() {
-    this._toasterService.success('Connected...', 'Backend', {
-      timeOut: 1000,
-    });
+    this._showToast('Connected...', 1000)
   }
 
   private _wsOnClose() {
     if (this._wsServer.isConnected()) {
       this._resetDMD()
-
-      this._toasterService.error('Disconnected...', 'Backend', {
-        timeOut: 30000,
-      });
+      this._showToast('Disconnected...')
     }
   }
 
@@ -232,8 +226,29 @@ export class MpfApp {
                 })
               )
             })
-            .catch(error => this._toasterService.error(String(error), 'Resource Error'))
+            .catch(error => this._showToast(String(error)))
+        }
+      )
+
+      this._dmd.addTextLayer(
+        "ws-toast",
+        {},
+        new Options({
+          text: '...',
+          fontSize: 8,
+          fontFamily: 'Arial',
+          left: 0,
+          top: 1,
+          color: AppColors.Green,
+          strokeWidth: 2,
+          strokeColor: AppColors.DarkGreen,
+          visible: false,
+          opacity: 0,
+          align: 'left',
+          verticalAlign: 'top',
+          groups: ['toasts']
         })
+      );
 
       // DMD has been created with brightness = 0 so show it now
       this._timer(100).then(() => {
@@ -248,6 +263,43 @@ export class MpfApp {
     return new Promise((resolve) => {
       setTimeout(resolve, delay);
     });
+  }
+
+  private _showToast(text: string, duration = 3000) {
+    const toastLayer = this._dmd.getLayer('ws-toast') as TextLayer | null
+    if (toastLayer) {
+      toastLayer.setText(text)
+      toastLayer.setOpacity(0)
+      toastLayer.setVisibility(true)
+      this._fadeLayer(toastLayer, 0, 1, 300).then(() => {
+        this._timer(duration).then(() => {
+          this._fadeLayer(toastLayer, 1, 0, 300).then(() => {
+            toastLayer.setVisibility(false)
+          })
+        })
+      })
+    }
+  }
+
+  private _fadeLayer(layer: BaseLayer, from: number, to: number, duration: number): Promise<void> {
+    return new Promise((resolve) => {
+      const start = performance.now()
+      layer.setOpacity(from)
+
+      const step = () => {
+        const elapsed = performance.now() - start
+        const progress = Math.min(elapsed / duration, 1)
+        layer.setOpacity(from + (to - from) * progress)
+
+        if (progress < 1) {
+          requestAnimationFrame(step)
+        } else {
+          resolve()
+        }
+      }
+
+      requestAnimationFrame(step)
+    })
   }
 
   /**

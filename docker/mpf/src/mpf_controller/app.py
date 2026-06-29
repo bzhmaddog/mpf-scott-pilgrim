@@ -24,7 +24,7 @@ def stop_mpf():
 
     if is_running:
         print('Received request to stop mpf')
-        os.system('pkill mpf')
+        os.system('pkill -f "mpf -xt"')
         is_running = False
 
     return {'message': 'mpf stopped'}

@@ -1,3 +1,10 @@
+import {Colors} from 'h5dmd'
+
+export const AppColors = {
+	...Colors,
+	DarkGreen : "#006400"
+} as const
+
 export class Utils {
 
 	static str2int(str: string): number {
