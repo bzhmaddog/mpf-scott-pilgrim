@@ -44,18 +44,18 @@ Tags default to `latest` when omitted. Production images in [`docker/compose.yml
 **Development** (Angular dev server : No hot reload):
 
 ```sh
-sh dev.sh          # attached
-sh dev.sh -d       # detached
-sh dev.sh down     # stop
-sh dev.sh down -v  # stop and remove volumes
+sh run.sh --dev          # attached
+sh run.sh --dev -d       # detached
+sh run.sh --dev down     # stop
+sh run.sh --dev down -v  # stop and remove volumes
 ```
 
 **Production**:
 
 ```sh
-sh prod.sh         # attached
-sh prod.sh -d      # detached
-sh prod.sh down    # stop
+sh run.sh         # attached
+sh run.sh -d      # detached
+sh run.sh down    # stop
 ```
 
 The proxy listens on:

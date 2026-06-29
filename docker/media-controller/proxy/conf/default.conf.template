@@ -1,9 +1,3 @@
-
-server {
-    listen    8080;
-    return 301 https://$host$request_uri;
-}
-
 server {
     listen 4443 ssl;
     http2 on;

@@ -6,7 +6,6 @@ services:
     container_name: mc-proxy
     ports:
       - "4443:4443/tcp"
-      - "8080:8080/tcp"
     networks:
       - mc-front
       - mc-back
@@ -43,8 +42,6 @@ services:
     container_name: mc-front
     networks:
       - mc-front
-    volumes:
-      - ./media-controller/front/dist:/var/www
 
 networks:
   mc-back:

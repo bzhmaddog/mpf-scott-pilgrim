@@ -35,5 +35,5 @@ export function str2value(str: string): string | number {
 }
 
 export function cleanParams(obj: Record<string, unknown>): string {
-    return JSON.stringify(obj).replace(/"(int|float):(\d+)"/gi, '$2');
+    return JSON.stringify(obj).replace(/"(int|float):([\d.]+)"/gi, '$2');
 }

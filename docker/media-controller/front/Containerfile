@@ -1,22 +1,20 @@
 # syntax=docker/dockerfile:1
 
-FROM alpine:latest
+FROM node:22-alpine AS builder
 
-RUN apk --update \
-    add lighttpd && \
-    rm -rf /var/cache/apk/*
+WORKDIR /app
 
-RUN mkdir -p /var/www
-RUN mkdir -p /conf
+COPY package*.json ./
+RUN npm ci
 
-WORKDIR /var/www
+COPY . .
+RUN npm run build
 
-#COPY ./dist/ /var/www/
-COPY ./conf/lighttpd.conf /conf/
+FROM nginx:alpine
 
-COPY --chown=lighttpd:lighttpd . .
+# Static SPA listener on :4200 with client-side routing fallback
+COPY ./conf/nginx.conf /etc/nginx/conf.d/default.conf
 
-USER lighttpd
+# Built Angular app
+COPY --from=builder /app/dist/front/browser /var/www
 
-ENTRYPOINT ["lighttpd","-D","-f", "/conf/lighttpd.conf"]
-#CMD /bin/sh

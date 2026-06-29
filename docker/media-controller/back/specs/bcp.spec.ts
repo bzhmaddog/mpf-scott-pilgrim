@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseMessageData, str2int, str2value, cleanParams } from './bcp.js';
+import { parseMessageData, str2int, str2value, cleanParams } from '../src/bcp';
 
 describe('parseMessageData', () => {
     it('parses a command with no params', () => {
