@@ -6,10 +6,10 @@ Scott Pilgrim themed [Mission Pinball Framework](https://missionpinball.org/) co
 
 | Service | Image | Description |
 |---|---|---|
-| `mpf` | `mpf:0.80` | Mission Pinball Framework engine |
+| `mpf` | `mpf:1.0.0` | Mission Pinball (v0.80) Framework engine |
 | `mc-back` | `mc-back:1.0.0` | Media controller backend (Node.js) |
-| `mc-front` | `mc-front:1.0.0` | Media controller frontend (Angular production build served by lighttpd) |
-| `mc-front-dev:latest` | Media controller frontend (Angular dev server) |
+| `mc-front` | `mc-front:1.0.0` | Media controller frontend (Angular production build served by nginx) |
+| `mc-front-dev` | `mc-front-dev:latest` | Media controller frontend (Angular dev server) |
 | `mc-proxy` | `mc-proxy:1.0.0` | Reverse proxy (nginx) with SSL |
 
 ## Prerequisites
@@ -29,15 +29,16 @@ export IMAGE_BUILDER=docker   # or podman
 ## Build images
 
 ```sh
-sh build.sh                        # all production images (tag: latest)
+sh build.sh                        # all images using TAG from docker/.env
 sh build.sh mc-front-dev          # dev frontend image
 sh build.sh mc-back mc-front      # specific images
-sh build.sh mc-back:1.0.0         # specific image with a custom tag
+sh build.sh mc-back:2.0.0         # specific image with an explicit tag
+TAG=2.0.0 sh build.sh             # override the default tag for all images
 ```
 
 Available targets: `mpf`, `mc-back`, `mc-front`, `mc-front-dev`, `mc-proxy`.
 
-Tags default to `latest` when omitted. Production images in [`docker/compose.yml`](docker/compose.yml) reference versioned tags (e.g. `mc-back:1.0.0`) while development overrides in [`docker/compose.dev.yml`](docker/compose.dev.yml) use `latest`.
+All images share a single version defined by `TAG` in [`docker/.env`](docker/.env) (read by `build.sh`, `compose.yml`, and `run.sh`). Set `TAG` inline (e.g. `TAG=2.0.0 sh build.sh`) to override the `.env` default. Development overrides in [`docker/compose.dev.yml`](docker/compose.dev.yml) always use `latest`.
 
 ## Run
 
@@ -53,9 +54,10 @@ sh run.sh --dev down -v  # stop and remove volumes
 **Production**:
 
 ```sh
-sh run.sh         # attached
-sh run.sh -d      # detached
-sh run.sh down    # stop
+sh run.sh           # attached
+sh run.sh -d        # detached
+sh run.sh down      # stop
+TAG=2.0.0 sh run.sh # run a specific tag (overrides docker/.env)
 ```
 
 The proxy listens on:

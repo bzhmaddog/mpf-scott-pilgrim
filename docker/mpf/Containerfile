@@ -1,19 +1,28 @@
 # syntax=docker/dockerfile:1
-FROM python:3.12-slim
 
-# Install system dependencies (pkill + MPF runtime libs)
+# --- Build stage ---
+FROM python:3.12-slim AS builder
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    procps \
-    libglib2.0 libegl1 libegl-mesa0 libegl-dev \
     gcc libjpeg-dev zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Install project and dependencies
 COPY pyproject.toml ./
 COPY src/ ./src/
-RUN pip install --no-cache-dir .
+RUN pip install --no-cache-dir --prefix=/install .
+
+# --- Runtime stage ---
+FROM python:3.12-slim
+
+# Install runtime-only dependencies (pkull + MPF runtime libs)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    procps \
+    libglib2.0 libegl1 libegl-mesa0 libegl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /install /usr/local
 
 # Create mpf config directory
 RUN mkdir -p /mpf

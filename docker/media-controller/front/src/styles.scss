@@ -24,14 +24,14 @@ body {
 
 @font-face {
   font-family: 'Dusty';
-  src: local('Dusty'), url('/assets/resources/fonts/Dusty.otf') format('truetype');
+  src: url('/assets/resources/fonts/Dusty.otf') format('opentype');
   font-style: normal;
   font-weight: normal;
 }
 
 @font-face {
   font-family: 'Superfly';
-  src: url('/assets/resources/fonts/SUPERFLY.otf') format('truetype');
+  src: url('/assets/resources/fonts/SUPERFLY.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
 }

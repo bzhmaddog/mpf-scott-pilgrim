@@ -9,7 +9,7 @@ export class MpfController {
             agent: false,
         }, (response) => {
             if (response.statusCode !== 200) onError();
-        });
+        }).on('error', onError);
     }
 
     static stop(onCompleted: () => void, onError: () => void): void {

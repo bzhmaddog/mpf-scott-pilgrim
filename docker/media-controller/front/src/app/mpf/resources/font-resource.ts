@@ -19,6 +19,7 @@ export class FontResource extends Resource<FontFace> {
             new FontFace(this._name, 'url(' + this.url + ')')
             .load()
             .then(fontFace => {
+                document.fonts.add(fontFace)
                 this._resource = fontFace
                 this._isLoaded = true
                 resolve(this._resource)

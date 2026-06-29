@@ -7,10 +7,11 @@ name = "mpf-controller"
 version = "1.0.0"
 requires-python = ">=3.12"
 dependencies = [
+    "setuptools<78",
     "pillow",
-    "mpf==0.80.0",
+    "mpf==0.80.0.dev5",
     "fastapi",
-    "uvicorn[standard]",
+    "uvicorn",
 ]
 
 [project.scripts]

@@ -11,9 +11,22 @@ function mockGet(statusCode: number): void {
     }) as unknown as typeof http.get);
 }
 
+function mockGetError(): void {
+    vi.spyOn(http, 'get').mockImplementation(((_opts: unknown, _cb: unknown) => {
+        return { on: (event: string, handler: () => void) => { if (event === 'error') handler(); } } as unknown as http.ClientRequest;
+    }) as unknown as typeof http.get);
+}
+
 describe('MpfController', () => {
     it('start calls onError on non-200', () => {
         mockGet(500);
+        const onError = vi.fn();
+        MpfController.start(onError);
+        expect(onError).toHaveBeenCalled();
+    });
+
+    it('start calls onError on connection error', () => {
+        mockGetError();
         const onError = vi.fn();
         MpfController.start(onError);
         expect(onError).toHaveBeenCalled();

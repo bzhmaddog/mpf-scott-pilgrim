@@ -60,3 +60,10 @@ wsServer.on('clientDisconnected', () => {
     }
 });
 
+const shutdown = (signal: string) => {
+  console.log(`${signal} received, shutting down...`);
+  process.exit(0);
+};
+
+process.once('SIGTERM', () => shutdown('SIGTERM'));
+process.once('SIGINT', () => shutdown('SIGINT'));
