@@ -1,6 +1,7 @@
 # mpf-scott-pilgrim
 
-![CI](https://github.com/bzhmaddog/mpf-scott-pilgrim/actions/workflows/ci.yml/badge.svg)
+![Front-end](https://github.com/bzhmaddog/mpf-scott-pilgrim/actions/workflows/ci-front.yml/badge.svg)
+![Back-end](https://github.com/bzhmaddog/mpf-scott-pilgrim/actions/workflows/ci-back.yml/badge.svg)
 
 Scott Pilgrim themed [Mission Pinball Framework](https://missionpinball.org/) configuration with a web-based media controller.
 
