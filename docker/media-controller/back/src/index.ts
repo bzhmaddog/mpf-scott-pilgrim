@@ -8,7 +8,7 @@ const BCP_PORT = 5050;
 
 const bcpServer = new BcpServer(BCP_PORT);
 const wsServer = new WsServer(WEBSOCKET_PORT);
-const keyboard = new Keyboard('/mpf-config/config/keyboard.yaml');
+const keyboard = new Keyboard('./config/keyboard.json');
 
 let reset_sent = false;
 let clients_ready = 0;

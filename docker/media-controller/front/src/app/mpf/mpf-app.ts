@@ -57,7 +57,7 @@ export class MpfApp {
     this._logger.log("Resources file loaded", resources)
 
     this._dmdManager.setDmd(
-      new Dmd(canvasElement, 2, 1, 1, 1, DotShape.Square, 14, 0, true)
+      new Dmd(canvasElement, 2, 1, DotShape.Square, 14, 0, true)
     )
 
     // Init DMD then

@@ -6,6 +6,7 @@ import {
   EnvironmentInjector,
   HostListener,
   inject,
+  isDevMode,
   runInInjectionContext,
   ViewChild
 } from '@angular/core';
@@ -23,9 +24,11 @@ import {ResourcesDebugComponent} from "./components/resources-debug/resources-de
 })
 export class AppComponent {
   title = 'Scott Pilgrim vs the pinball';
-  private readonly _logger = inject(Logger);
-
+  readonly isDevMode = isDevMode();
+  private readonly _logger = inject(Logger)
   private environmentInjector = inject(EnvironmentInjector)
+
+  logger = this._logger.getInstance('AppComponent')
 
   @ViewChild('dmd')
   dmdElementRef!: ElementRef
@@ -34,13 +37,14 @@ export class AppComponent {
 
   @HostListener('document:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {
+    this.logger.log("Key pressed", event.key)
     this._mpfApp?.handleKeyEvent(event)
   }
 
   constructor() {
     afterNextRender(() => {
       runInInjectionContext(this.environmentInjector, () => {
-        this._logger.getInstance('AppComponent').log("Initializing MpfApp")
+        this.logger.log("Initializing MpfApp")
         this._mpfApp = new MpfApp(this.dmdElementRef.nativeElement)
       })
     })

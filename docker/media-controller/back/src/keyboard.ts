@@ -1,5 +1,4 @@
 import fs from 'fs';
-import yaml from 'js-yaml';
 
 export interface KeyboardKey {
     switch: string;
@@ -13,22 +12,23 @@ export class Keyboard {
     constructor(configPath: string) {
         try {
             const fileContents = fs.readFileSync(configPath, 'utf8');
-            const data = yaml.load(fileContents) as { keyboard?: Record<string, KeyboardKey> };
+            const data = JSON.parse(fileContents) as Record<string, KeyboardKey>;
 
-            if (typeof data.keyboard === 'object') {
-                Object.keys(data.keyboard).forEach(k => {
-                    const sw = data.keyboard![k];
+            if (typeof data === 'object') {
+                Object.keys(data).forEach(k => {
+                    const sw = data[k];
                     sw.state = (sw.switch === 's_plunger'); // Tmp hack to force plunger state to true
                     sw.toggle = sw.toggle || false;
                     this.keys[k] = sw;
                 });
             }
         } catch (e) {
-            console.log(e);
+            console.error(e);
         }
     }
 
     onKeyPressed(key: string, bcpSend: (msg: string) => void): void {
+        //console.log(`Key pressed => ${key}`);
         if (typeof this.keys[key] === 'object') {
             if (this.keys[key].toggle === true) {
                 this.keys[key].state = !this.keys[key].state;

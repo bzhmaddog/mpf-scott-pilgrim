@@ -1,6 +1,23 @@
 name: mpf-scott-pilgrim
 
 services:
+  mpf:
+    image: mpf:${TAG:-latest}
+    container_name: mpf
+    depends_on:
+      - mc-front
+      - mc-back
+    ports:
+      - "5051:5051"      
+    networks:
+      - mpf
+    volumes:
+      - ../mpf-config:/mpf
+    # Uncomment on the physical machine:
+    #devices:
+    #  - /dev/cobrapin_board_0
+    #  - /dev/cobrapin_board_1
+
   mc-proxy:
     image: mc-proxy:${TAG:-latest}
     container_name: mc-proxy
@@ -12,31 +29,13 @@ services:
     volumes:
       - ../certs/current:/certs
 
-  mpf:
-    image: mpf:${TAG:-latest}
-    container_name: mpf
-    depends_on:
-      - mc-front
-      - mc-back
-    ports:
-      - "5051:5051"      
-    networks:
-      - mc-back
-    volumes:
-      - ../mpf-config:/mpf
-    # Uncomment on the physical machine:
-    #devices:
-    #  - /dev/cobrapin_board_0
-    #  - /dev/cobrapin_board_1
-
   mc-back:
     image: mc-back:${TAG:-latest}
     init: true
     container_name: mc-back
     networks:
       - mc-back
-    volumes:
-      - ../mpf-config:/mpf-config
+      - mpf
 
   mc-front:
     image: mc-front:${TAG:-latest}
@@ -45,5 +44,6 @@ services:
       - mc-front
 
 networks:
+  mpf:
   mc-back:
   mc-front:

@@ -9,7 +9,7 @@ requires-python = ">=3.12"
 dependencies = [
     "setuptools<78",
     "pillow",
-    "mpf==0.80.0.dev5",
+    "mpf==0.80.0",
     "fastapi",
     "uvicorn",
 ]

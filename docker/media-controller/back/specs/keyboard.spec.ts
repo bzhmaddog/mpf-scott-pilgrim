@@ -2,23 +2,18 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import fs from 'fs';
 import { Keyboard } from '../src/keyboard';
 
-const CONFIG = `keyboard:
-  a:
-    switch: s_left_flipper
-    toggle: false
-  b:
-    switch: s_select
-    toggle: true
-  c:
-    switch: s_plunger
-`;
+const CONFIG = JSON.stringify({
+  a: { switch: 's_left_flipper', toggle: false },
+  b: { switch: 's_select', toggle: true },
+  c: { switch: 's_plunger' },
+});
 
 describe('Keyboard', () => {
     let kb: Keyboard;
 
     beforeEach(() => {
         vi.spyOn(fs, 'readFileSync').mockReturnValue(CONFIG);
-        kb = new Keyboard('dummy.yaml');
+        kb = new Keyboard('dummy.json');
     });
 
     it('loads keys from config', () => {
@@ -65,7 +60,7 @@ describe('Keyboard', () => {
 
     it('handles missing config gracefully', () => {
         vi.spyOn(fs, 'readFileSync').mockImplementation(() => { throw new Error('nope'); });
-        const empty = new Keyboard('missing.yaml');
+        const empty = new Keyboard('missing.json');
         expect(Object.keys(empty.keys)).toHaveLength(0);
     });
 });

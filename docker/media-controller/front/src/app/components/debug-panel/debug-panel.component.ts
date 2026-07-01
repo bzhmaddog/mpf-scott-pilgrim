@@ -4,6 +4,7 @@ import {NgxJsonTreeviewComponent} from 'ngx-json-treeview';
 interface PanelState {
   position: { left: number; top: number };
   size: { width: number; height: number };
+  collapsed?: boolean;
 }
 
 @Component({
@@ -21,6 +22,7 @@ export class DebugPanelComponent implements OnInit, OnDestroy {
 
   readonly size = signal({ width: 500, height: 400 });
   readonly position = signal({ left: 0, top: 0 });
+  readonly collapsed = signal(false);
 
   private dragging = false;
   private dragOffset = { x: 0, y: 0 };
@@ -37,6 +39,7 @@ export class DebugPanelComponent implements OnInit, OnDestroy {
         if ('position' in parsed) {
           this.position.set(parsed.position);
           this.size.set(parsed.size);
+          this.collapsed.set(parsed.collapsed ?? false);
         } else {
           // backward-compat: old format stored only position
           this.position.set(parsed as { left: number; top: number });
@@ -57,8 +60,14 @@ export class DebugPanelComponent implements OnInit, OnDestroy {
   private _save(): void {
     localStorage.setItem(this.storageKey(), JSON.stringify({
       position: this.position(),
-      size: this.size()
+      size: this.size(),
+      collapsed: this.collapsed()
     } satisfies PanelState));
+  }
+
+  toggleCollapsed(): void {
+    this.collapsed.update(v => !v);
+    this._save();
   }
 
   onMouseDown(event: MouseEvent): void {
