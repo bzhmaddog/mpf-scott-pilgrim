@@ -2,9 +2,6 @@ vpx/crash.dmp
 vpx/crash.txt
 .idea
 
-# No need to version that
-/docker/media-controller/front/dist/
-
 # mpf runtime stuff
 mpf-config/logs
 mpf-config/data

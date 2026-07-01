@@ -1,4 +1,4 @@
 {
   "files.eol": "\n",
-  "typescript.tsdk": "docker/media-controller/back/node_modules/typescript/lib"
+  "js/ts.tsdk.path": "media-controller/back/node_modules/typescript/lib"
 }
