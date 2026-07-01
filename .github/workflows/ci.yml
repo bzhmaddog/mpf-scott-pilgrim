@@ -1,4 +1,4 @@
-name: Front-end CI
+name: Scott Pilgrim MPF
 
 on:
   push:
@@ -54,7 +54,7 @@ jobs:
           retention-days: 14
 
   back-ci:
-    name: Media Controller Back-end => Lint · Test
+    name: Media Controller Back-end => Lint · Test · Coverage
     runs-on: ubuntu-latest
     defaults:
       run:
