@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SCRIPT_DIR="$(cd "$(dirname "$0")/docker" && pwd)"
+SCRIPT_DIR="$(dirname "$0")"
 
 # Shared tag from docker/.env (same source compose uses).
 # An inline/env TAG (e.g. `TAG=2.0.0 sh build.sh`) overrides the .env default.
