@@ -148,6 +148,14 @@ describe('VideoResource', () => {
 
 // ── FontResource ───────────────────────────────────────────────────────────
 describe('FontResource', () => {
+  beforeEach(() => {
+    Object.defineProperty(document, 'fonts', {
+      value: { add: vi.fn() },
+      configurable: true,
+      writable: true,
+    });
+  });
+
   it('resolves with FontFace on success', async () => {
     // FontFace.load() resolves with the FontFace instance itself
     vi.stubGlobal('FontFace', function MockFontFace(this: { load?: unknown }) {
