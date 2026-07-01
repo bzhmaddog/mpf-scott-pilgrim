@@ -1,0 +1,22 @@
+<div #panel
+     class="debug"
+     [class.collapsed]="collapsed()"
+     (mousedown)="onMouseDown($event)"
+     (mousemove)="onMouseMove($event)"
+     (mouseup)="onMouseUp()"
+     (mouseleave)="onMouseUp()"
+     [style.left.px]="position().left"
+     [style.top.px]="position().top"
+     [style.width.px]="size().width"
+     [style.height.px]="collapsed() ? null : size().height">
+  <div class="debug-header">
+    {{ title() }}
+    <button class="debug-toggle" (mousedown)="$event.stopPropagation()" (click)="toggleCollapsed()">
+      {{ collapsed() ? '▶' : '▼' }}
+    </button>
+  </div>
+  @if (!collapsed()) {
+    <ngx-json-treeview [json]="data()" />
+    <div class="resize-handle" (mousedown)="onResizeStart($event)"></div>
+  }
+</div>

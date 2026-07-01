@@ -1,3 +1,4 @@
 {
-  "files.eol": "\n"
+  "files.eol": "\n",
+  "js/ts.tsdk.path": "media-controller/back/node_modules/typescript/lib"
 }

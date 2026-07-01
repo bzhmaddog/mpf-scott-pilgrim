@@ -23,5 +23,4 @@ config:
   - coils.yaml
   - ball-devices.yaml
   - flippers.yaml
-  - keyboard.yaml
-#  - modes.yaml
+# - modes.yaml
