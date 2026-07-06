@@ -1,4 +1,4 @@
-import {Colors, LayerRendererDictionary, NoiseEffectRenderer, Options, TextLayer} from "h5dmd"
+import {Colors, NoiseEffectRenderer, rendererEntry, TextLayer, Utils} from "h5dmd"
 import {Mode} from "@mpf/modes/mode"
 import {GameStore} from "../../store/game.store";
 import {effect, inject} from "@angular/core";
@@ -38,14 +38,14 @@ class GameMode extends Mode {
     super('game')
   }
 
-  override init() {
+  override async init() {
     super.init()
 
     // Build array of path to noise images
     // TODO : Get from resource manager
-    const noises: string[] = []
+    const noisePaths: string[] = []
     for (let i = 0; i < 6; i++) {
-      noises.push(`assets/resources/images/noises/noise-${i}.png`)
+      noisePaths.push(`assets/resources/images/noises/noise-${i}.png`)
     }
 
     this._resourcesManager
@@ -57,60 +57,70 @@ class GameMode extends Mode {
 
     //this._audioManager.addSound('main', this._resourcesManager.getMusic('main').resource)
 
-    this._dmd.addTextLayer(
+    this._dmd.addLayer(
+      TextLayer,
       'player-text',
       {
         width: 15,
         height: 15,
+        position: {
+          left: 0,
+          vAlign: 'bottom',
+        },
         left: 0,
         vAlign: 'bottom',
-      },
-      new Options({
         text: this._resourcesManager.getString('playerText'),
         fontSize: 90,
         fontFamily: 'Dusty',
         color: Colors.White as string,
         strokeWidth: 2,
         strokeColor: Colors.Blue as string,
-        zIndex: 1001,
         visible: false,
         groups: ['hud']
-      })
+      }
     )
 
 
-    this._dmd.addTextLayer(
+    this._dmd.addLayer(
+      TextLayer,
       'ball-text',
       {
         width: 60,
         height: 15,
+        position: {
+          hAlign: 'right',
+          hOffset: -15,
+          vAlign: 'bottom',
+        },
         hAlign: 'right',
         hOffset: -15,
         vAlign: 'bottom',
-      }
-      , new Options({
         text: this._resourcesManager.getString('ballText'),
         fontSize: 90,
         fontFamily: 'Dusty',
         color: Colors.White,
         strokeWidth: 2,
         strokeColor: Colors.Blue,
-        zIndex: 1001,
         visible: false,
         groups: ['hud']
-      })
+      }
     )
 
+    // NoiseEffectRenderer now takes pre-loaded pixel data instead of image paths
+    const noiseBitmaps = await Utils.loadImagesOrdered(noisePaths)
 
-    this._playerValueLayer = this._dmd.addTextLayer(
+    this._playerValueLayer = this._dmd.addLayer(
+      TextLayer,
       'player-value',
       {
         width: 10,
         height: 15,
+        position: {
+          left: 15,
+          vAlign: 'bottom',
+        },
         left: 15, // Fix %,
-        vAlign: 'bottom'
-      },
-      new Options({
+        vAlign: 'bottom',
         text: "0",
         fontSize: 90,
         fontFamily: 'Dusty',
@@ -119,41 +129,49 @@ class GameMode extends Mode {
         strokeColor: Colors.Blue,
         visible: false,
         groups: ['hud'],
-        renderers: ['score-effect']
-      }),
-      {"score-effect": new NoiseEffectRenderer(10, 15, 200, noises)}
+        renderers: [
+          rendererEntry('score-effect', NoiseEffectRenderer, {
+            duration: 200,
+            noises: Utils.bitmapsToPixelData(noiseBitmaps, 10, 15)
+          })
+        ]
+      }
     )
 
 
-    this._ballValueLayer = this._dmd.addTextLayer(
+    this._ballValueLayer = this._dmd.addLayer(
+      TextLayer,
       'ball-value',
       {
         width: 15,
         height: 15,
+        position: {
+          hAlign: 'right',
+          vAlign: 'bottom',
+        },
         hAlign: 'right',
-        vAlign: 'bottom'
-      },
-      new Options({
+        vAlign: 'bottom',
         text: "0",
         fontSize: 90,
         fontFamily: 'Dusty',
         color: Colors.White,
         strokeWidth: 2,
         strokeColor: Colors.Blue,
-        zIndex: 1001,
-        //aaTreshold: 144,
-        //antialiasing: false,
         visible: false,
         groups: ['hud'],
-        renderers: ['score-effect']
-      }),
-      {"score-effect": new NoiseEffectRenderer(15, 15, 200, noises)}
+        renderers: [
+          rendererEntry('score-effect', NoiseEffectRenderer, {
+            duration: 200,
+            noises: Utils.bitmapsToPixelData(noiseBitmaps, 15, 15)
+          })
+        ]
+      }
     )
 
-    this._scoreLayer = this._dmd.addTextLayer(
+    this._scoreLayer = this._dmd.addLayer(
+      TextLayer,
       'score',
-      {},
-      new Options({
+      {
         text: "0",
         fontSize: 40,
         fontFamily: 'Dusty',
@@ -164,14 +182,16 @@ class GameMode extends Mode {
         outlineWidth: 2,
         outlineColor: Colors.Blue,
         adjustWidth: true,
-        zIndex: 1000,
-        aaTreshold: 144,
         antialiasing: false,
         visible: false,
         groups: ['hud'],
-        renderers: ['score-effect']
-      }),
-      {"score-effect": new NoiseEffectRenderer(this._dmd.width, this._dmd.height, 200, noises)} as LayerRendererDictionary
+        renderers: [
+          rendererEntry('score-effect', NoiseEffectRenderer, {
+            duration: 200,
+            noises: Utils.bitmapsToPixelData(noiseBitmaps, this._dmd.width, this._dmd.height)
+          })
+        ]
+      }
     )
   }
 

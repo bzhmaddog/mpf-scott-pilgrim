@@ -12,7 +12,7 @@ services:
     networks:
       - mpf
     volumes:
-      - ../mpf-config:/mpf
+      - ./mpf-config:/mpf
     # Uncomment on the physical machine:
     #devices:
     #  - /dev/cobrapin_board_0
@@ -27,7 +27,7 @@ services:
       - mc-front
       - mc-back
     volumes:
-      - ../certs/current:/certs
+      - ./certs/current:/certs
 
   mc-back:
     image: mc-back:${TAG:-latest}

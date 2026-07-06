@@ -1,5 +1,5 @@
 import {WebSocketServer} from '@mpf/network/WebSocketServer'
-import {BaseLayer, CanvasLayer, Dmd, DotShape, Options, TextLayer} from "h5dmd";
+import {BaseLayer, CanvasLayer, Dmd, DotShape, TextLayer} from "h5dmd";
 import {ResourcesManager} from "@mpf/services/resources-manager.service";
 import {inject} from "@angular/core";
 import {WebSocketMessageParams} from '@mpf/models'
@@ -57,7 +57,14 @@ export class MpfApp {
     this._logger.log("Resources file loaded", resources)
 
     this._dmdManager.setDmd(
-      new Dmd(canvasElement, 2, 1, DotShape.Square, 14, 0, true)
+      new Dmd(canvasElement, {
+        dotSize: 2,
+        dotSpace: 1,
+        dotShape: DotShape.Square,
+        backgroundBrightness: 14,
+        brightness: 0,
+        showFPS: true
+      })
     )
 
     // Init DMD then
@@ -207,33 +214,30 @@ export class MpfApp {
       this._dmd.reset()
 
       // Add default screen (mpf logo)
-      this._dmd.addCanvasLayer(
+      this._dmd.addLayer(
+        CanvasLayer,
         'logo',
-        {}, // use default values
-        new Options({opacity: 1}),
-        undefined,
+        {opacity: 1}, // use default values
         (layer) => {
           this._resourcesManager
             .getImage('logo').load()
             .then((bitmap: ImageBitmap) => {
-              (layer as CanvasLayer).drawBitmap(
+              layer.drawBitmap(
                 bitmap,
-                new Options({
+                {
                   top: 0,
-                  left: 0,
-                  width: '100%', // Number of horizontal DMD dots
-                  height: '100%' // Number of vertical DMD dots
-                })
+                  left: 0
+                }
               )
             })
             .catch(error => this._showToast(String(error)))
         }
       )
 
-      this._dmd.addTextLayer(
+      this._dmd.addLayer(
+        TextLayer,
         "ws-toast",
-        {},
-        new Options({
+        {
           text: '...',
           fontSize: 8,
           fontFamily: 'Arial',
@@ -244,10 +248,10 @@ export class MpfApp {
           strokeColor: AppColors.DarkGreen,
           visible: false,
           opacity: 0,
-          align: 'left',
-          verticalAlign: 'top',
+          hAlign: 'left',
+          vAlign: 'top',
           groups: ['toasts']
-        })
+        }
       );
 
       // DMD has been created with brightness = 0 so show it now

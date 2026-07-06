@@ -1,4 +1,4 @@
-import {CanvasLayer, Colors, Options, TextLayer, VideoLayer} from 'h5dmd'
+import {CanvasLayer, Colors, TextLayer, VideoLayer} from 'h5dmd'
 import {Mode} from "@mpf/modes/mode";
 import {Utils} from "@mpf/utils/utils";
 import {computed, inject, Signal} from "@angular/core";
@@ -61,81 +61,97 @@ class AttractMode extends Mode {
     const initialCreditString = this._resourcesManager.getString("freePlayInitialText")
 
 
-    this._backgroundLayer = this._dmd.addCanvasLayer(
+    this._backgroundLayer = this._dmd.addLayer(
+      CanvasLayer,
       'attract-background',
-      {},
-      new Options({
+      {
         visible: false,
         groups: ['title']
-      }),
-      {},
+      },
       () => {
         this._resourcesManager
           .getImage('title')
           .load()
           .then(bitmap => {
-            this._backgroundLayer.drawBitmap(bitmap, new Options({
-              width: '100%',
-              height: '100%'
-            }))
+            this._backgroundLayer.drawBitmap(bitmap, {})
           })
       }
     )
 
-    this._titleLayer1 = this._dmd.addTextLayer(
+    this._titleLayer1 = this._dmd.addLayer(
+      TextLayer,
       'attract-title1',
-      {},
-      new Options({
+      {
+        width: 180,
+        height: 50,
+        position: {
+          hAlign: 'right',
+          vAlign: 'top',
+        },
         text: 'SCOTT',
-        fontSize: 30,
+        fontSize: 100,
         fontFamily: 'Superfly',
-        left: '56%',
-        top: '2%',
+        hAlign: 'left',
+        vAlign: 'top',
+        vOffset: 2,
         color: Colors.Blue,
         strokeWidth: 2,
         strokeColor: Colors.White,
         visible: false,
         groups: ['title']
-      })
+      }
     )
 
-    this._titleLayer2 = this._dmd.addTextLayer(
+    this._titleLayer2 = this._dmd.addLayer(
+      TextLayer,
       'attract-title2',
-      {},
-      new Options({
+      {
+        width: 180,
+        height: 50,
+        position: {
+          hAlign: 'right',
+          vAlign: 'top',
+          vOffset: 31
+        },
         text: 'PILGRIM',
-        fontSize: 30,
+        fontSize: 100,
         fontFamily: 'Superfly',
-        left: '56%',
-        top: '32%',
+        hAlign: 'left',
+
         color: Colors.Blue,
         strokeWidth: 2,
         strokeColor: Colors.White,
         visible: false,
         groups: ['title']
-      })
+      }
     )
 
-    this._subTitleLayer = this._dmd.addTextLayer(
+    this._subTitleLayer = this._dmd.addLayer(
+      TextLayer,
       'attract-subtitle',
-      {},
-      new Options({
+      {
+        width: 178,
+        height: 18,
+        position: {
+          hAlign: 'right',
+          vAlign: 'middle',
+          vOffset: 24
+        },
+        hAlign: 'left',
         text: 'VS. THE WORLD',
-        fontSize: '10',
+        fontSize: 100,
         fontFamily: 'Dusty',
-        left: '56.5%',
-        top: '62%',
         color: Colors.Red,
         visible: false,
-        groups: ['title'],
-      })
+        groups: ['title']
+      }
     )
 
 
-    this._startLayer = this._dmd.addTextLayer(
+    this._startLayer = this._dmd.addLayer(
+      TextLayer,
       'attract-start',
-      {},
-      new Options({
+      {
         text: startString,
         fontSize: '10',
         fontFamily: 'Dusty',
@@ -145,93 +161,98 @@ class AttractMode extends Mode {
         strokeWidth: 2,
         strokeColor: Colors.Red,
         visible: false
-      })
+      }
     )
 
-    this._creditsLayer = this._dmd.addTextLayer(
+    this._creditsLayer = this._dmd.addLayer(
+      TextLayer,
       'attract-credits',
       {
         width: 65,
-        height: 8,
-        hAlign: 'right',
-        vAlign: 'bottom',
-        //hOffset : -2,
-        //vOffset : -1,
-      },
-      new Options({
+        height: 10,
+        position: {
+          hAlign: 'right',
+          vAlign: 'bottom',
+        },
+        hAlign: 'center',
+        vAlign: 'middle',
         text: this.creditString() ?? initialCreditString,
         fontSize: 95,
         fontFamily: 'Dusty',
         color: Colors.White,
-        visible: true
-      })
+        visible: true,
+        //backgroundColor: Colors.Red,
+      }
     )
 
 
     // TODO : Load video in callback
-    this._gameOverCloudsVideoLayer = this._dmd.addVideoLayer('gameover-clouds-moving', {}, new Options({
-      visible: false,
-      autoplay: false,
-      loop: true
-    }), {}, () => {
-      this._resourcesManager
-        .getVideo('gameover-clouds')
-        .load()
-        .then(videoElement => {
-          this._gameOverCloudsVideoLayer.setVideo(videoElement)
-        })
+    this._gameOverCloudsVideoLayer = this._dmd.addLayer(
+      VideoLayer,
+      'gameover-clouds-moving',
+      {
+        visible: false,
+        autoplay: false,
+        loop: true
+      },
+      () => {
+        this._resourcesManager
+          .getVideo('gameover-clouds')
+          .load()
+          .then(videoElement => {
+            this._gameOverCloudsVideoLayer.setVideo(videoElement)
+          })
+      }
+    )
 
-    })
-
-    this._gameOverCloudsLayer2 = this._dmd.addCanvasLayer('gameover-clouds-static', {}, new Options({
-      visible: false,
-      loop: true
-    }), {}, () => {
-      this._resourcesManager
-        .getImage('gameover-clouds')
-        .load()
-        .then(bitmap => {
-          this._gameOverCloudsLayer2.drawBitmap(bitmap, new Options({
-            width: '100%',
-            height: '100%'
-          }))
-        })
-    })
-
-
-    this._gameOverBackgroundLayer = this._dmd.addCanvasLayer(
-      'gameover-bg',
-      {},
-      new Options({
+    this._gameOverCloudsLayer2 = this._dmd.addLayer(
+      CanvasLayer,
+      'gameover-clouds-static',
+      {
         visible: false
-      }), {}, () => {
+      },
+      () => {
+        this._resourcesManager
+          .getImage('gameover-clouds')
+          .load()
+          .then(bitmap => {
+            this._gameOverCloudsLayer2.drawBitmap(bitmap, {})
+          })
+      }
+    )
+
+
+    this._gameOverBackgroundLayer = this._dmd.addLayer(
+      CanvasLayer,
+      'gameover-bg',
+      {
+        visible: false
+      },
+      () => {
         this._resourcesManager
           .getImage('gameover-bg')
           .load()
           .then(bitmap => {
-            this._gameOverBackgroundLayer.drawBitmap(bitmap, new Options({
-              width: '100%',
-              height: '100%'
-            }))
+            this._gameOverBackgroundLayer.drawBitmap(bitmap, {})
           })
-      })
+      }
+    )
 
-    this._gameOverTextLayer = this._dmd.addTextLayer(
+    this._gameOverTextLayer = this._dmd.addLayer(
+      TextLayer,
       'gameover-text',
-      {},
-      new Options({
+      {
         text: goString,
         fontSize: '20',
         fontFamily: 'Dusty',
-        align: 'center',
+        hAlign: 'center',
         top: 1,
         outlineWidth: 1,
         outlineColor: Colors.Red,
         antialiasing: false,
-        aaTreshold: 144,
         opacity: 0.8,
         visible: false
-      })
+      }
     )
 
 
@@ -274,17 +295,17 @@ class AttractMode extends Mode {
               const score = Utils.formatScore(p.score)
               const pTxt = this._resourcesManager.getString('playerTextLong') + ` ${i + 1}`
 
-              this._dmd.addTextLayer(
+              this._dmd.addLayer(
+                TextLayer,
                 `game-over-score-${i}`,
-                {},
-                new Options({
+                {
                   text: `${pTxt} : ${score.toString()}`,
                   fontSize: '10',
                   fontFamily: 'Dusty',
                   left: 50,
                   vAlign: 'middle',
                   vOffset: top
-                })
+                }
               )
 
               this._audioManager.playSound('dong', `dong-p${i + 1}`)

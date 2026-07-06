@@ -27,7 +27,7 @@
     "@ngrx/operators": "^21.1.1",
     "@ngrx/signals": "^21.1.1",
     "@webgpu/types": "^0.1.70",
-    "h5dmd": "^1.2.0",
+    "h5dmd": "^2.0.0",
     "ngx-json-treeview": "^22.0.2",
     "tslib": "^2.3.0"
   },
@@ -60,5 +60,11 @@
       "@angular/core": "$@angular/core"
     },
     "piscina": "^5.2.0"
+  },
+  "allowScripts": {
+    "@parcel/watcher@2.5.6": true,
+    "esbuild@0.28.1": true,
+    "lmdb@3.5.4": true,
+    "msgpackr-extract@3.0.4": true
   }
 }

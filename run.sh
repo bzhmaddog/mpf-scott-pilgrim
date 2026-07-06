@@ -30,7 +30,7 @@ fi
 
 BUILDER="${IMAGE_BUILDER:-docker}"
 
-cd "$(dirname "$0")/docker"
+cd "$(dirname "$0")"
 
 if [ "$DEV" -eq 1 ]; then
   FILES="-f compose.yml -f compose.dev.yml"
