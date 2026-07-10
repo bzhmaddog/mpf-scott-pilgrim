@@ -1,6 +1,6 @@
-import {Colors, NoiseEffectRenderer, rendererEntry, TextLayer, Utils} from "h5dmd"
-import {Mode} from "@mpf/modes/mode"
-import {GameStore} from "../../store/game.store";
+import {Colors, LayerGroup, NoiseEffectRenderer, rendererEntry, TextLayer, Utils} from "h5dmd"
+import {Mode} from "@mpf/core/mode"
+import {GameStore} from "@store/game.store";
 import {effect, inject} from "@angular/core";
 
 
@@ -11,6 +11,7 @@ class GameMode extends Mode {
   private _scoreLayer?: TextLayer
   private _playerValueLayer?: TextLayer
   private _ballValueLayer?: TextLayer
+  private _hudLayerGroup!: LayerGroup
   private _to: number | undefined
 
   private readonly _store = inject(GameStore)
@@ -57,14 +58,48 @@ class GameMode extends Mode {
 
     //this._audioManager.addSound('main', this._resourcesManager.getMusic('main').resource)
 
-    this._dmd.addLayer(
+    this._hudLayerGroup = this._dmd.addLayer(
+      LayerGroup,
+      'hud',
+      {
+        visible: false
+      }
+    )
+
+    const playerGroup = this._hudLayerGroup.addLayer(
+      LayerGroup,
+      'player',
+      {
+        width: 25,
+        height: 15,
+        position: {
+          hAlign: 'left',
+          vAlign: 'bottom',
+        },
+      }
+    )
+
+    const ballGroup = this._hudLayerGroup.addLayer(
+      LayerGroup,
+      'ball',
+      {
+        width: 75,
+        height: 15,
+        position: {
+          hAlign: 'right',
+          vAlign: 'bottom',
+        },
+      }
+    )
+
+    playerGroup.addLayer(
       TextLayer,
       'player-text',
       {
         width: 15,
         height: 15,
         position: {
-          left: 0,
+          hAlign: 'left',
           vAlign: 'bottom',
         },
         left: 0,
@@ -75,21 +110,19 @@ class GameMode extends Mode {
         color: Colors.White as string,
         strokeWidth: 2,
         strokeColor: Colors.Blue as string,
-        visible: false,
-        groups: ['hud']
+        visible: true,
       }
     )
 
 
-    this._dmd.addLayer(
+    ballGroup.addLayer(
       TextLayer,
       'ball-text',
       {
         width: 60,
         height: 15,
         position: {
-          hAlign: 'right',
-          hOffset: -15,
+          hAlign: 'left',
           vAlign: 'bottom',
         },
         hAlign: 'right',
@@ -101,22 +134,22 @@ class GameMode extends Mode {
         color: Colors.White,
         strokeWidth: 2,
         strokeColor: Colors.Blue,
-        visible: false,
-        groups: ['hud']
+        visible: true,
       }
     )
 
     // NoiseEffectRenderer now takes pre-loaded pixel data instead of image paths
     const noiseBitmaps = await Utils.loadImagesOrdered(noisePaths)
 
-    this._playerValueLayer = this._dmd.addLayer(
+    this._playerValueLayer = playerGroup.addLayer(
       TextLayer,
       'player-value',
       {
         width: 10,
         height: 15,
         position: {
-          left: 15,
+          hAlign: 'constraint',
+          leftToRightOf: 'player-text',
           vAlign: 'bottom',
         },
         left: 15, // Fix %,
@@ -127,8 +160,7 @@ class GameMode extends Mode {
         color: Colors.White,
         strokeWidth: 2,
         strokeColor: Colors.Blue,
-        visible: false,
-        groups: ['hud'],
+        visible: true,
         renderers: [
           rendererEntry('score-effect', NoiseEffectRenderer, {
             duration: 200,
@@ -139,14 +171,15 @@ class GameMode extends Mode {
     )
 
 
-    this._ballValueLayer = this._dmd.addLayer(
+    this._ballValueLayer = ballGroup.addLayer(
       TextLayer,
       'ball-value',
       {
         width: 15,
         height: 15,
         position: {
-          hAlign: 'right',
+          hAlign: 'constraint',
+          leftToRightOf: 'ball-text',
           vAlign: 'bottom',
         },
         hAlign: 'right',
@@ -157,8 +190,7 @@ class GameMode extends Mode {
         color: Colors.White,
         strokeWidth: 2,
         strokeColor: Colors.Blue,
-        visible: false,
-        groups: ['hud'],
+        visible: true,
         renderers: [
           rendererEntry('score-effect', NoiseEffectRenderer, {
             duration: 200,
@@ -168,7 +200,7 @@ class GameMode extends Mode {
       }
     )
 
-    this._scoreLayer = this._dmd.addLayer(
+    this._scoreLayer = this._hudLayerGroup.addLayer(
       TextLayer,
       'score',
       {
@@ -183,8 +215,7 @@ class GameMode extends Mode {
         outlineColor: Colors.Blue,
         adjustWidth: true,
         antialiasing: false,
-        visible: false,
-        groups: ['hud'],
+        visible: true,
         renderers: [
           rendererEntry('score-effect', NoiseEffectRenderer, {
             duration: 200,
@@ -207,7 +238,7 @@ class GameMode extends Mode {
       this._dmd.fadeOut(150).then(() => {
 
 
-        this._dmd.setLayerGroupVisibility('hud', true)
+        this._hudLayerGroup.setVisibility(true)
 
         this._resourcesManager
           .getMusic('main')
@@ -233,7 +264,7 @@ class GameMode extends Mode {
 
     this._audioManager.stopSound('main-music')
 
-    this._dmd.setLayerGroupVisibility('hud', false)
+    this._hudLayerGroup.setVisibility(false)
 
     //this._store.dispatch(gameActions.resetGameState())
 

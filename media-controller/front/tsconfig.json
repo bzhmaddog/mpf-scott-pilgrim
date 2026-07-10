@@ -3,6 +3,9 @@
   "compileOnSave": false,
   "compilerOptions": {
     "paths": {
+      "@store/*": [
+        "./src/app/store/*"
+      ],
       "@mpf/*": [
         "./src/app/mpf/*"
       ],

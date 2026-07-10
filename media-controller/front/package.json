@@ -27,7 +27,7 @@
     "@ngrx/operators": "^21.1.1",
     "@ngrx/signals": "^21.1.1",
     "@webgpu/types": "^0.1.70",
-    "h5dmd": "^2.0.0",
+    "h5dmd": "^2.1.1",
     "ngx-json-treeview": "^22.0.2",
     "tslib": "^2.3.0"
   },

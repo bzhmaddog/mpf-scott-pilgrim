@@ -1,4 +1,4 @@
-import {Mode} from "@mpf/modes/mode"
+import {Mode} from "@mpf/core/mode"
 
 class BaseMode extends Mode {
 

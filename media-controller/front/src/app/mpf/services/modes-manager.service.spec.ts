@@ -3,7 +3,7 @@ import {TestBed} from '@angular/core/testing';
 import {ModesManager} from './modes-manager.service';
 import {IModesConfigDictionary} from '@mpf/models';
 import {provideModesManager} from '@mpf/services';
-import {Mode} from '@mpf/modes/mode';
+import {Mode} from '@mpf/core/mode';
 
 const makeMockMode = (name: string): Mode => ({
   start: vi.fn().mockReturnValue(true),

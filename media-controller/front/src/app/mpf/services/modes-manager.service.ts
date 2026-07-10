@@ -1,5 +1,5 @@
 import {inject, Service} from "@angular/core";
-import {Mode} from "@mpf/modes/mode"
+import {Mode} from "@mpf/core/mode"
 import {modesManager} from "@mpf/services";
 import {Logger} from "../../utils/logger";
 import {IModesConfigDictionary} from '@mpf/models';

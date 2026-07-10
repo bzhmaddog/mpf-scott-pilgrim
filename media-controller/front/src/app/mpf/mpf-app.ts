@@ -249,8 +249,7 @@ export class MpfApp {
           visible: false,
           opacity: 0,
           hAlign: 'left',
-          vAlign: 'top',
-          groups: ['toasts']
+          vAlign: 'top'
         }
       );
 

@@ -1,8 +1,8 @@
-import {CanvasLayer, Colors, TextLayer, VideoLayer} from 'h5dmd'
-import {Mode} from "@mpf/modes/mode";
+import {CanvasLayer, Colors, LayerGroup, TextLayer, VideoLayer} from 'h5dmd'
+import {Mode} from "@mpf/core/mode";
 import {Utils} from "@mpf/utils/utils";
 import {computed, inject, Signal} from "@angular/core";
-import {GameStore} from "../../store/game.store";
+import {GameStore} from "../../../store/game.store";
 import {Player} from "@models/player";
 
 const ATTRACT_MUSIC_RESTART_DELAY = 30000
@@ -12,17 +12,15 @@ class AttractMode extends Mode {
   private _blinkInterval: number | undefined // WTF
   private _attractRestartTO: number | undefined
   private _attractMusicTO: number | undefined
+  
+  private _attractSceneGroup?: LayerGroup
+  private _gameOverSceneGroup?: LayerGroup
+
   private _startLayer?: TextLayer
-  private _titleLayer1?: TextLayer
-  private _titleLayer2?: TextLayer
-  private _subTitleLayer?: TextLayer
   private _creditsLayer?: TextLayer
-  private _backgroundLayer!: CanvasLayer
+
   private _gameOverCloudsVideoLayer!: VideoLayer
-  private _gameOverCloudsLayer2!: CanvasLayer
-  private _gameOverBackgroundLayer!: CanvasLayer
-  private _gameOverTextLayer!: TextLayer
-  private _gameOverScoresLayer!: TextLayer
+  
   private _gameIsPlaying: boolean
   private _delayAttractMusic: boolean
 
@@ -60,34 +58,38 @@ class AttractMode extends Mode {
 
     const initialCreditString = this._resourcesManager.getString("freePlayInitialText")
 
+    // Create hidden groups
+    this._attractSceneGroup = this._dmd.addLayer(LayerGroup, 'attract-scene', { visible: false })
+    this._gameOverSceneGroup = this._dmd.addLayer(LayerGroup, 'gameover-scene', { visible: false })
 
-    this._backgroundLayer = this._dmd.addLayer(
+
+    this._attractSceneGroup.addLayer(
       CanvasLayer,
       'attract-background',
-      {
-        visible: false,
-        groups: ['title']
-      },
-      () => {
-        this._resourcesManager
-          .getImage('title')
-          .load()
-          .then(bitmap => {
-            this._backgroundLayer.drawBitmap(bitmap, {})
-          })
-      }
+      {},
+      layer => this._resourcesManager.getImage('title').load().then(bitmap => layer.drawBitmap(bitmap))
     )
 
-    this._titleLayer1 = this._dmd.addLayer(
-      TextLayer,
-      'attract-title1',
+    const titleGroup = this._attractSceneGroup.addLayer(
+      LayerGroup,
+      'attract-title',
       {
         width: 180,
-        height: 50,
+        height: 118, //  Total height of title1 + title2 + subtitle
         position: {
           hAlign: 'right',
           vAlign: 'top',
         },
+        backgroundColor: Colors.Red
+      }
+    )
+
+    titleGroup.addLayer(
+      TextLayer,
+      'attract-title1',
+      {
+        height: 50,
+        position: { vAlign: 'top' },
         text: 'SCOTT',
         fontSize: 100,
         fontFamily: 'Superfly',
@@ -97,44 +99,38 @@ class AttractMode extends Mode {
         color: Colors.Blue,
         strokeWidth: 2,
         strokeColor: Colors.White,
-        visible: false,
-        groups: ['title']
+        
+        backgroundColor: Colors.Green,
       }
     )
 
-    this._titleLayer2 = this._dmd.addLayer(
+    titleGroup.addLayer(
       TextLayer,
       'attract-title2',
       {
-        width: 180,
         height: 50,
-        position: {
-          hAlign: 'right',
-          vAlign: 'top',
-          vOffset: 31
-        },
+        position: { vAlign: 'constraint', topToBottomOf: 'attract-title1' },
         text: 'PILGRIM',
         fontSize: 100,
         fontFamily: 'Superfly',
         hAlign: 'left',
-
+        vAlign: 'middle',
         color: Colors.Blue,
         strokeWidth: 2,
         strokeColor: Colors.White,
-        visible: false,
-        groups: ['title']
+        backgroundColor: Colors.Yellow,
       }
     )
 
-    this._subTitleLayer = this._dmd.addLayer(
+    titleGroup.addLayer(
       TextLayer,
       'attract-subtitle',
       {
         width: 178,
         height: 18,
         position: {
-          hAlign: 'right',
-          vAlign: 'middle',
+          leftToLeftOf: 'parent',
+          bottomToBottomOf: 'parent',
           vOffset: 24
         },
         hAlign: 'left',
@@ -143,12 +139,11 @@ class AttractMode extends Mode {
         fontFamily: 'Dusty',
         color: Colors.Red,
         visible: false,
-        groups: ['title']
       }
     )
 
 
-    this._startLayer = this._dmd.addLayer(
+    this._startLayer = this._attractSceneGroup.addLayer(
       TextLayer,
       'attract-start',
       {
@@ -164,7 +159,7 @@ class AttractMode extends Mode {
       }
     )
 
-    this._creditsLayer = this._dmd.addLayer(
+    this._creditsLayer = this._attractSceneGroup.addLayer(
       TextLayer,
       'attract-credits',
       {
@@ -187,58 +182,55 @@ class AttractMode extends Mode {
 
 
     // TODO : Load video in callback
-    this._gameOverCloudsVideoLayer = this._dmd.addLayer(
+    this._gameOverCloudsVideoLayer = this._gameOverSceneGroup.addLayer(
       VideoLayer,
       'gameover-clouds-moving',
       {
-        visible: false,
         autoplay: false,
         loop: true
       },
-      () => {
+      (layer) => {
         this._resourcesManager
           .getVideo('gameover-clouds')
           .load()
           .then(videoElement => {
-            this._gameOverCloudsVideoLayer.setVideo(videoElement)
+            layer.setVideo(videoElement)
           })
       }
     )
 
-    this._gameOverCloudsLayer2 = this._dmd.addLayer(
+    this._gameOverSceneGroup.addLayer(
       CanvasLayer,
       'gameover-clouds-static',
       {
-        visible: false
       },
-      () => {
+      (layer) => {
         this._resourcesManager
           .getImage('gameover-clouds')
           .load()
           .then(bitmap => {
-            this._gameOverCloudsLayer2.drawBitmap(bitmap, {})
+            layer.drawBitmap(bitmap, {})
           })
       }
     )
 
 
-    this._gameOverBackgroundLayer = this._dmd.addLayer(
+    this._gameOverSceneGroup.addLayer(
       CanvasLayer,
       'gameover-bg',
       {
-        visible: false
       },
-      () => {
+      (layer) => {
         this._resourcesManager
           .getImage('gameover-bg')
           .load()
           .then(bitmap => {
-            this._gameOverBackgroundLayer.drawBitmap(bitmap, {})
+            layer.drawBitmap(bitmap, {})
           })
       }
     )
 
-    this._gameOverTextLayer = this._dmd.addLayer(
+      this._gameOverSceneGroup.addLayer(
       TextLayer,
       'gameover-text',
       {
@@ -275,12 +267,9 @@ class AttractMode extends Mode {
 
       this._dmd.fadeOut(150).then(() => {
 
-        this._gameOverCloudsVideoLayer.setVisibility(true)
+        this._gameOverSceneGroup?.setVisibility(true)
         this._gameOverCloudsVideoLayer.play()
 
-        this._gameOverCloudsLayer2.setVisibility(true)
-        this._gameOverBackgroundLayer.setVisibility(true)
-        this._gameOverTextLayer.setVisibility(true)
 
         this._dmd.fadeIn(150).then(() => {
 
@@ -328,15 +317,8 @@ class AttractMode extends Mode {
         this._dmd.fadeOut(150).then(() => {
           if (!this.isStarted()) return
 
-          this._gameOverCloudsVideoLayer.setVisibility(false)
-
           this._gameOverCloudsVideoLayer.stop()
-
-          this._gameOverCloudsLayer2.setVisibility(false)
-          this._gameOverBackgroundLayer.setVisibility(false)
-          this._gameOverTextLayer.setVisibility(false)
-          //this._gameOverScoresLayer.setVisibility(false)
-          //this._gameOverScoresLayer.removeAllTexts()
+          this._gameOverSceneGroup?.setVisibility(false)
 
           const players: Player[] = this._store.players()
           players.forEach((p: Player, i: number) => {
@@ -354,11 +336,8 @@ class AttractMode extends Mode {
       // Start attractmode
     } else {
 
-      this._backgroundLayer.setVisibility(true)
-      this._titleLayer1?.setVisibility(true)
-      this._titleLayer2?.setVisibility(true)
-      this._subTitleLayer?.setVisibility(true)
-      this._creditsLayer?.setVisibility(true)
+      this._attractSceneGroup?.setVisibility(true)
+
       this._startLayer?.setVisibility(false)
       this._blinkInterval = window.setInterval(this._toggleStartText.bind(this), 1000)
 
@@ -414,23 +393,10 @@ class AttractMode extends Mode {
 
     this._audioManager.stopSound('attract-music')
 
-    this._backgroundLayer.setVisibility(false)
-    this._titleLayer1?.setVisibility(false)
-    this._titleLayer2?.setVisibility(false)
-    this._subTitleLayer?.setVisibility(false)
-    this._creditsLayer?.setVisibility(false)
-    this._startLayer?.setVisibility(false)
-
-    this._gameOverCloudsVideoLayer.setVisibility(false)
     this._gameOverCloudsVideoLayer.stop()
 
-    this._gameOverCloudsLayer2.setVisibility(false)
-    this._gameOverBackgroundLayer.setVisibility(false)
-    this._gameOverTextLayer.setVisibility(false)
-
-    //this._gameOverScoresLayer.setVisibility(false)
-    //this._gameOverScoresLayer.removeAllTexts()
-
+    this._attractSceneGroup?.setVisibility(false)
+    this._gameOverSceneGroup?.setVisibility(false)
 
     clearTimeout(this._attractMusicTO)
     this._attractMusicTO = undefined
