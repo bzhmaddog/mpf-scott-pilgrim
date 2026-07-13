@@ -1,4 +1,4 @@
-import {Colors, LayerGroup, NoiseEffectRenderer, rendererEntry, TextLayer, Utils} from "h5dmd"
+import {Colors, LayerGroup, NoiseEffectRenderer, rendererEntry, TextLayer, SpritesLayer, Utils} from "h5dmd"
 import {Mode} from "@mpf/core/mode"
 import {GameStore} from "@store/game.store";
 import {effect, inject} from "@angular/core";
@@ -49,97 +49,144 @@ class GameMode extends Mode {
       noisePaths.push(`assets/resources/images/noises/noise-${i}.png`)
     }
 
-    this._resourcesManager
-      .getSound('start')
-      .load()
-      .then(audioBuffer => {
-        this._audioManager.addSound('start', audioBuffer)
-      })
+    const startSound = await this._resourcesManager.getSound('start').load()
+    
+    this._audioManager.addSound('start', startSound)
 
-    //this._audioManager.addSound('main', this._resourcesManager.getMusic('main').resource)
+    // NoiseEffectRenderer now takes pre-loaded pixel data instead of image paths
+    const noiseBitmaps = await Utils.loadImagesOrdered(noisePaths)
 
-    this._hudLayerGroup = this._dmd.addLayer(
-      LayerGroup,
+    this._hudLayerGroup = this._dmd.addLayerGroup(
       'hud',
       {
         visible: false
       }
     )
 
-    const playerGroup = this._hudLayerGroup.addLayer(
-      LayerGroup,
+    const playerGroup = this._hudLayerGroup.addLayerGroup(
       'player',
       {
         width: 25,
         height: 15,
         position: {
-          hAlign: 'left',
-          vAlign: 'bottom',
-        },
+          hAlign: 'start',
+          vAlign: 'end',
+          }
       }
     )
 
-    const ballGroup = this._hudLayerGroup.addLayer(
-      LayerGroup,
+    const ballGroup = this._hudLayerGroup.addLayerGroup(
       'ball',
       {
-        width: 75,
+        width: 35,
         height: 15,
         position: {
-          hAlign: 'right',
-          vAlign: 'bottom',
-        },
+          hAlign: 'end',
+          vAlign: 'end',
+        }
       }
     )
 
     playerGroup.addLayer(
-      TextLayer,
-      'player-text',
+      SpritesLayer,
+      'player-face',
       {
         width: 15,
         height: 15,
         position: {
-          hAlign: 'left',
-          vAlign: 'bottom',
+          hAlign: 'start',
+          vAlign: 'end',
         },
-        left: 0,
-        vAlign: 'bottom',
-        text: this._resourcesManager.getString('playerText'),
-        fontSize: 90,
-        fontFamily: 'Dusty',
-        color: Colors.White as string,
-        strokeWidth: 2,
-        strokeColor: Colors.Blue as string,
-        visible: true,
+      },async (layer) => {
+        const sheet = await this._resourcesManager.getImage('scott-face').load();
+
+        // Sheet holds 256x256 frames but the layer is 15x15: rescale the whole
+        // sheet once so frames land on the DMD grid 1:1 (h5dmd never scales)
+        const scale = 15 / 256
+        const bitmap = await createImageBitmap(sheet, {
+          resizeWidth: Math.round(sheet.width * scale),
+          resizeHeight: Math.round(sheet.height * scale),
+          resizeQuality: 'high',
+        })
+
+        await layer.createSprite(
+          'scott-face',
+          bitmap,
+          0,
+          0,
+          [
+            {
+              key: "idle",
+              animationParams: {
+                nbFrames: 6,
+                width: 15,
+                height: 15,
+                xOffset: 0,
+                yOffset: 0,
+                duration: 1500
+              }
+            }
+          ],
+          '0',
+          '0'
+        )
+
+        layer.enqueueSequence('scott-face', [{key: 'idle', nbLoop: 0}], true)
+        layer.run('scott-face')
       }
     )
 
 
     ballGroup.addLayer(
-      TextLayer,
-      'ball-text',
+      SpritesLayer,
+      'ball-sprite',
       {
-        width: 60,
+        width: 15,
         height: 15,
         position: {
-          hAlign: 'left',
-          vAlign: 'bottom',
+          hAlign: 'start',
+          vAlign: 'end',
         },
-        hAlign: 'right',
-        hOffset: -15,
-        vAlign: 'bottom',
-        text: this._resourcesManager.getString('ballText'),
-        fontSize: 90,
-        fontFamily: 'Dusty',
-        color: Colors.White,
-        strokeWidth: 2,
-        strokeColor: Colors.Blue,
-        visible: true,
+        opacity: 0.9,
+      },async (layer) => {
+        const sheet = await this._resourcesManager.getImage('sprite-ball').load();
+
+        // Sheet holds 20x20 frames but the layer is 15x15: rescale the whole
+        // sheet once so frames land on the DMD grid 1:1 (h5dmd never scales)
+        const scale = 15 / 20
+        const bitmap = await createImageBitmap(sheet, {
+          resizeWidth: Math.round(sheet.width * scale),
+          resizeHeight: Math.round(sheet.height * scale),
+          resizeQuality: 'pixelated',
+        })
+
+        await layer.createSprite(
+          'rolling-ball',
+          bitmap,
+          0,
+          0,
+          [
+            {
+                key: "idle",
+                animationParams: {
+                    nbFrames: 12,
+                    width: 15,
+                    height: 15,
+                    xOffset: 0,
+                    yOffset: 0,
+                    duration: 900
+                }
+              }
+          ],
+          '0',
+          '0'
+        )
+
+        layer.enqueueSequence('rolling-ball', [{key: 'idle', nbLoop: 0}], true)
+        layer.run('rolling-ball')
       }
     )
 
-    // NoiseEffectRenderer now takes pre-loaded pixel data instead of image paths
-    const noiseBitmaps = await Utils.loadImagesOrdered(noisePaths)
 
     this._playerValueLayer = playerGroup.addLayer(
       TextLayer,
@@ -149,24 +196,16 @@ class GameMode extends Mode {
         height: 15,
         position: {
           hAlign: 'constraint',
-          leftToRightOf: 'player-text',
-          vAlign: 'bottom',
+          leftToRightOf: 'player-face',
+          vAlign: 'end',
         },
-        left: 15, // Fix %,
-        vAlign: 'bottom',
+        vAlign: 'center',
         text: "0",
-        fontSize: 90,
+        fontSize: 50,
         fontFamily: 'Dusty',
         color: Colors.White,
         strokeWidth: 2,
-        strokeColor: Colors.Blue,
-        visible: true,
-        renderers: [
-          rendererEntry('score-effect', NoiseEffectRenderer, {
-            duration: 200,
-            noises: Utils.bitmapsToPixelData(noiseBitmaps, 10, 15)
-          })
-        ]
+        strokeColor: Colors.Yellow
       }
     )
 
@@ -179,24 +218,17 @@ class GameMode extends Mode {
         height: 15,
         position: {
           hAlign: 'constraint',
-          leftToRightOf: 'ball-text',
-          vAlign: 'bottom',
+          leftToRightOf: 'ball-sprite',
+          vAlign: 'end',
         },
-        hAlign: 'right',
-        vAlign: 'bottom',
+        hAlign: 'end',
+        vAlign: 'center',
         text: "0",
-        fontSize: 90,
+        fontSize: 50,
         fontFamily: 'Dusty',
         color: Colors.White,
         strokeWidth: 2,
-        strokeColor: Colors.Blue,
-        visible: true,
-        renderers: [
-          rendererEntry('score-effect', NoiseEffectRenderer, {
-            duration: 200,
-            noises: Utils.bitmapsToPixelData(noiseBitmaps, 15, 15)
-          })
-        ]
+        strokeColor: Colors.Yellow
       }
     )
 
@@ -207,9 +239,9 @@ class GameMode extends Mode {
         text: "0",
         fontSize: 40,
         fontFamily: 'Dusty',
-        hAlign: 'right',
+        hAlign: 'end',
         hOffset: -1,
-        vAlign: 'middle',
+        vAlign: 'center',
         color: Colors.White,
         outlineWidth: 2,
         outlineColor: Colors.Blue,

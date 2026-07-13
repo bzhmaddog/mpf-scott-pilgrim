@@ -59,8 +59,8 @@ class AttractMode extends Mode {
     const initialCreditString = this._resourcesManager.getString("freePlayInitialText")
 
     // Create hidden groups
-    this._attractSceneGroup = this._dmd.addLayer(LayerGroup, 'attract-scene', { visible: false })
-    this._gameOverSceneGroup = this._dmd.addLayer(LayerGroup, 'gameover-scene', { visible: false })
+    this._attractSceneGroup = this._dmd.addLayerGroup('attract-scene', { visible: false })
+    this._gameOverSceneGroup = this._dmd.addLayerGroup('gameover-scene', { visible: false })
 
 
     this._attractSceneGroup.addLayer(
@@ -70,55 +70,51 @@ class AttractMode extends Mode {
       layer => this._resourcesManager.getImage('title').load().then(bitmap => layer.drawBitmap(bitmap))
     )
 
-    const titleGroup = this._attractSceneGroup.addLayer(
-      LayerGroup,
+    const titleGroup = this._attractSceneGroup.addLayerGroup(
       'attract-title',
       {
-        width: 180,
+        width: 195,
         height: 118, //  Total height of title1 + title2 + subtitle
         position: {
-          hAlign: 'right',
-          vAlign: 'top',
-        },
-        backgroundColor: Colors.Red
+          hAlign: 'end',
+          vAlign: 'start',
+          hOffset: -10,
+        }
       }
     )
 
     titleGroup.addLayer(
       TextLayer,
-      'attract-title1',
+      'attract-title-scott',
       {
         height: 50,
-        position: { vAlign: 'top' },
+        position: { vAlign: 'start' },
         text: 'SCOTT',
-        fontSize: 100,
+        fontSize: 90,
         fontFamily: 'Superfly',
-        hAlign: 'left',
-        vAlign: 'top',
+        hAlign: 'start',
+        vAlign: 'end',
         vOffset: 2,
         color: Colors.Blue,
         strokeWidth: 2,
-        strokeColor: Colors.White,
-        
-        backgroundColor: Colors.Green,
+        strokeColor: Colors.White
       }
     )
 
     titleGroup.addLayer(
       TextLayer,
-      'attract-title2',
+      'attract-title-pilgrim',
       {
         height: 50,
-        position: { vAlign: 'constraint', topToBottomOf: 'attract-title1' },
+        position: { vAlign: 'constraint', topToBottomOf: 'attract-title-scott' },
         text: 'PILGRIM',
-        fontSize: 100,
+        fontSize: 90,
         fontFamily: 'Superfly',
-        hAlign: 'left',
-        vAlign: 'middle',
+        hAlign: 'start',
+        vAlign: 'start',
         color: Colors.Blue,
         strokeWidth: 2,
-        strokeColor: Colors.White,
-        backgroundColor: Colors.Yellow,
+        strokeColor: Colors.White
       }
     )
 
@@ -129,16 +125,16 @@ class AttractMode extends Mode {
         width: 178,
         height: 18,
         position: {
-          leftToLeftOf: 'parent',
-          bottomToBottomOf: 'parent',
-          vOffset: 24
+          vAlign: 'constraint',
+          topToBottomOf: 'attract-title-pilgrim'
         },
-        hAlign: 'left',
+        hAlign: 'start',
+        vAlign: 'start',
+        hOffset: 2,
         text: 'VS. THE WORLD',
-        fontSize: 100,
+        fontSize: 50,
         fontFamily: 'Dusty',
-        color: Colors.Red,
-        visible: false,
+        color: Colors.Red
       }
     )
 
@@ -147,11 +143,17 @@ class AttractMode extends Mode {
       TextLayer,
       'attract-start',
       {
+        width: 150,
+        height: 16,
+        position: {
+          hAlign: 'center',
+          vAlign: 'end'
+        },
         text: startString,
-        fontSize: '10',
+        fontSize: 70,
         fontFamily: 'Dusty',
         hAlign: 'center',
-        vAlign: 'bottom',
+        vAlign: 'end',
         vOffset: -2,
         strokeWidth: 2,
         strokeColor: Colors.Red,
@@ -166,17 +168,15 @@ class AttractMode extends Mode {
         width: 65,
         height: 10,
         position: {
-          hAlign: 'right',
-          vAlign: 'bottom',
+          hAlign: 'end',
+          vAlign: 'end',
         },
         hAlign: 'center',
-        vAlign: 'middle',
+        vAlign: 'center',
         text: this.creditString() ?? initialCreditString,
-        fontSize: 95,
+        fontSize: 60,
         fontFamily: 'Dusty',
-        color: Colors.White,
-        visible: true,
-        //backgroundColor: Colors.Red,
+        color: Colors.White
       }
     )
 
@@ -292,7 +292,7 @@ class AttractMode extends Mode {
                   fontSize: '10',
                   fontFamily: 'Dusty',
                   left: 50,
-                  vAlign: 'middle',
+                  vAlign: 'center',
                   vOffset: top
                 }
               )

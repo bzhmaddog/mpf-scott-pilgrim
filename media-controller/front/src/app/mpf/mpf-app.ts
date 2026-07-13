@@ -95,7 +95,7 @@ export class MpfApp {
   }
 
   private _wsOnOpen() {
-    this._showToast('Connected...', 1000)
+    //this._showToast('Connected...')
   }
 
   private _wsOnClose() {
@@ -238,18 +238,24 @@ export class MpfApp {
         TextLayer,
         "ws-toast",
         {
+          width: 128,
+          height: 32,
+          position: {
+            hAlign: 'center',
+            vAlign: 'center',
+          },
           text: '...',
-          fontSize: 8,
+          fontSize: 80,
           fontFamily: 'Arial',
-          left: 0,
-          top: 1,
-          color: AppColors.Green,
+          color: AppColors.Yellow,
           strokeWidth: 2,
           strokeColor: AppColors.DarkGreen,
           visible: false,
           opacity: 0,
-          hAlign: 'left',
-          vAlign: 'top'
+          borderColor: AppColors.DarkGreen,
+          borderWidth: 1,
+          backgroundColor: AppColors.Green,
+          adjustWidth: true,
         }
       );
 
@@ -268,7 +274,7 @@ export class MpfApp {
     });
   }
 
-  private _showToast(text: string, duration = 3000) {
+  private _showToast(text: string, duration = 2000) {
     const toastLayer = this._dmd.getLayer('ws-toast') as TextLayer | null
     if (toastLayer) {
       toastLayer.setText(text)

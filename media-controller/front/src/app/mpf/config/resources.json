@@ -166,6 +166,17 @@
 			"key" : "sprite-scott",
 			"url" : "sprites/scott.png",
 			"preload" : false
+		},
+		{
+			"key" : "sprite-ball",
+			"url" : "sprites/ball.png",
+			"preload" : false
+		},
+		{
+			"key" : "scott-face",
+			"url" : "sprites/scott-face.png",
+			"preload" : false
 		}
+		
 	]
 }
