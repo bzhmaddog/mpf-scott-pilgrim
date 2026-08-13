@@ -2,7 +2,7 @@ name: mpf-scott-pilgrim
 
 services:
   mpf:
-    image: mpf:${TAG:-latest}
+    image: localhost/mpf:${TAG:-latest}
     container_name: mpf
     depends_on:
       - mc-front
@@ -19,7 +19,7 @@ services:
     #  - /dev/cobrapin_board_1
 
   mc-proxy:
-    image: mc-proxy:${TAG:-latest}
+    image: localhost/mc-proxy:${TAG:-latest}
     container_name: mc-proxy
     ports:
       - "4443:4443/tcp"
@@ -30,7 +30,7 @@ services:
       - ./certs/current:/certs
 
   mc-back:
-    image: mc-back:${TAG:-latest}
+    image: localhost/mc-back:${TAG:-latest}
     init: true
     container_name: mc-back
     networks:
@@ -38,7 +38,7 @@ services:
       - mpf
 
   mc-front:
-    image: mc-front:${TAG:-latest}
+    image: localhost/mc-front:${TAG:-latest}
     container_name: mc-front
     networks:
       - mc-front

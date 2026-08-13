@@ -19,7 +19,7 @@
     (function poll() {
       fetch('/', { method: 'HEAD', cache: 'no-store' })
         .then(res => {
-          if (res.status !== 502) {
+          if (res.status !== 503) {
             window.location.reload();
           } else {
             setTimeout(poll, 1000);

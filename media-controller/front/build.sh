@@ -1,4 +1,4 @@
 #!/bin/sh
 
-echo "Building mc-front:${1:-latest}..."
-${IMAGE_BUILDER:-docker} build -f Containerfile -t mc-front:${1:-latest} .
+echo "Building localhost/mc-front:${1:-latest}..."
+${IMAGE_BUILDER:-docker} build -f Containerfile -t localhost/mc-front:${1:-latest} .

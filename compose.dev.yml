@@ -1,7 +1,7 @@
 services:
 
   mc-proxy:
-    image: mc-proxy:latest
+    image: localhost/mc-proxy:${TAG:-latest}
     volumes:
       - ./media-controller/proxy/conf/01-set-resolver.envsh:/docker-entrypoint.d/01-set-resolver.envsh:ro
       - ./media-controller/proxy/conf/default.conf.template:/etc/nginx/templates/default.conf.template:ro
@@ -9,13 +9,13 @@ services:
       - ./media-controller/proxy/html:/usr/share/nginx/html:ro
 
   mc-back:
-    image: mc-back-dev:latest
+    image: localhost/mc-back-dev:latest
     volumes:
       - ./media-controller/back:/app
       - mc_back_node_modules:/app/node_modules
 
   mc-front:
-    image: mc-front-dev:latest
+    image: localhost/mc-front-dev:latest
     volumes:
       - ./media-controller/front:/app
       - mc_front_node_modules:/app/node_modules
