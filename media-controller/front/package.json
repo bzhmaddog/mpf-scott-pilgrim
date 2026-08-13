@@ -14,27 +14,26 @@
   },
   "private": true,
   "dependencies": {
-    "@angular-architects/ngrx-toolkit": "^21.0.1",
-    "@angular/animations": "^22.0.0",
-    "@angular/cdk": "^22.0.2",
-    "@angular/common": "^22.0.2",
-    "@angular/compiler": "^22.0.0",
-    "@angular/core": "^22.0.0",
-    "@angular/forms": "^22.0.0",
-    "@angular/platform-browser": "^22.0.0",
-    "@angular/platform-browser-dynamic": "^22.0.0",
-    "@angular/router": "^22.0.0",
+    "@angular/animations": "22.1.1",
+    "@angular/cdk": "22.1.1",
+    "@angular/common": "22.1.1",
+    "@angular/compiler": "22.1.1",
+    "@angular/core": "22.1.1",
+    "@angular/forms": "22.1.1",
+    "@angular/platform-browser": "22.1.1",
+    "@angular/platform-browser-dynamic": "22.1.1",
+    "@angular/router": "22.1.1",
     "@ngrx/operators": "^21.1.1",
     "@ngrx/signals": "^21.1.1",
     "@webgpu/types": "^0.1.70",
-    "h5dmd": "^1.2.0",
+    "h5dmd": "^2.3.0",
     "ngx-json-treeview": "^22.0.2",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@angular/build": "^22.0.0",
-    "@angular/cli": "^22.0.0",
-    "@angular/compiler-cli": "^22.0.0",
+    "@angular/build": "22.1.1",
+    "@angular/cli": "22.1.1",
+    "@angular/compiler-cli": "22.1.1",
     "@vitest/coverage-v8": "^4.1.9",
     "eslint": "^10.5.0",
     "jsdom": "^29.1.1",
@@ -43,15 +42,11 @@
     "vitest": "^4.0.8"
   },
   "overrides": {
-    "vite": ">=7.3.5 <8",
-    "esbuild": ">=0.28.1",
+    "vite": ">=8.1.5 <9",
+    "esbuild": "0.28.1",
     "minimatch": ">=9.0.7",
-    "@babel/core": ">=7.29.6 <8",
+    "@babel/core": ">=8.0.1 <9",
     "@ngrx/signals": {
-      "@angular/common": "$@angular/common",
-      "@angular/core": "$@angular/core"
-    },
-    "@angular-architects/ngrx-toolkit": {
       "@angular/common": "$@angular/common",
       "@angular/core": "$@angular/core"
     },
@@ -60,5 +55,11 @@
       "@angular/core": "$@angular/core"
     },
     "piscina": "^5.2.0"
+  },
+  "allowScripts": {
+    "@parcel/watcher@2.5.6": true,
+    "esbuild@0.28.1": true,
+    "lmdb@3.5.4": true,
+    "msgpackr-extract@3.0.4": true
   }
 }

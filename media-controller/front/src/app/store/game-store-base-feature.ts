@@ -1,5 +1,4 @@
 import {signalStoreFeature, withState} from "@ngrx/signals";
-import {withDevtools} from "@angular-architects/ngrx-toolkit";
 import {GameState} from "@models/game-state";
 import { GameStoreFeatureType } from "@types";
 
@@ -15,7 +14,6 @@ export type GameStoreBaseFeature = GameStoreFeatureType<typeof withGameStoreBase
 
 export function withGameStoreBase() {
     return signalStoreFeature(
-      withDevtools('gameStore'),
       withState<GameState>(initialState)
     );
 }

@@ -13,7 +13,7 @@ server {
     set $mc_back_upstream mc-back:5000;
     set $dev_tools_upstream localhost:9223;
 
-    error_page 502 503 504 /waiting.html;
+    error_page 502 503 504 =503 /waiting.html;
 
     location = /waiting.html {
         root /usr/share/nginx/html;
