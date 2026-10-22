@@ -22,7 +22,7 @@
     "@angular/forms": "22.1.1",
     "@angular/platform-browser": "22.1.1",
     "@angular/platform-browser-dynamic": "22.1.1",
-    "@angular/router": "22.1.1",
+    "@angular/router": "22.2.1",
     "@ngrx/operators": "^21.1.1",
     "@ngrx/signals": "^21.1.1",
     "@webgpu/types": "^0.1.70",
@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@angular/build": "22.1.1",
-    "@angular/cli": "22.1.1",
+    "@angular/cli": "22.2.3",
     "@angular/compiler-cli": "22.1.1",
     "@vitest/coverage-v8": "^4.1.9",
     "eslint": "^10.5.0",
