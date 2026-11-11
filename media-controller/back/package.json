@@ -13,12 +13,17 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/ws": "^8.5.0",
-    "@vitest/coverage-v8": "^5.0.0",
+    "@vitest/coverage-v8": "^5.0.3",
     "eslint": "^9.0.0",
     "tsx": "^4.0.0",
     "typescript": "^6.0.0",
     "typescript-eslint": "^8.0.0",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.3"
+  },
+  "overrides": {
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": ">=11.0.1 <12"
+    }
   },
   "allowScripts": {
     "esbuild@0.28.1": true
