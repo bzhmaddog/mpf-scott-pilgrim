@@ -19,6 +19,7 @@ export class MpfApp {
   private readonly _logger = inject(Logger).getInstance('App')
 
   private readonly _store = inject(GameStore)
+  private readonly _canvasElement: HTMLCanvasElement
 
 
   get _dmd(): Dmd {
@@ -28,6 +29,7 @@ export class MpfApp {
   }
 
   constructor(canvasElement: HTMLCanvasElement) {
+    this._canvasElement = canvasElement
     this._wsServer = new WebSocketServer({
       hostname: "archpinball.dev",
       port: 4443,
@@ -38,8 +40,6 @@ export class MpfApp {
       onClose: this._wsOnClose.bind(this),
       onError: this._wsOnError.bind(this)
     })
-
-    this._init(canvasElement)
   }
 
   handleKeyEvent(event: KeyboardEvent): void {
@@ -50,14 +50,18 @@ export class MpfApp {
     this._wsServer.send(`mc_keyboard_event?key=${event.key}`)
   }
 
-  private async _init(canvasElement: HTMLCanvasElement): Promise<void> {
+  /**
+   * Load resources, start the DMD and connect to the backend.
+   * Must be called (and awaited) once after construction.
+   */
+  async init(): Promise<void> {
     // Load resources file then reset dmd
     const resources = await this._resourcesManager.load()
 
     this._logger.log("Resources file loaded", resources)
 
     this._dmdManager.setDmd(
-      new Dmd(canvasElement, {
+      new Dmd(this._canvasElement, {
         dotSize: 2,
         dotSpace: 1,
         dotShape: DotShape.Square,

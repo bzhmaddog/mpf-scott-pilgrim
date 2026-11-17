@@ -46,6 +46,9 @@ export class AppComponent {
       runInInjectionContext(this.environmentInjector, () => {
         this.logger.log("Initializing MpfApp")
         this._mpfApp = new MpfApp(this.dmdElementRef.nativeElement)
+        this._mpfApp.init().catch((error: unknown) => {
+          this.logger.error("MpfApp initialization failed", error)
+        })
       })
     })
   }
