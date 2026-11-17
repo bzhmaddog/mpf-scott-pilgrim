@@ -1,7 +1,16 @@
 # mpf-scott-pilgrim
 
-![Front-end](https://github.com/bzhmaddog/mpf-scott-pilgrim/actions/workflows/ci-front.yml/badge.svg)
-![Back-end](https://github.com/bzhmaddog/mpf-scott-pilgrim/actions/workflows/ci-back.yml/badge.svg)
+![CI](https://github.com/bzhmaddog/mpf-scott-pilgrim/actions/workflows/ci.yml/badge.svg)
+![SonarQube](https://github.com/bzhmaddog/mpf-scott-pilgrim/actions/workflows/sonarqube.yml/badge.svg)
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=bzhmaddog_mpf-scott-pilgrim&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=bzhmaddog_mpf-scott-pilgrim)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=bzhmaddog_mpf-scott-pilgrim&metric=bugs)](https://sonarcloud.io/summary/new_code?id=bzhmaddog_mpf-scott-pilgrim)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=bzhmaddog_mpf-scott-pilgrim&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=bzhmaddog_mpf-scott-pilgrim)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=bzhmaddog_mpf-scott-pilgrim&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=bzhmaddog_mpf-scott-pilgrim)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=bzhmaddog_mpf-scott-pilgrim&metric=coverage)](https://sonarcloud.io/summary/new_code?id=bzhmaddog_mpf-scott-pilgrim)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=bzhmaddog_mpf-scott-pilgrim&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=bzhmaddog_mpf-scott-pilgrim)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=bzhmaddog_mpf-scott-pilgrim&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=bzhmaddog_mpf-scott-pilgrim)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=bzhmaddog_mpf-scott-pilgrim&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=bzhmaddog_mpf-scott-pilgrim)
 
 Scott Pilgrim themed [Mission Pinball Framework](https://missionpinball.org/) configuration with a web-based media controller.
 
