@@ -1,7 +1,6 @@
 # mpf-scott-pilgrim
 
-![Front-end](https://github.com/bzhmaddog/mpf-scott-pilgrim/actions/workflows/ci-front.yml/badge.svg)
-![Back-end](https://github.com/bzhmaddog/mpf-scott-pilgrim/actions/workflows/ci-back.yml/badge.svg)
+![CI](https://github.com/bzhmaddog/mpf-scott-pilgrim/actions/workflows/ci.yml/badge.svg)
 ![SonarQube](https://github.com/bzhmaddog/mpf-scott-pilgrim/actions/workflows/sonarqube.yml/badge.svg)
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=bzhmaddog_mpf-scott-pilgrim&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=bzhmaddog_mpf-scott-pilgrim)

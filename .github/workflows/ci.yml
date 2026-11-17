@@ -1,27 +1,33 @@
-name: MPF Media Controller Back-end
+name: CI
 
 on:
   push:
     branches: [main]
     paths:
+      - 'media-controller/front/**'
       - 'media-controller/back/**'
-      - '.github/workflows/ci-back.yml'
+      - '.github/workflows/ci.yml'
   pull_request:
     branches: [main]
-    paths:
-      - 'media-controller/back/**'
-      - '.github/workflows/ci-back.yml'
 
 permissions:
   contents: read
 
 jobs:
-  back-ci:
-    name: Lint · Test · Coverage
+  ci:
+    name: ${{ matrix.label }} · Lint · Test · Coverage
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: front
+            label: Front
+          - app: back
+            label: Back
     defaults:
       run:
-        working-directory: media-controller/back
+        working-directory: media-controller/${{ matrix.app }}
 
     steps:
       - name: Checkout
@@ -32,7 +38,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: media-controller/back/package-lock.json
+          cache-dependency-path: media-controller/${{ matrix.app }}/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -47,6 +53,6 @@ jobs:
         uses: actions/upload-artifact@v5
         if: always()
         with:
-          name: back-coverage-report
-          path: media-controller/back/coverage/
+          name: ${{ matrix.app }}-coverage-report
+          path: media-controller/${{ matrix.app }}/coverage/
           retention-days: 14
