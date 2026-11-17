@@ -41,7 +41,7 @@ jobs:
           cache-dependency-path: media-controller/${{ matrix.app }}/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Lint
         run: npm run lint

@@ -8,4 +8,4 @@ WORKDIR /app
 
 USER node
 
-CMD ["sh", "-c", "diff -q package.json node_modules/.install-stamp > /dev/null 2>&1 || (npm install --no-package-lock && cp package.json node_modules/.install-stamp); npm run container-serve"]
+CMD ["sh", "-c", "diff -q package.json node_modules/.install-stamp > /dev/null 2>&1 || (npm install --no-package-lock --ignore-scripts && cp package.json node_modules/.install-stamp); npm run container-serve"]
