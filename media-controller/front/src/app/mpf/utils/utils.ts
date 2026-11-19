@@ -8,14 +8,14 @@ export const AppColors = {
 export class Utils {
 
 	static str2int(str: string): number {
-		return parseInt(str.replace('int:',''), 10)
+		return Number.parseInt(str.replace('int:',''), 10)
 	}
 
 	static str2value(str: string) {
 		if (str.toString().startsWith('int:')) {
-			return parseInt(str.replace('int:',''), 10)
+			return Number.parseInt(str.replace('int:',''), 10)
 		} else if (str.toString().startsWith('float:')) {
-			return parseFloat(str.replace('float:',''))
+			return Number.parseFloat(str.replace('float:',''))
 		} else {
 			return str.toString()
 		}

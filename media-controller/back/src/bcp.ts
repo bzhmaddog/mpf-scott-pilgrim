@@ -18,7 +18,7 @@ export function parseMessageData(message: string): ParsedMessage {
 }
 
 export function str2int(str: string): number {
-    return parseInt(str.replace('int:', ''), 10);
+    return Number.parseInt(str.replace('int:', ''), 10);
 }
 
 export function str2value(str: string): string | number {
@@ -26,10 +26,10 @@ export function str2value(str: string): string | number {
         return '';
     }
     if (str.startsWith('int:')) {
-        return parseInt(str.replace('int:', ''), 10);
+        return Number.parseInt(str.replace('int:', ''), 10);
     }
     if (str.startsWith('float:')) {
-        return parseFloat(str.replace('float:', ''));
+        return Number.parseFloat(str.replace('float:', ''));
     }
     return str;
 }
