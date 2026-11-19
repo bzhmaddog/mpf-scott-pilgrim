@@ -2,10 +2,10 @@ import { EventEmitter } from 'events';
 import net from 'net';
 import { parseMessageData, str2int, str2value, cleanParams, sanitizeForLog } from './bcp';
 
-const __version__ = '0.80.0';
+const __version__ = '0.81.0';
 const __bcp_version__ = '1.1';
 const __config_version__ = '6';
-const __mpf_version_required__ = '0.80.0';
+const __mpf_version_required__ = '0.81.0';
 
 type BcpServerEvents = {
     connected: [];

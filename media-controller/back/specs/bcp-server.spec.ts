@@ -27,7 +27,7 @@ describe('BcpServer.handleMessage', () => {
         active = server;
         const seen: string[] = [];
         server.on('broadcast', (m) => seen.push(m));
-        feed('hello?version=0.80.0');
+        feed('hello?version=0.81.0');
         expect(seen).toContain('mc_hello');
     });
 

@@ -18,7 +18,7 @@ Scott Pilgrim themed [Mission Pinball Framework](https://missionpinball.org/) co
 
 | Service | Image | Description |
 |---|---|---|
-| `mpf` | `mpf:1.0.0` | Mission Pinball (v0.80) Framework engine |
+| `mpf` | `mpf:1.0.0` | Mission Pinball (v0.81) Framework engine |
 | `mc-back` | `mc-back:1.0.0` | Media controller backend (Node.js) |
 | `mc-front` | `mc-front:1.0.0` | Media controller frontend (Angular production build served by nginx) |
 | `mc-front-dev` | `mc-front-dev:latest` | Media controller frontend (Angular dev server) |
