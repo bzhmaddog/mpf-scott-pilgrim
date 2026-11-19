@@ -429,8 +429,9 @@ wcwidth==0.9.4 \
     #   prompt-toolkit
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==72.2.0 \
-    --hash=sha256:f11dd94b7bae3a156a95ec151f24e4637fb4fa19c878e4d191bfb8b2d82728c4
+setuptools==84.1.0 \
+    --hash=sha256:23657205b63d4d31395ab917815247f694aafad28cd21316bf5fd45a51048ea0 \
+    --hash=sha256:5231689c6ac8156cd155cfb98c3fd6fb252c3e7e9bd3d78b64d3c55f132624c9
     # via
     #   mpf
     #   mpf-controller (pyproject.toml)
