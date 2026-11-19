@@ -3,8 +3,11 @@ SHELL := /bin/sh
 ROOT_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 IMAGE_BUILDER ?= podman
-ENV_TAG := $(shell [ -f .env ] && sed -n 's/^TAG=//p' .env | tail -n 1)
-TAG ?= $(if $(ENV_TAG),$(ENV_TAG),latest)
+# Image tag: the project version from the VERSION file (override with TAG=x.y.z).
+# Exported so compose resolves ${TAG:-latest} in compose.yml to the same value.
+VERSION_TAG := $(shell [ -f VERSION ] && tr -d '[:space:]' < VERSION)
+TAG ?= $(if $(VERSION_TAG),$(VERSION_TAG),latest)
+export TAG
 
 DEV ?= 0
 FOREGROUND ?= 0
