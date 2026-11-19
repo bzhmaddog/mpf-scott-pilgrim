@@ -37,3 +37,12 @@ export function str2value(str: string): string | number {
 export function cleanParams(obj: Record<string, unknown>): string {
     return JSON.stringify(obj).replace(/"(int|float):([\d.]+)"/gi, '$2');
 }
+
+/**
+ * Make an untrusted value safe to write to logs: serialize it and escape
+ * CR/LF so it cannot forge additional log lines (log injection).
+ */
+export function sanitizeForLog(value: unknown): string {
+    const text = typeof value === 'string' ? value : JSON.stringify(value) ?? String(value);
+    return text.replaceAll('\r', String.raw`\r`).replaceAll('\n', String.raw`\n`);
+}

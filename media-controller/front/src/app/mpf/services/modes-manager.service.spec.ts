@@ -4,6 +4,7 @@ import {ModesManager} from './modes-manager.service';
 import {IModesConfigDictionary} from '@mpf/models';
 import {provideModesManager} from '@mpf/services';
 import {Mode} from '@mpf/core/mode';
+import {TaggedLogger} from '../../utils/logger';
 
 const makeMockMode = (name: string): Mode => ({
   start: vi.fn().mockReturnValue(true),
@@ -80,6 +81,20 @@ describe('ModesManager', () => {
   describe('initAll()', () => {
     it('should not crash', () => {
       expect(() => service.initAll()).not.toThrow();
+    });
+
+    it('waits for async inits and keeps initializing other modes when one fails', async () => {
+      const error = new Error('boom');
+      const logError = vi.spyOn(TaggedLogger.prototype, 'error');
+      vi.mocked(service.getMode('attract').init).mockRejectedValue(error);
+      let gameInitDone = false;
+      vi.mocked(service.getMode('game').init).mockImplementation(async () => { gameInitDone = true; });
+
+      await service.initAll();
+
+      expect(gameInitDone).toBe(true);
+      expect(logError).toHaveBeenCalledWith('Mode [attract] init failed', error);
+      logError.mockRestore();
     });
   });
 });

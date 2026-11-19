@@ -13,7 +13,13 @@ services:
       - mpf
     volumes:
       - ./mpf-config:/mpf
-    # Uncomment on the physical machine:
+    # Image runs as non-root uid 1000: map the host user onto it (podman) so
+    # ./mpf-config stays writable.
+    userns_mode: "keep-id:uid=1000,gid=1000"
+    # Uncomment on the physical machine. The host user must be in the group owning
+    # the serial devices (uucp on Arch); keep-groups forwards it into the container:
+    #group_add:
+    #  - keep-groups
     #devices:
     #  - /dev/cobrapin_board_0
     #  - /dev/cobrapin_board_1
@@ -21,6 +27,9 @@ services:
   mc-proxy:
     image: localhost/mc-proxy:${TAG:-latest}
     container_name: mc-proxy
+    # Image runs as nginx (uid 101): map the host user onto it (podman) so the
+    # bind-mounted certs/current/server.key (0600) stays readable.
+    userns_mode: "keep-id:uid=101,gid=101"
     ports:
       - "4443:4443/tcp"
     networks:

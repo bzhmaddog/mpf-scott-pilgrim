@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, afterEach, vi } from 'vitest';
 import { BcpServer } from '../src/bcp-server';
 
 interface BcpServerInternals {
@@ -96,5 +96,37 @@ describe('BcpServer.handleMessage', () => {
         feed('mode_list');
         feed('totally_unknown');
         expect(seen).toHaveLength(0);
+    });
+});
+
+describe('BcpServer logging', () => {
+    let active: BcpServer | undefined;
+
+    afterEach(() => {
+        (active as unknown as BcpServerInternals)?.server.close();
+        active = undefined;
+        vi.restoreAllMocks();
+    });
+
+    function logsFor(msg: string): string[] {
+        const { server, feed } = makeServer();
+        active = server;
+        const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+        feed(msg);
+        return log.mock.calls.map((args) => args.join(' '));
+    }
+
+    it.each([
+        ['settings', 'settings?json={"settings":{"a":1}}&extra=a%0AFAKE', 'Settings received'],
+        ['mode_start', 'mode_start?name=attract%0AFAKE&priority=int:10', 'Starting mode: attract\\nFAKE'],
+        ['mode_stop', 'mode_stop?name=attract%0AFAKE', 'Stopping mode: attract\\nFAKE'],
+        ['player_variable', 'player_variable?name=score%0AFAKE&value=int:10', 'Player variable changed:'],
+        ['unhandled', 'unknown_cmd%0AFAKE', 'Received unhandled message from mpf:'],
+    ])('%s logs MPF input on a single line', (_name, msg, expected) => {
+        const lines = logsFor(msg).filter((line) => line.includes(expected));
+        expect(lines.length).toBeGreaterThan(0);
+        for (const line of lines) {
+            expect(line).not.toMatch(/[\r\n]/);
+        }
     });
 });

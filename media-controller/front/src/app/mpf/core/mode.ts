@@ -63,7 +63,11 @@ export abstract class Mode {
     return this._isInitialized
   }
 
-  init() {
+  /**
+   * Initialize the mode. Subclasses may return a promise when they need to
+   * load resources asynchronously (ModesManager.initAll awaits it).
+   */
+  init(): void | Promise<void> {
     this._logger.info(`Init Mode => ${this._name}`)
 
     this._isInitialized = true

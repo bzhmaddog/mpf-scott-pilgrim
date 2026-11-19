@@ -12,7 +12,7 @@
 //   node scripts/check-peers.mjs --peer @angular/core
 
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import semver from 'semver';
@@ -61,6 +61,29 @@ if (targets.length === 0) {
 }
 
 /**
+ * Locate npm's CLI entry point without searching PATH (which could resolve to
+ * an attacker-controlled `npm`). Prefer the npm running this script
+ * (`npm run check:peers`), otherwise the npm bundled with the current node.
+ * @returns {string}
+ */
+function resolveNpmCli() {
+  const nodeDir = dirname(process.execPath);
+  const candidates = [
+    process.env.npm_execpath,
+    resolve(nodeDir, '..', 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js'), // POSIX
+    resolve(nodeDir, 'node_modules', 'npm', 'bin', 'npm-cli.js'), // Windows
+  ];
+  const cli = candidates.find((candidate) => candidate?.endsWith('.js') && existsSync(candidate));
+  if (!cli) {
+    console.error(color.red('Unable to locate npm-cli.js next to the current node binary.'));
+    process.exit(1);
+  }
+  return cli;
+}
+
+const npmCli = resolveNpmCli();
+
+/**
  * Run `npm show <pkg> peerDependencies.<peer>` and return the trimmed result.
  * @param {string} name
  * @param {string} peer
@@ -69,8 +92,8 @@ if (targets.length === 0) {
 function showPeer(name, peer) {
   try {
     const out = execFileSync(
-      'npm',
-      ['show', name, `peerDependencies.${peer}`],
+      process.execPath,
+      [npmCli, 'show', name, `peerDependencies.${peer}`],
       { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] },
     );
     return out.trim();

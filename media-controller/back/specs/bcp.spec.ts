@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseMessageData, str2int, str2value, cleanParams } from '../src/bcp';
+import { parseMessageData, str2int, str2value, cleanParams, sanitizeForLog } from '../src/bcp';
 
 describe('parseMessageData', () => {
     it('parses a command with no params', () => {
@@ -70,5 +70,19 @@ describe('cleanParams', () => {
 
     it('handles mixed params', () => {
         expect(cleanParams({ name: 'game', score: 'int:500' })).toBe('{"name":"game","score":500}');
+    });
+});
+
+describe('sanitizeForLog', () => {
+    it('escapes CR and LF so a value cannot forge log lines', () => {
+        expect(sanitizeForLog('mode\nFAKE LOG LINE\r')).toBe(String.raw`mode\nFAKE LOG LINE\r`);
+    });
+
+    it('serializes objects to a single line', () => {
+        expect(sanitizeForLog({ name: 'a\nb' })).toBe(String.raw`{"name":"a\nb"}`);
+    });
+
+    it('handles undefined', () => {
+        expect(sanitizeForLog(undefined)).toBe('undefined');
     });
 });
