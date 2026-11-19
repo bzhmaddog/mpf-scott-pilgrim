@@ -7,9 +7,9 @@ describe('parseMessageData', () => {
     });
 
     it('parses a command with a single param', () => {
-        expect(parseMessageData('hello?version=0.80.0')).toEqual({
+        expect(parseMessageData('hello?version=0.81.0')).toEqual({
             command: 'hello',
-            params: { version: '0.80.0' },
+            params: { version: '0.81.0' },
         });
     });
 
