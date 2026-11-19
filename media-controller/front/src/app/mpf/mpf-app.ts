@@ -152,7 +152,7 @@ export class MpfApp {
       case 'mc_mode_start':
         this._modesManager.startMode(
           _params['name'],
-          parseInt(_params['priority'], 10)
+          Number.parseInt(_params['priority'], 10)
         )
         break
       case 'mc_mode_stop':
@@ -163,13 +163,13 @@ export class MpfApp {
         break
       case 'mc_player_turn_start':
         this._playerTurnStart(
-          parseInt(_params['player_num'], 10)
+          Number.parseInt(_params['player_num'], 10)
         )
         break
       case 'mc_ball_start':
         this._ballStart(
-          parseInt(_params['player_num'], 10),
-          parseInt(_params['ball'], 10)
+          Number.parseInt(_params['player_num'], 10),
+          Number.parseInt(_params['ball'], 10)
         )
         break
       case 'mc_ball_end':
@@ -343,7 +343,7 @@ export class MpfApp {
 
     switch(data['name']) {
       case 'index': {
-        const player: number = parseInt(data['value'], 10)
+        const player: number = Number.parseInt(data['value'], 10)
         this._logger.log(`IGNORED : _updatePlayerVariable[index]`, player)
         //if (player > 0) { //TODO Check end of game
           //this._store.setCurrentPlayer(player)
@@ -351,21 +351,21 @@ export class MpfApp {
         break
       }
       case 'score': {
-        const player: number = parseInt(data['player_num'], 10)
-        const score: number = parseInt(data['value'], 10)
+        const player: number = Number.parseInt(data['player_num'], 10)
+        const score: number = Number.parseInt(data['value'], 10)
         this._logger.log(`_updatePlayerVariable[score]`, player, score)
         this._store.setPlayerScore(player, score)
         break
       }
       case 'ball': {
-        const player: number = parseInt(data['player_num'], 10)
-        const ball: number = parseInt(data['value'], 10)
+        const player: number = Number.parseInt(data['player_num'], 10)
+        const ball: number = Number.parseInt(data['value'], 10)
         this._logger.log(`_updatePlayerVariable[ball]`, player, ball)
         this._store.setPlayerBall(player, ball)
         break
       }
       case 'number': {
-        const n: number = parseInt(data['value'], 10)
+        const n: number = Number.parseInt(data['value'], 10)
         this._logger.log("_updatePlayerVariable[number] =>", n)
         this._store.setCurrentPlayer(n)
         break
