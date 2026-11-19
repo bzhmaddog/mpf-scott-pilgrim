@@ -1,9 +1,13 @@
 # syntax=docker/dockerfile:1
 
-FROM nginx:stable-alpine3.19-perl AS nginx-base
+# Unprivileged NGINX image: runs as the "nginx" user (uid 101), conf.d is writable
+# for envsubst templates. compose.yml maps the host user to uid 101 (podman keep-id)
+# so the bind-mounted /certs/server.key stays readable.
+FROM docker.io/nginxinc/nginx-unprivileged:stable-alpine-perl AS nginx-base
 
-COPY ./conf/01-set-resolver.envsh /docker-entrypoint.d/01-set-resolver.envsh
-RUN chmod +x /docker-entrypoint.d/01-set-resolver.envsh
+COPY --chmod=755 ./conf/01-set-resolver.envsh /docker-entrypoint.d/01-set-resolver.envsh
 COPY ./conf/default.conf.template /etc/nginx/templates/default.conf.template
 COPY ./includes/ /etc/nginx/includes/
 COPY ./html/ /usr/share/nginx/html/
+
+USER nginx

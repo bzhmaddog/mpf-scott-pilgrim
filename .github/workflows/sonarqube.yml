@@ -15,9 +15,30 @@ jobs:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      # This step should build, test and generate coverage reports
-      # - name: Build and test
-      #   run: <build + test + generate coverage reports>
+      - name: Setup Node.js
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            media-controller/front/package-lock.json
+            media-controller/back/package-lock.json
+      # Generate lcov reports consumed by sonar.javascript.lcov.reportPaths
+      - name: Test & coverage (back)
+        working-directory: media-controller/back
+        run: |
+          npm ci --ignore-scripts
+          npm run test:coverage
+      - name: Test & coverage (front)
+        working-directory: media-controller/front
+        run: |
+          npm ci --ignore-scripts
+          npm run test:coverage
+      # lcov paths are relative to each app; make them repo-relative for Sonar
+      - name: Rewrite lcov paths
+        run: |
+          sed -i 's|^SF:src/|SF:media-controller/back/src/|' media-controller/back/coverage/lcov.info
+          sed -i 's|^SF:src/|SF:media-controller/front/src/|' media-controller/front/coverage/front/lcov.info
       - name: Cache SonarQube packages
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:

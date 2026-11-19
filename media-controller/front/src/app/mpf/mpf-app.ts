@@ -80,7 +80,7 @@ export class MpfApp {
     this._dmd.run()
 
     // Reset the DMD (show only background layer and mpf logo)
-    this._resetDMD()
+    await this._resetDMD()
 
     // Connect to backend (start the game)
     this._wsServer.connect()
@@ -104,7 +104,7 @@ export class MpfApp {
 
   private _wsOnClose() {
     if (this._wsServer.isConnected()) {
-      this._resetDMD()
+      this._resetDMD().catch(this._logError('DMD reset failed'))
       this._showToast('Disconnected...')
     }
   }
@@ -123,16 +123,7 @@ export class MpfApp {
         break
       case 'mc_reset':
         this._logger.log("MPF requested reset")
-        this._dmd.fadeOut(150).then(() => {
-          this._dmd.removeLayer("logo")
-
-          this._dmd.fadeIn(150).then(() => {
-            this._modesManager.initAll()
-            this._audioManager.reset()
-
-            this._wsServer.send('mc_ready')
-          })
-        })
+        this._onMpfReset().catch(this._logError('MPF reset handling failed'))
         break
       case 'mc_settings':
         this._logger.log("MPF sent settings")
@@ -144,7 +135,7 @@ export class MpfApp {
         break
       case 'mc_goodbye':
         this._logger.log("MPF said goodbye")
-        this._resetDMD()
+        this._resetDMD().catch(this._logError('DMD reset failed'))
         break
       case 'mc_machine_variable':
         this._logger.log("MPF sent machine variables")
@@ -196,80 +187,95 @@ export class MpfApp {
   }
 
   /**
+   * Handle MPF reset request: hide logo, init all modes then tell MPF we are ready
+   */
+  private async _onMpfReset(): Promise<void> {
+    await this._dmd.fadeOut(150)
+    this._dmd.removeLayer("logo")
+    await this._dmd.fadeIn(150)
+
+    await this._modesManager.initAll()
+    this._audioManager.reset()
+
+    this._wsServer.send('mc_ready')
+  }
+
+  /**
    * Reset app
    */
   private _reset() {
     //this._modesManager.stopActiveMode()
-    this._resetDMD().then(() => {
-      this._modesManager.initAll();
-    })
+    this._resetDMD()
+      .then(() => this._modesManager.initAll())
+      .catch(this._logError('App reset failed'))
     this._audioManager.reset()
+  }
+
+  /**
+   * Build a rejection handler that logs the error with some context
+   */
+  private _logError(context: string): (error: unknown) => void {
+    return (error: unknown) => this._logger.error(context, error)
   }
 
   /**
    * Reset all layers and add the two default layers
    */
-  private _resetDMD(): Promise<void> {
+  private async _resetDMD(): Promise<void> {
     this._logger.log("Reseting DMD")
 
-    return new Promise((resolve) => {
+    // Remove all layers
+    this._dmd.reset()
 
-      // Remove all layers
-      this._dmd.reset()
+    // Add default screen (mpf logo)
+    this._dmd.addLayer(
+      CanvasLayer,
+      'logo',
+      {opacity: 1}, // use default values
+      (layer) => {
+        this._resourcesManager
+          .getImage('logo').load()
+          .then((bitmap: ImageBitmap) => {
+            layer.drawBitmap(
+              bitmap,
+              {
+                top: 0,
+                left: 0
+              }
+            )
+          })
+          .catch(error => this._showToast(String(error)))
+      }
+    )
 
-      // Add default screen (mpf logo)
-      this._dmd.addLayer(
-        CanvasLayer,
-        'logo',
-        {opacity: 1}, // use default values
-        (layer) => {
-          this._resourcesManager
-            .getImage('logo').load()
-            .then((bitmap: ImageBitmap) => {
-              layer.drawBitmap(
-                bitmap,
-                {
-                  top: 0,
-                  left: 0
-                }
-              )
-            })
-            .catch(error => this._showToast(String(error)))
-        }
-      )
+    this._dmd.addLayer(
+      TextLayer,
+      "ws-toast",
+      {
+        width: 128,
+        height: 32,
+        position: {
+          hAlign: 'center',
+          vAlign: 'center',
+        },
+        text: '...',
+        fontSize: 80,
+        fontFamily: 'Arial',
+        color: AppColors.Yellow,
+        strokeWidth: 2,
+        strokeColor: AppColors.DarkGreen,
+        visible: false,
+        opacity: 0,
+        borderColor: AppColors.DarkGreen,
+        borderWidth: 1,
+        backgroundColor: AppColors.Green,
+        adjustWidth: true,
+      }
+    );
 
-      this._dmd.addLayer(
-        TextLayer,
-        "ws-toast",
-        {
-          width: 128,
-          height: 32,
-          position: {
-            hAlign: 'center',
-            vAlign: 'center',
-          },
-          text: '...',
-          fontSize: 80,
-          fontFamily: 'Arial',
-          color: AppColors.Yellow,
-          strokeWidth: 2,
-          strokeColor: AppColors.DarkGreen,
-          visible: false,
-          opacity: 0,
-          borderColor: AppColors.DarkGreen,
-          borderWidth: 1,
-          backgroundColor: AppColors.Green,
-          adjustWidth: true,
-        }
-      );
-
-      // DMD has been created with brightness = 0 so show it now
-      this._timer(100).then(() => {
-        this._fadeIn()
-        resolve()
-      })
-    })
-
+    // DMD has been created with brightness = 0 so show it now
+    await this._timer(100)
+    this._fadeIn()
   }
 
   private _timer(delay: number): Promise<void> {
@@ -284,13 +290,11 @@ export class MpfApp {
       toastLayer.setText(text)
       toastLayer.setOpacity(0)
       toastLayer.setVisibility(true)
-      this._fadeLayer(toastLayer, 0, 1, 300).then(() => {
-        this._timer(duration).then(() => {
-          this._fadeLayer(toastLayer, 1, 0, 300).then(() => {
-            toastLayer.setVisibility(false)
-          })
-        })
-      })
+      this._fadeLayer(toastLayer, 0, 1, 300)
+        .then(() => this._timer(duration))
+        .then(() => this._fadeLayer(toastLayer, 1, 0, 300))
+        .then(() => toastLayer.setVisibility(false))
+        .catch(this._logError('Toast animation failed'))
     }
   }
 
@@ -319,7 +323,7 @@ export class MpfApp {
    * Fade DMD from {current brightness} to 1
    */
   private _fadeIn() {
-    this._dmd.fadeIn(1000)
+    this._dmd.fadeIn(1000).catch(this._logError('DMD fade in failed'))
   }
 
   /**

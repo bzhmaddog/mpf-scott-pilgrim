@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import net from 'net';
-import { parseMessageData, str2int, str2value, cleanParams } from './bcp';
+import { parseMessageData, str2int, str2value, cleanParams, sanitizeForLog } from './bcp';
 
 const __version__ = '0.80.0';
 const __bcp_version__ = '1.1';
@@ -95,23 +95,23 @@ export class BcpServer extends EventEmitter<BcpServerEvents> {
             }
             case 'settings': {
                 const settingsObj = JSON.parse(params['json']) as { settings: unknown };
-                console.log('Settings received', command, params);
+                console.log('Settings received', sanitizeForLog(command), sanitizeForLog(params));
                 this.emit('broadcast', `mc_settings?settings=${JSON.stringify(settingsObj.settings)}`);
                 break;
             }
             case 'mode_start': {
                 const modeName = params.name;
                 const modePriority = str2int(params.priority);
-                console.log('Starting mode:', modeName);
+                console.log('Starting mode:', sanitizeForLog(modeName));
                 this.emit('broadcast', `mc_mode_start?name=${modeName}&priority=${modePriority}`);
                 break;
             }
             case 'mode_stop':
-                console.log('Stopping mode:', params.name);
+                console.log('Stopping mode:', sanitizeForLog(params.name));
                 this.emit('broadcast', `mc_mode_stop?name=${params.name}`);
                 break;
             case 'player_variable':
-                console.log('Player variable changed:', params);
+                console.log('Player variable changed:', sanitizeForLog(params));
                 this.emit('broadcast', 'mc_player_variable?variables=' + cleanParams(params));
                 break;
             case 'player_added':
@@ -141,7 +141,7 @@ export class BcpServer extends EventEmitter<BcpServerEvents> {
                 this.emit('broadcast', `mc_error?message=${params.message}&command=${params.command}`);
                 break;
             default:
-                console.log('Received unhandled message from mpf:', command);
+                console.log('Received unhandled message from mpf:', sanitizeForLog(command));
         }
     }
 }

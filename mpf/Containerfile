@@ -1,31 +1,32 @@
 # syntax=docker/dockerfile:1
 
-# --- Build stage ---
-FROM python:3.12-slim AS builder
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc libjpeg-dev zlib1g-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /app
-
-COPY pyproject.toml ./
-COPY src/ ./src/
-RUN pip install --no-cache-dir --prefix=/install .
-
-# --- Runtime stage ---
 FROM python:3.12-slim
 
-# Install runtime-only dependencies (pkull + MPF runtime libs)
+# Install runtime-only dependencies (pkill + MPF runtime libs)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     procps \
     libglib2.0 libegl1 libegl-mesa0 libegl-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /install /usr/local
+# Install dependencies from pinned, hash-verified wheels (no setup scripts executed).
+# requirements.txt is generated from pyproject.toml with:
+#   pip-compile --allow-unsafe --generate-hashes --strip-extras --no-emit-index-url \
+#     --pip-args="--only-binary :all:" --output-file=requirements.txt pyproject.toml
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir --only-binary :all: --require-hashes -r /tmp/requirements.txt \
+    && rm /tmp/requirements.txt
 
-# Create mpf config directory
-RUN mkdir -p /mpf
+# Controller sources (pure python, run as a module instead of being pip-installed)
+COPY src/ /opt/mpf-controller/
+ENV PYTHONPATH=/opt/mpf-controller
 
-CMD ["mpf-controller"]
+# Unprivileged runtime user. compose.yml maps the host user to this uid
+# (podman keep-id) so the bind-mounted /mpf config stays writable.
+RUN groupadd --gid 1000 mpf \
+    && useradd --uid 1000 --gid mpf --no-create-home --home-dir /mpf mpf \
+    && mkdir -p /mpf \
+    && chown mpf:mpf /mpf
 
+USER mpf
+
+CMD ["python", "-m", "mpf_controller.app"]

@@ -34,8 +34,8 @@ class AttractMode extends Mode {
     this._delayAttractMusic = false
   }
 
-  override init() {
-    super.init()
+  override async init(): Promise<void> {
+    await super.init()
 
     this._resourcesManager
       .getMusic('attract')
@@ -43,6 +43,7 @@ class AttractMode extends Mode {
       .then(audioBuffer => {
         this._audioManager.addSound('attract', audioBuffer)
       })
+      .catch((error: unknown) => this._logger.error('Failed to load attract music', error))
 
     this._resourcesManager
       .getSound('dong')
@@ -50,6 +51,7 @@ class AttractMode extends Mode {
       .then(audioBuffer => {
         this._audioManager.addSound('dong', audioBuffer)
       })
+      .catch((error: unknown) => this._logger.error('Failed to load dong sound', error))
 
     // Credit string var is not initialized at this point
 
@@ -196,6 +198,7 @@ class AttractMode extends Mode {
           .then(videoElement => {
             layer.setVideo(videoElement)
           })
+          .catch((error: unknown) => this._logger.error('Failed to load gameover-clouds video', error))
       }
     )
 
@@ -211,6 +214,7 @@ class AttractMode extends Mode {
           .then(bitmap => {
             layer.drawBitmap(bitmap, {})
           })
+          .catch((error: unknown) => this._logger.error('Failed to load gameover-clouds image', error))
       }
     )
 
@@ -227,6 +231,7 @@ class AttractMode extends Mode {
           .then(bitmap => {
             layer.drawBitmap(bitmap, {})
           })
+          .catch((error: unknown) => this._logger.error('Failed to load gameover-bg image', error))
       }
     )
 
@@ -265,73 +270,15 @@ class AttractMode extends Mode {
     if (this._gameIsPlaying) {
       this._gameIsPlaying = false
 
-      this._dmd.fadeOut(150).then(() => {
-
-        this._gameOverSceneGroup?.setVisibility(true)
-        this._gameOverCloudsVideoLayer.play()
-
-
-        this._dmd.fadeIn(150).then(() => {
-
-          const players: Player[] = this._store.players()
-
-          let top = (players.length - 1) * 3 * -1 + 5
-          let timeout = 0
-
-          players.forEach((p: Player, i: number) => { // TODO Check Any
-
-            window.setTimeout(() => {
-              const score = Utils.formatScore(p.score)
-              const pTxt = this._resourcesManager.getString('playerTextLong') + ` ${i + 1}`
-
-              this._dmd.addLayer(
-                TextLayer,
-                `game-over-score-${i}`,
-                {
-                  text: `${pTxt} : ${score.toString()}`,
-                  fontSize: '10',
-                  fontFamily: 'Dusty',
-                  left: 50,
-                  vAlign: 'center',
-                  vOffset: top
-                }
-              )
-
-              this._audioManager.playSound('dong', `dong-p${i + 1}`)
-
-              top += 10
-            }, timeout)
-
-            timeout += 1000
-
-          })
-
-
-        })
-
-
+      this._showGameOverScene().catch((error: unknown) => {
+        this._logger.error('Failed to show game over scene', error)
       })
 
       this._attractRestartTO = window.setTimeout(() => {
-
-        this._dmd.fadeOut(150).then(() => {
-          if (!this.isStarted()) return
-
-          this._gameOverCloudsVideoLayer.stop()
-          this._gameOverSceneGroup?.setVisibility(false)
-
-          const players: Player[] = this._store.players()
-          players.forEach((p: Player, i: number) => {
-            this._dmd.removeLayer(`game-over-score-${i}`)
-          })
-
-          this._delayAttractMusic = true
-          this.start(priority)
-
+        this._restartAttract(priority).catch((error: unknown) => {
+          this._logger.error('Failed to restart attract mode', error)
         })
-
       }, ATTRACT_RESTART_TIMEOUT)
-
 
       // Start attractmode
     } else {
@@ -342,17 +289,72 @@ class AttractMode extends Mode {
       this._blinkInterval = window.setInterval(this._toggleStartText.bind(this), 1000)
 
       if (this._dmd.brightness < 1) {
-        this._dmd.fadeIn(150).then(() => {
-          this._startAttractMusicIfNeeded()
-        })
+        this._dmd.fadeIn(150)
+          .then(() => this._startAttractMusicIfNeeded())
+          .catch((error: unknown) => this._logger.error('DMD fade in failed', error))
       } else {
         this._startAttractMusicIfNeeded()
       }
-
-
     }
 
     return true
+  }
+
+  private async _showGameOverScene(): Promise<void> {
+    await this._dmd.fadeOut(150)
+
+    this._gameOverSceneGroup?.setVisibility(true)
+    this._gameOverCloudsVideoLayer.play()
+
+    await this._dmd.fadeIn(150)
+
+    const players: Player[] = this._store.players()
+
+    let top = (players.length - 1) * 3 * -1 + 5
+    let timeout = 0
+
+    players.forEach((p: Player, i: number) => { // TODO Check Any
+
+      window.setTimeout(() => {
+        const score = Utils.formatScore(p.score)
+        const pTxt = this._resourcesManager.getString('playerTextLong') + ` ${i + 1}`
+
+        this._dmd.addLayer(
+          TextLayer,
+          `game-over-score-${i}`,
+          {
+            text: `${pTxt} : ${score.toString()}`,
+            fontSize: '10',
+            fontFamily: 'Dusty',
+            left: 50,
+            vAlign: 'center',
+            vOffset: top
+          }
+        )
+
+        this._audioManager.playSound('dong', `dong-p${i + 1}`)
+
+        top += 10
+      }, timeout)
+
+      timeout += 1000
+    })
+  }
+
+  private async _restartAttract(priority: number): Promise<void> {
+    await this._dmd.fadeOut(150)
+    if (!this.isStarted()) return
+
+    this._gameOverCloudsVideoLayer.stop()
+    this._gameOverSceneGroup?.setVisibility(false)
+
+    const players: Player[] = this._store.players()
+    players.forEach((p: Player, i: number) => {
+      this._dmd.removeLayer(`game-over-score-${i}`)
+    })
+
+    this._delayAttractMusic = true
+    this.start(priority)
   }
 
 

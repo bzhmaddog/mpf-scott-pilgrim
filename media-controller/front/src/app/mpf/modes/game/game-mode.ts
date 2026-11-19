@@ -39,8 +39,8 @@ class GameMode extends Mode {
     super('game')
   }
 
-  override async init() {
-    super.init()
+  override async init(): Promise<void> {
+    await super.init()
 
     // Build array of path to noise images
     // TODO : Get from resource manager
@@ -267,28 +267,31 @@ class GameMode extends Mode {
     //this._audioManager.playSound('start', 'start-first-player-sound')
 
     if (this._dmd.brightness === 1) {
-      this._dmd.fadeOut(150).then(() => {
-
-
-        this._hudLayerGroup.setVisibility(true)
-
-        this._resourcesManager
-          .getMusic('main')
-          .load()
-          .then(audioBuffer => {
-            this._audioManager.addSound('main', audioBuffer)
-            setTimeout(this._startMainMusic.bind(this), 1000)
-          })
-          .catch(error => {
-            throw Error(`getMusic("main").load() failed : ${error}`)
-          })
-
-        this._dmd.fadeIn(150)
+      this._showHud().catch((error: unknown) => {
+        this._logger.error('Failed to show game HUD', error)
       })
-
     }
 
     return true
+  }
+
+  private async _showHud(): Promise<void> {
+    await this._dmd.fadeOut(150)
+
+    this._hudLayerGroup.setVisibility(true)
+
+    this._resourcesManager
+      .getMusic('main')
+      .load()
+      .then(audioBuffer => {
+        this._audioManager.addSound('main', audioBuffer)
+        setTimeout(this._startMainMusic.bind(this), 1000)
+      })
+      .catch((error: unknown) => {
+        this._logger.error('getMusic("main").load() failed', error)
+      })
+
+    await this._dmd.fadeIn(150)
   }
 
   override stop() {

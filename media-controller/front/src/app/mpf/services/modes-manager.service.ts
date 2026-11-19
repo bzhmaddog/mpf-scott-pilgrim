@@ -57,9 +57,19 @@ export class ModesManager {
     return this._modes[key] || undefined
   }
 
-  initAll() {
-    Object.keys(this._modes).forEach(key => {
-      this._modes[key].init()
+  /**
+   * Initialize every mode. Resolves once all (possibly async) inits settled;
+   * a failing mode is logged and does not prevent the others from initializing.
+   */
+  async initAll(): Promise<void> {
+    const names = Object.keys(this._modes)
+    const results = await Promise.allSettled(
+      names.map(async name => this._modes[name].init())
+    )
+    results.forEach((result, i) => {
+      if (result.status === 'rejected') {
+        this._logger.error(`Mode [${names[i]}] init failed`, result.reason)
+      }
     })
   }
 
