@@ -7,6 +7,8 @@ mpf-config/logs
 mpf-config/data
 
 .envrc
+.env
+!.env.example
 
 #Do not version certificates, but keep the config files
 certs/**
