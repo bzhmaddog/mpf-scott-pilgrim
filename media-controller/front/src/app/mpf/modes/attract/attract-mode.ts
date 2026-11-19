@@ -69,7 +69,13 @@ class AttractMode extends Mode {
       CanvasLayer,
       'attract-background',
       {},
-      layer => this._resourcesManager.getImage('title').load().then(bitmap => layer.drawBitmap(bitmap))
+      layer => {
+        this._resourcesManager
+          .getImage('title')
+          .load()
+          .then(bitmap => layer.drawBitmap(bitmap))
+          .catch((error: unknown) => this._logger.error('Failed to load title image', error))
+      }
     )
 
     const titleGroup = this._attractSceneGroup.addLayerGroup(

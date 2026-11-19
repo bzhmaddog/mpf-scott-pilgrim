@@ -97,7 +97,7 @@ class GameMode extends Mode {
           hAlign: 'start',
           vAlign: 'end',
         },
-      },async (layer) => {
+      }, (layer) => this._setupAsync('player-face', async () => {
         const sheet = await this._resourcesManager.getImage('scott-face').load();
 
         // Sheet holds 256x256 frames but the layer is 15x15: rescale the whole
@@ -133,7 +133,7 @@ class GameMode extends Mode {
 
         layer.enqueueSequence('scott-face', [{key: 'idle', nbLoop: 0}], true)
         layer.run('scott-face')
-      }
+      })
     )
 
 
@@ -148,7 +148,7 @@ class GameMode extends Mode {
           vAlign: 'end',
         },
         opacity: 0.9,
-      },async (layer) => {
+      }, (layer) => this._setupAsync('ball-sprite', async () => {
         const sheet = await this._resourcesManager.getImage('sprite-ball').load();
 
         // Sheet holds 20x20 frames but the layer is 15x15: rescale the whole
@@ -184,7 +184,7 @@ class GameMode extends Mode {
 
         layer.enqueueSequence('rolling-ball', [{key: 'idle', nbLoop: 0}], true)
         layer.run('rolling-ball')
-      }
+      })
     )
 
 
@@ -305,6 +305,14 @@ class GameMode extends Mode {
 
     clearTimeout(this._to)
     //this._audioManager.playSound('gameover', 'gameover-sound')
+  }
+
+  /**
+   * Run an async layer setup (sprite loading...) from a synchronous layer
+   * callback, logging failures instead of leaving an unhandled rejection.
+   */
+  private _setupAsync(name: string, setup: () => Promise<void>): void {
+    setup().catch((error: unknown) => this._logger.error(`Failed to set up ${name}`, error))
   }
 
   private _startMainMusic() {
